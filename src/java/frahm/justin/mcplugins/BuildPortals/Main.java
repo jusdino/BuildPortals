@@ -1,4 +1,4 @@
-package frahm.justin.mcplugins.BuildPortals;
+package java.frahm.justin.mcplugins.BuildPortals;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -25,6 +25,7 @@ public class Main extends JavaPlugin {
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+		//Report current player vector just so I can see the form they take
 		if (cmd.getName().equalsIgnoreCase("vec")) {
 			if (!(sender instanceof Player)) {
 				sender.sendMessage("Only players can ask for their vector.");

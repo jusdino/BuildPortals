@@ -1,4 +1,4 @@
-package frahm.justin.mcplugins.BuildPortals;
+package java.frahm.justin.mcplugins.BuildPortals;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -22,9 +22,18 @@ public class BPListener implements Listener{
 	public BPListener(Main given_plugin) {
 		plugin = given_plugin;
 	}
-	
+
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
+		//With every BlockPlaceEvent, register the location, if there is
+		//an 'unlinked' location stored already, pair that location with
+		//0the new location as a portal-pair.
+		//This is just warming up for the best type of configuration
+		//management necessary for the plugin.
+		
+		//TODO: Filter block place events for final blocks in building
+		//      a new portal.
+		
 		console.sendMessage("Registered BlockPlaceEvent!");
 		ConfigurationSection config = plugin.getConfig();
 		
