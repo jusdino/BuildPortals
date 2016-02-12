@@ -29,7 +29,7 @@ public class BPListener implements Listener{
 		//an 'unlinked' location stored already, pair that location with
 		//0the new location as a portal-pair.
 		//This is just warming up for the best type of configuration
-		//management necessary for the plugin.
+		//management necessary for the plugin
 		
 		//TODO: Filter block place events for final blocks in building
 		//      a new portal.
