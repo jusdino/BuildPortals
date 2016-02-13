@@ -1,4 +1,4 @@
-package java.frahm.justin.mcplugins.BuildPortals;
+package java.frahm.justin.mcplugins.buildportals;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -8,7 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.ConfigurationSection;
+//import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 //import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,7 +36,7 @@ public class BPListener implements Listener{
 		//      a new portal.
 		
 		console.sendMessage("Registered BlockPlaceEvent!");
-		ConfigurationSection config = plugin.getConfig();
+		FileConfiguration config = plugin.getConfig();
 		
 		//Get relevant info about event
 		console.sendMessage("Looking up relevant event details...");
@@ -43,7 +44,7 @@ public class BPListener implements Listener{
 		World world = block.getWorld();
 		Location loc = block.getLocation();
 		Boolean unlinkedPortal = config.getBoolean("portals.0.active");
-		Map<String,String> newPortal = new HashMap<>();
+		Map<String,Object> newPortal = new HashMap<>();
 		if (unlinkedPortal == true) {
 			console.sendMessage("Linking new portal pair...");
 			Set<String> portalKeys = config.getConfigurationSection("portals").getKeys(false);

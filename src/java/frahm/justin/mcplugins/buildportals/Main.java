@@ -1,4 +1,4 @@
-package java.frahm.justin.mcplugins.BuildPortals;
+package java.frahm.justin.mcplugins.buildportals;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
