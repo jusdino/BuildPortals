@@ -36,6 +36,7 @@ public class Main extends JavaPlugin {
 		config.addDefault("PortalActivators", activators);
 		config.options().copyDefaults(true);
 		this.saveConfig();
+		portals.updatePortals();
 	}
 
 	@Override

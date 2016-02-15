@@ -2,6 +2,7 @@ package frahm.justin.mcplugins.buildportals;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 //import java.util.Iterator;
 import java.util.Map;
@@ -26,6 +27,7 @@ public class BPListener implements Listener{
 	Main plugin;
 	PortalHandler portals;
 	FileConfiguration config;
+	HashSet<Player> alreadyOnPortal = new HashSet<Player>();
 	
 	public BPListener(Main plugin, PortalHandler portals) {
 		this.plugin = plugin;
@@ -39,12 +41,20 @@ public class BPListener implements Listener{
 		//TODO: test if player is in a portal, get destination, teleport
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		if (!portals.isInAPortal(loc)) {
+			if (alreadyOnPortal.contains(player)) {
+				//console.sendMessage(player.getDisplayName() + " is out of the portal.");
+				alreadyOnPortal.remove(player);
+			}
+			return;
+		}
+		if (alreadyOnPortal.contains(player)) {
 			return;
 		}
 		Location destination = portals.getDestination(loc);
 		if (null == destination){
 			return;
 		}
+		alreadyOnPortal.add(player);
 		player.teleport(destination);
 	}
 	
@@ -57,38 +67,38 @@ public class BPListener implements Listener{
 		 *management necessary for the plugin
 		 */
 		
-		console.sendMessage("Registered BlockPlaceEvent!");
+//		console.sendMessage("Registered BlockPlaceEvent!");
 		
 		//Get relevant info about event
-		console.sendMessage("Looking up relevant event details...");
+//		console.sendMessage("Looking up relevant event details...");
 		Block block = event.getBlockPlaced();
 		if (!config.getStringList("PortalActivators").contains(block.getType().name())) {
-			console.sendMessage(block.getType().name() + " placed. No action taken.");
+//			console.sendMessage(block.getType().name() + " placed. No action taken.");
 			return;
 		}
 		
 		World world = block.getWorld();
 		console.sendMessage(block.getType().name() + " placed. Continuing tests.");
-		if (!portals.isCompletePortal(block)) {
+		//Get vectors to actual portal blocks from handler
+		ArrayList<String> vectors = portals.getCompletePortalVectors(block);
+		
+		if (null == vectors) {
 			console.sendMessage("This block does NOT complete a portal. No action taken.");
 			return;
 		}
 		
 		console.sendMessage("This block completes a portal. Saving location!");
 		//Floored block location
-		Location loc = block.getLocation();
-		loc.setX(loc.getBlockX());
-		loc.setY(loc.getBlockY());
-		loc.setZ(loc.getBlockZ());
+//		Location loc = block.getLocation();
+//		loc.setX(loc.getBlockX());
+//		loc.setY(loc.getBlockY());
+//		loc.setZ(loc.getBlockZ());
 		
-		Boolean unlinkedPortal = config.getBoolean("portals.0.active");
+		Boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<String, Object>();
 		
-		//Get vectors to actual portal blocks from handler
-		ArrayList<String> vectors = portals.getPortalVectors(block);
-		
 		if (unlinkedPortal == true) {
-			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0.vec");
+			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".vec");
 			console.sendMessage("Linking new portal pair...");
 			Set<String> portalKeys = config.getConfigurationSection("portals").getKeys(false);
 			console.sendMessage("portalKeys: " + portalKeys.toString());
@@ -96,15 +106,14 @@ public class BPListener implements Listener{
 			while (portalKeys.contains(Integer.toString(i))) {
 				i+=1;
 			}
-			newPortal.put("A.world", config.getString("portals.0.world"));
-			//TODO: Verify that world still exists
+			newPortal.put("A.world", config.getString("portals.0." + block.getType().name() + ".world"));
 			newPortal.put("A.vec", vectorsA);
 			newPortal.put("B.world", world.getName());
 			newPortal.put("B.vec", vectors);
 			console.sendMessage("Applying changes to portal " + Integer.toString(i) + ": " + newPortal.toString());
-			config.set("portals.0.active", false);
-			config.set("portals.0.world", null);
-			config.set("portals.0.vec", null);
+			config.set("portals.0." + block.getType().name() + ".active", false);
+			config.set("portals.0." + block.getType().name() + ".world", null);
+			config.set("portals.0." + block.getType().name() + ".vec", null);
 			config.createSection("portals." + Integer.toString(i), newPortal);
 			config.set("portals." + Integer.toString(i) + ".active", true);
 			
@@ -129,11 +138,11 @@ public class BPListener implements Listener{
 		} else {
 			//Save unlinked portal location
 			console.sendMessage("Collecting unlinked portal data...");
-			newPortal.put("world", loc.getWorld().getName());
+			newPortal.put("world", block.getWorld().getName());
 			newPortal.put("vec", vectors);
 			console.sendMessage("Applying changes to portal 0: " + newPortal.toString());
-			config.createSection("portals.0", newPortal);
-			config.set("portals.0.active", true);
+			config.createSection("portals.0." + block.getType().name(), newPortal);
+			config.set("portals.0." + block.getType().name() + ".active", true);
 		}
 		console.sendMessage("Saving changes...");
 		plugin.saveConfig();
