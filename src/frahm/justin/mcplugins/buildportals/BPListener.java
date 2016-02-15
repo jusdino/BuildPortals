@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 //import org.bukkit.Material;
@@ -120,7 +121,7 @@ public class BPListener implements Listener{
 			portals.updatePortals();
 			
 			//Convert portal interiors to air
-			Location portalLoc;
+			Location portalLoc = null;
 			Iterator<String> locIter = vectors.iterator();
 			while (locIter.hasNext()) {
 				String[] locStr = locIter.next().split(",");
@@ -128,12 +129,20 @@ public class BPListener implements Listener{
 				portalLoc = new Location(block.getWorld(), Double.parseDouble(locStr[0]), Double.parseDouble(locStr[1]), Double.parseDouble(locStr[2]));
 				portalLoc.getBlock().setType(Material.AIR);
 			}
+			if (null != portalLoc) {
+				portalLoc.getWorld().strikeLightningEffect(portalLoc);
+				portalLoc.getWorld().playEffect(portalLoc, Effect.EXPLOSION_HUGE, 100, 5);
+			}
 			locIter = vectorsA.iterator();
 			while (locIter.hasNext()) {
 				String[] locStr = locIter.next().split(",");
 				console.sendMessage("Portal A Interior block: " + locStr[0] + ", " + locStr[1] + ", " + locStr[2]);
 				portalLoc = new Location(Bukkit.getWorld((String) newPortal.get("A.world")), Double.parseDouble(locStr[0]), Double.parseDouble(locStr[1]), Double.parseDouble(locStr[2]));
 				portalLoc.getBlock().setType(Material.AIR);
+			}
+			if (null != portalLoc) {
+				portalLoc.getWorld().strikeLightningEffect(portalLoc);
+				portalLoc.getWorld().playEffect(portalLoc, Effect.EXPLOSION_HUGE, 100, 5);
 			}
 		} else {
 			//Save unlinked portal location
