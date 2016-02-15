@@ -2,7 +2,5 @@ name: BuildPortals
 main: frahm.justin.mcplugins.buildportals.Main
 version: 0.0.1
 commands:
-  vec:
-    description: Reports your position as a vector and string.
   check:
     description: Checks whether player position is in a portal.

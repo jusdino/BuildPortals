@@ -45,28 +45,6 @@ public class Main extends JavaPlugin {
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		//Report current player vector just so I can see the form they take
-		if (cmd.getName().equalsIgnoreCase("vec")) {
-			if (!(sender instanceof Player)) {
-				sender.sendMessage("Only players can ask for their vector.");
-				return false;
-			}
-			Player player = (Player) sender;
-			
-			//Floored player location
-			Location loc = player.getLocation();
-			loc.setX(loc.getBlockX());
-			loc.setY(loc.getBlockY());
-			loc.setZ(loc.getBlockZ());
-			
-			player.sendMessage("Your floored vector is: " + loc.toVector().toString());
-			player.sendMessage("   as a string: " + loc.toString());
-			ArrayList<String> vectors = (ArrayList<String>) config.getStringList("Vectors");
-			vectors.add(loc.toVector().toString());
-			config.set("Vectors", vectors);
-			this.saveConfig();
-			return true;
-		}
 		
 		if (cmd.getName().equalsIgnoreCase("check")) {
 			if (!(sender instanceof Player)) {
