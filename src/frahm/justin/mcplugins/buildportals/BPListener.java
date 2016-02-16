@@ -44,7 +44,7 @@ public class BPListener implements Listener{
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player)) {
-				//console.sendMessage(player.getDisplayName() + " is out of the portal.");
+				console.sendMessage(player.getDisplayName() + " is out of the portal.");
 				alreadyOnPortal.remove(player);
 			}
 			return;
@@ -62,16 +62,17 @@ public class BPListener implements Listener{
 	
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
-//		console.sendMessage("Block break registered.");
+		console.sendMessage("Block break registered.");
 		Location loc = event.getBlock().getLocation();
 		if (!portals.isInAFrame(loc)) {
+			console.sendMessage("Block is not in a frame.");
 			return;
 		}
 		
-//		console.sendMessage("Block is in a frame!");
+		console.sendMessage("Block is in a frame!");
 		String portalNumber = portals.getPortalFromFrame(loc);
 		if (null == portalNumber) {
-//			console.sendMessage("portalNumber returned as NULL!");
+			console.sendMessage("portalNumber returned as NULL!");
 			return;
 		}
 		loc.getWorld().strikeLightningEffect(loc);
@@ -91,28 +92,28 @@ public class BPListener implements Listener{
 		 *management necessary for the plugin
 		 */
 		
-//		console.sendMessage("Registered BlockPlaceEvent!");
+		console.sendMessage("Block Place registered.");
 		
 		//Get relevant info about event
-//		console.sendMessage("Looking up relevant event details...");
+		console.sendMessage("Looking up relevant event details...");
 		Block block = event.getBlockPlaced();
 		if (!config.getStringList("PortalActivators").contains(block.getType().name())) {
-//			console.sendMessage(block.getType().name() + " placed. No action taken.");
+			console.sendMessage(block.getType().name() + " placed. No action taken.");
 			return;
 		}
 		
 		World world = block.getWorld();
-//		console.sendMessage(block.getType().name() + " placed. Continuing tests.");
+		console.sendMessage(block.getType().name() + " placed. Continuing tests.");
 		//Get vectors to actual portal blocks from handler
 		ArrayList<String> frameVecs = new ArrayList<String>();
 		ArrayList<String> vectors = portals.getCompletePortalVectors(block, frameVecs);
 		
 		if (null == vectors) {
-//			console.sendMessage("This block does NOT complete a portal. No action taken.");
+			console.sendMessage("This block does NOT complete a portal. No action taken.");
 			return;
 		}
 		
-//		console.sendMessage("This block completes a portal. Saving location!");
+		console.sendMessage("This block completes a portal. Saving location!");
 		
 		Boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<String, Object>();
@@ -121,7 +122,7 @@ public class BPListener implements Listener{
 			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".vec");
 			ArrayList<String> frameVecsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".frame");
 			Set<String> portalKeys = config.getConfigurationSection("portals").getKeys(false);
-//			console.sendMessage("portalKeys: " + portalKeys.toString());
+			console.sendMessage("portalKeys: " + portalKeys.toString());
 			int i = 1;
 			while (portalKeys.contains(Integer.toString(i))) {
 				i+=1;
@@ -133,22 +134,20 @@ public class BPListener implements Listener{
 			newPortal.put("B.world", world.getName());
 			newPortal.put("B.vec", vectors);
 			newPortal.put("B.frame", frameVecs);
-//			console.sendMessage("Applying changes to portal " + Integer.toString(i) + ": " + newPortal.toString());
+			console.sendMessage("Applying changes to portal " + Integer.toString(i) + ": " + newPortal.toString());
 			config.set("portals.0." + block.getType().name() + ".active", false);
 			config.set("portals.0." + block.getType().name() + ".world", null);
 			config.set("portals.0." + block.getType().name() + ".vec", null);
 			config.set("portals.0." + block.getType().name() + ".frame", null);
 			config.createSection("portals." + Integer.toString(i), newPortal);
-//			config.set("portals." + Integer.toString(i) + ".active", true);
-			
-			portals.updatePortals();
+			config.set("portals." + Integer.toString(i) + ".active", true);
 			
 			//Convert portal interiors to air
 			Location portalLoc = null;
 			Iterator<String> locIter = vectors.iterator();
 			while (locIter.hasNext()) {
 				String[] locStr = locIter.next().split(",");
-//				console.sendMessage("Portal B Interior block: " + locStr[0] + ", " + locStr[1] + ", " + locStr[2]);
+				console.sendMessage("Portal B Interior block: " + locStr[0] + ", " + locStr[1] + ", " + locStr[2]);
 				portalLoc = new Location(block.getWorld(), Double.parseDouble(locStr[0]), Double.parseDouble(locStr[1]), Double.parseDouble(locStr[2]));
 				portalLoc.getBlock().setType(Material.AIR);
 			}
@@ -159,7 +158,7 @@ public class BPListener implements Listener{
 			int range;
 			Random rand = new Random();
 			if (null != portalLoc) {
-//				console.sendMessage("Generating particle effect at portal B.");
+				console.sendMessage("Generating particle effect at portal B.");
 				portalLoc.getWorld().strikeLightningEffect(portalLoc);
 				spread = vectors.size();
 				count = vectors.size()*200;
@@ -176,12 +175,12 @@ public class BPListener implements Listener{
 			locIter = vectorsA.iterator();
 			while (locIter.hasNext()) {
 				String[] locStr = locIter.next().split(",");
-//				console.sendMessage("Portal A Interior block: " + locStr[0] + ", " + locStr[1] + ", " + locStr[2]);
+				console.sendMessage("Portal A Interior block: " + locStr[0] + ", " + locStr[1] + ", " + locStr[2]);
 				portalLoc = new Location(Bukkit.getWorld((String) newPortal.get("A.world")), Double.parseDouble(locStr[0]), Double.parseDouble(locStr[1]), Double.parseDouble(locStr[2]));
 				portalLoc.getBlock().setType(Material.AIR);
 			}
 			if (null != portalLoc) {
-//				console.sendMessage("Generating particle effect at portal A.");
+				console.sendMessage("Generating particle effect at portal A.");
 				portalLoc.getWorld().strikeLightningEffect(portalLoc);
 				spread = vectorsA.size();
 				count = vectorsA.size()*200;
@@ -201,7 +200,7 @@ public class BPListener implements Listener{
 			newPortal.put("world", block.getWorld().getName());
 			newPortal.put("vec", vectors);
 			newPortal.put("frame", frameVecs);
-//			console.sendMessage("Applying changes to portal 0: " + newPortal.toString());
+			console.sendMessage("Applying changes to portal 0: " + newPortal.toString());
 			config.createSection("portals.0." + block.getType().name(), newPortal);
 			config.set("portals.0." + block.getType().name() + ".active", true);
 			Location particleLoc;
@@ -211,9 +210,9 @@ public class BPListener implements Listener{
 			Random rand = new Random();
 			if (null != block) {
 				spread = vectors.size();
-				count = vectors.size()*200;
-				if (count > 1000) {
-					count = 1000;
+				count = vectors.size()*100;
+				if (count > 500) {
+					count = 500;
 				}
 				range = vectors.size() * 10;
 				
@@ -223,7 +222,8 @@ public class BPListener implements Listener{
 				}
 			}
 		}
-//		console.sendMessage("Saving changes...");
+		console.sendMessage("Saving changes...");
 		plugin.saveConfig();
+		portals.updatePortals();
 	}
 }
