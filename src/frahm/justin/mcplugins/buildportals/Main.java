@@ -2,18 +2,11 @@ package frahm.justin.mcplugins.buildportals;
 
 import java.util.ArrayList;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
-	ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
 	PortalHandler portals;
 	FileConfiguration config;
 
@@ -41,27 +34,6 @@ public class Main extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-
-	}
-
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		
-		if (cmd.getName().equalsIgnoreCase("check")) {
-			if (!(sender instanceof Player)) {
-				sender.sendMessage("Only players can check their position.");
-				return false;
-			}
-			Player player = (Player) sender;
-
-			//Floored player location
-			Location loc = player.getLocation();
-			loc.setX(loc.getBlockX());
-			loc.setY(loc.getBlockY());
-			loc.setZ(loc.getBlockZ());
-			
-			player.sendMessage("In a portal: " + portals.isInAPortal(loc));
-			player.sendMessage("You are at: " + loc.toVector().toString());
-		}
-		return false;
 	}
 }
