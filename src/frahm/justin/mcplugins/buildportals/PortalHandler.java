@@ -32,6 +32,8 @@ public class PortalHandler {
 		ArrayList<Vector> frameVecsB;
 		World aWorld;
 		World bWorld;
+		Float yawA;
+		Float yawB;
 		String identifier;
 		Vector destOffset = new Vector(0.5, 0, 0.5);
 
@@ -40,14 +42,16 @@ public class PortalHandler {
 		 * vectors representing sides A and B of the portals as well as which
 		 * world each side is in.
 		 */
-		public Portal(String identifier, World aWorld, ArrayList<Vector> vectorsA, ArrayList<Vector> frameVecsA, World bWorld, ArrayList<Vector> vectorsB, ArrayList<Vector> frameVecsB) {
+		public Portal(String identifier, World aWorld, ArrayList<Vector> vectorsA, ArrayList<Vector> frameVecsA, Float yawA, World bWorld, ArrayList<Vector> vectorsB, ArrayList<Vector> frameVecsB, Float yawB) {
 			this.identifier = identifier;
 			this.aWorld = aWorld;
 			this.vectorsA = vectorsA;
 			this.frameVecsA = frameVecsA;
+			this.yawA = yawA;
 			this.bWorld = bWorld;
 			this.vectorsB = vectorsB;
 			this.frameVecsB = frameVecsB;
+			this.yawB = yawB;
 //			console.sendMessage("Portal number " + identifier + " created.");
 //			console.sendMessage("Portal A, world: " + aWorld.getName());
 //			console.sendMessage("       vectorsA: " + vectorsA.toString());
@@ -121,7 +125,7 @@ public class PortalHandler {
 						Vector destination = (Vector) iterB.next();
 						if (origin.equals(loc.toVector())) {
 							return new Location(bWorld, destination.getBlockX(), destination.getBlockY(),
-									destination.getBlockZ()).add(destOffset);
+									destination.getBlockZ(), yawB, 0F).add(destOffset);
 						}
 					}
 				}
@@ -138,7 +142,7 @@ public class PortalHandler {
 						Vector destination = (Vector) iterA.next();
 						if (origin.equals(loc.toVector())) {
 							return new Location(aWorld, destination.getBlockX(), destination.getBlockY(),
-									destination.getBlockZ()).add(destOffset);
+									destination.getBlockZ(), yawA, 0F).add(destOffset);
 						}
 					}
 				}
@@ -200,8 +204,10 @@ public class PortalHandler {
 	 * the frame blocks as well as the 'activating' blocks placed along the
 	 * inside of the bottom of the frame.
 	 */
-	public ArrayList<String> getCompletePortalVectors(Block block, ArrayList<String> frameVecs) {
+	public Float getCompletePortalVectors(Block block, ArrayList<String> frameVecs, ArrayList<String> vectors) {
 		FileConfiguration config = plugin.getConfig();
+		Float yaw = null;
+		
 		if (isInAPortal(block.getLocation())) {
 			console.sendMessage("Activation block set in already active portal. Doing nothing.");
 			return null;
@@ -335,7 +341,7 @@ public class PortalHandler {
 		Location testLoc = new Location(activatorNW.getWorld(), activatorNW.getX(), activatorNW.getY(), activatorNW.getZ()-1);
 		console.sendMessage("NW activator at: " + activatorNW.toVector().toString());		
 		console.sendMessage("Look for portal: " + testLoc.toVector().toString());
-		
+
 		if (testLoc.getBlock().getType().name() == frameMaterialName) {
 			wallNW.add(testLoc.getBlock());
 			//South of activatorSE
@@ -348,6 +354,7 @@ public class PortalHandler {
 				return null;
 			}
 			wallSE.add(testLoc.getBlock());
+			yaw = 90F;
 		} else {
 			console.sendMessage("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 		}
@@ -370,6 +377,7 @@ public class PortalHandler {
 				return null;
 			}
 			wallSE.add(testLoc.getBlock());
+			yaw = 180F;
 		} else {
 			console.sendMessage("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 		}
@@ -398,7 +406,6 @@ public class PortalHandler {
 		Block portalTopBlock;
 		Block currentActivatorBlock;
 		actIter = activatorBlocks.iterator();
-		ArrayList<String> newPortalBlocks = new ArrayList<String>();
 		
 		//Adjust portalHeight to fit actual roof height
 		currentActivatorBlock = activatorBlocks.get(0);
@@ -435,7 +442,7 @@ public class PortalHandler {
 		while (actIter.hasNext()) {
 			currentActivatorBlock = actIter.next();
 			for (int i=0; i<portalHeight; i++) {
-				newPortalBlocks.add(new Location(currentActivatorBlock.getWorld(), currentActivatorBlock.getX(), currentActivatorBlock.getY() + i, currentActivatorBlock.getZ()).toVector().toString());
+				vectors.add(new Location(currentActivatorBlock.getWorld(), currentActivatorBlock.getX(), currentActivatorBlock.getY() + i, currentActivatorBlock.getZ()).toVector().toString());
 			}
 			portalTopBlock = new Location(currentActivatorBlock.getWorld(), currentActivatorBlock.getX(), currentActivatorBlock.getY() + portalHeight, currentActivatorBlock.getZ()).getBlock();
 			
@@ -456,9 +463,9 @@ public class PortalHandler {
 		frameVecs.addAll(SEVecs);
 		
 		console.sendMessage("Portal is complete!");
-		console.sendMessage("Interior blocks: " + newPortalBlocks.toString());
+		console.sendMessage("Interior blocks: " + vectors.toString());
 		console.sendMessage("Frame blocks: " + frameVecs.toString());
-		return newPortalBlocks;
+		return yaw;
 	}
 
 	/*
@@ -492,12 +499,14 @@ public class PortalHandler {
 		Iterator<String> configIterator = portalKeys.iterator();
 		Iterator<String> vectorsIterator;
 		String portalNumber;
+		World worldA;
 		ArrayList<String> vectorStringsA;
 		ArrayList<String> frameStringsA;
+		Float yawA;
+		World worldB;
 		ArrayList<String> vectorStringsB;
 		ArrayList<String> frameStringsB;
-		World worldA;
-		World worldB;
+		Float yawB;
 		HashSet<Vector> tempVecSet = new HashSet<Vector>();
 		// Read vector string describing each portal, ends A and B
 		while (configIterator.hasNext()) {
@@ -516,18 +525,31 @@ public class PortalHandler {
 				ArrayList<Vector> frameVecsB = new ArrayList<Vector>();
 				
 				String worldAName = config.getString("portals." + portalNumber + ".A.world");
+				String yawAString = config.getString("portals." + portalNumber + ".A.yaw");
 				if (worldAName == null) {
 					console.sendMessage("Error reading World A Name configuration!");
 					console.sendMessage("Attemting to read config for Portal " + portalNumber);
 					return;
 				}
 				worldA = Bukkit.getWorld(worldAName);
+				if (yawAString == null) {
+					console.sendMessage("Error reading yawA from configuration!");
+					return;
+				}
+				yawA = Float.parseFloat(yawAString);
+				
 				String worldBName = config.getString("portals." + portalNumber + ".B.world");
+				String yawBString = config.getString("portals." + portalNumber + ".B.yaw");
 				if (worldBName == null) {
 					console.sendMessage("Error reading World B Name configuration!");
 					return;
 				}
 				worldB = Bukkit.getWorld(plugin.config.getString("portals." + portalNumber + ".B.world"));
+				if (yawBString == null) {
+					console.sendMessage("Error reading yawB from configuration!");
+					return;
+				}
+				yawB = Float.parseFloat(yawBString);
 				// Convert string lists for A and B to vector lists
 				// Side A vectors
 				vectorsIterator = vectorStringsA.iterator();
@@ -618,7 +640,7 @@ public class PortalHandler {
 						tempVecSet = new HashSet<Vector>();
 					}
 				}
-				portals.add( new Portal(portalNumber, worldA, vectorsA, frameVecsA, worldB, vectorsB, frameVecsB));
+				portals.add( new Portal(portalNumber, worldA, vectorsA, frameVecsA, yawA, worldB, vectorsB, frameVecsB, yawB));
 				//console.sendMessage("portals: " + portals.toString());
 //				console.sendMessage("portalBlocks: " + portalBlocks.toString());
 			} else { //portalNumber = 0
@@ -631,9 +653,15 @@ public class PortalHandler {
 		
 					ArrayList<Vector> frameVecsA = new ArrayList<Vector>();
 					
-					String worldAName = plugin.config.getString("portals." + portalNumber + "." + activator + ".world");
+					String worldAName = config.getString("portals." + portalNumber + "." + activator + ".world");
+					String yawAString = config.getString("portals." + portalNumber + "." + activator + ".yaw");
 					if (worldAName != null) {
 						worldA = Bukkit.getWorld(worldAName);
+						if (yawAString == null) {
+							console.sendMessage("Error reading yawA from configuration!");
+							return;
+						}
+						yawA = Float.parseFloat(yawAString);
 						// Convert string lists for A and B to vector lists
 						// Side A frame vectors
 						vectorsIterator = frameStringsA.iterator();
@@ -657,7 +685,7 @@ public class PortalHandler {
 								tempVecSet = new HashSet<Vector>();
 							}
 						}
-						portals.add( new Portal(portalNumber + "." + activator, worldA, new ArrayList<Vector>(), frameVecsA, null, new ArrayList<Vector>(), new ArrayList<Vector>()));
+						portals.add( new Portal(portalNumber + "." + activator, worldA, new ArrayList<Vector>(), frameVecsA, yawA, null, new ArrayList<Vector>(), new ArrayList<Vector>(), 0F));
 						//console.sendMessage("portals: " + portals.toString());
 	//					console.sendMessage("portalBlocks: " + portalBlocks.toString());
 					} //WorldAName != null

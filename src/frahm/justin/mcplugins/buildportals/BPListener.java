@@ -21,7 +21,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
+//import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
@@ -38,7 +39,7 @@ public class BPListener implements Listener{
 		config = plugin.getConfig();
 	}
 	
-	@EventHandler
+	@EventHandler (ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
@@ -60,9 +61,13 @@ public class BPListener implements Listener{
 		player.teleport(destination);
 	}
 	
-	@EventHandler
-	public void onBlockBreak(BlockBreakEvent event) {
-		console.sendMessage("Block break registered.");
+	@EventHandler (ignoreCancelled = true)
+	public void onBlockPhysics(BlockPhysicsEvent event) {
+		String frameMaterialName = config.getString("PortalMaterial");
+		if (event.getChangedType().name() != frameMaterialName) {
+			return;
+		}
+		console.sendMessage("Block physics registered.");
 		Location loc = event.getBlock().getLocation();
 		if (!portals.isInAFrame(loc)) {
 			console.sendMessage("Block is not in a frame.");
@@ -83,7 +88,7 @@ public class BPListener implements Listener{
 		portals.updatePortals();
 	}
 	
-	@EventHandler
+	@EventHandler (ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) {
 		/*With every BlockPlaceEvent, register the location, if there is
 		 * an 'unlinked' location stored already, pair that location with
@@ -106,9 +111,10 @@ public class BPListener implements Listener{
 		console.sendMessage(block.getType().name() + " placed. Continuing tests.");
 		//Get vectors to actual portal blocks from handler
 		ArrayList<String> frameVecs = new ArrayList<String>();
-		ArrayList<String> vectors = portals.getCompletePortalVectors(block, frameVecs);
+		ArrayList<String> vectors = new ArrayList<String>();
+		Float yaw = portals.getCompletePortalVectors(block, frameVecs, vectors);
 		
-		if (null == vectors) {
+		if (null == yaw) {
 			console.sendMessage("This block does NOT complete a portal. No action taken.");
 			return;
 		}
@@ -131,14 +137,17 @@ public class BPListener implements Listener{
 			newPortal.put("A.world", config.getString("portals.0." + block.getType().name() + ".world"));
 			newPortal.put("A.vec", vectorsA);
 			newPortal.put("A.frame", frameVecsA);
+			newPortal.put("A.yaw", config.getString("portals.0." + block.getType().name() + ".yaw"));
 			newPortal.put("B.world", world.getName());
 			newPortal.put("B.vec", vectors);
 			newPortal.put("B.frame", frameVecs);
+			newPortal.put("B.yaw", yaw.toString());
 			console.sendMessage("Applying changes to portal " + Integer.toString(i) + ": " + newPortal.toString());
 			config.set("portals.0." + block.getType().name() + ".active", false);
 			config.set("portals.0." + block.getType().name() + ".world", null);
 			config.set("portals.0." + block.getType().name() + ".vec", null);
 			config.set("portals.0." + block.getType().name() + ".frame", null);
+			config.set("portals.0." + block.getType().name() + ".yaw", null);
 			config.createSection("portals." + Integer.toString(i), newPortal);
 			config.set("portals." + Integer.toString(i) + ".active", true);
 			
@@ -200,6 +209,7 @@ public class BPListener implements Listener{
 			newPortal.put("world", block.getWorld().getName());
 			newPortal.put("vec", vectors);
 			newPortal.put("frame", frameVecs);
+			newPortal.put("yaw", yaw.toString());
 			console.sendMessage("Applying changes to portal 0: " + newPortal.toString());
 			config.createSection("portals.0." + block.getType().name(), newPortal);
 			config.set("portals.0." + block.getType().name() + ".active", true);
