@@ -28,8 +28,11 @@ public class PortalHandler {
 	private class Portal {
 		ArrayList<Vector> vectorsA;
 		ArrayList<Vector> vectorsB;
+		ArrayList<Vector> frameVecsA;
+		ArrayList<Vector> frameVecsB;
 		World aWorld;
 		World bWorld;
+		String identifier;
 		Vector destOffset = new Vector(0.5, 0, 0.5);
 
 		/*
@@ -37,11 +40,21 @@ public class PortalHandler {
 		 * vectors representing sides A and B of the portals as well as which
 		 * world each side is in.
 		 */
-		public Portal(World aWorld, ArrayList<Vector> vectorsA, World bWorld, ArrayList<Vector> vectorsB) {
-			this.vectorsA = vectorsA;
+		public Portal(String identifier, World aWorld, ArrayList<Vector> vectorsA, ArrayList<Vector> frameVecsA, World bWorld, ArrayList<Vector> vectorsB, ArrayList<Vector> frameVecsB) {
+			this.identifier = identifier;
 			this.aWorld = aWorld;
-			this.vectorsB = vectorsB;
+			this.vectorsA = vectorsA;
+			this.frameVecsA = frameVecsA;
 			this.bWorld = bWorld;
+			this.vectorsB = vectorsB;
+			this.frameVecsB = frameVecsB;
+//			console.sendMessage("Portal number " + identifier + " created.");
+//			console.sendMessage("Portal A, world: " + aWorld.getName());
+//			console.sendMessage("       vectorsA: " + vectorsA.toString());
+//			console.sendMessage("     frameVecsA: " + frameVecsA.toString());
+//			console.sendMessage("Portal B, world: " + bWorld.toString());
+//			console.sendMessage("       vectorsB: " + vectorsB.toString());
+//			console.sendMessage("     frameVecsB: " + frameVecsB.toString());
 		}
 
 		/*
@@ -61,6 +74,32 @@ public class PortalHandler {
 			return false;
 		}
 
+		/*
+		 * Quick tester to see if given location is within this portal frame.
+		 * 
+		 * NOTE: the given location MUST be based on the floored coordinates.
+		 */
+		public boolean isInFrame(Location loc) {
+			if (loc.getWorld() == aWorld) {
+				if (frameVecsA.contains(loc.toVector())) {
+					return true;
+				}
+//				console.sendMessage("isInFrame: " + loc.toVector().toString());
+//				console.sendMessage("   not in: " + frameVecsA.toString());
+			}
+			if (loc.getWorld() == bWorld) {
+				return frameVecsB.contains(loc.toVector());
+			}
+//			console.sendMessage("isInFrame: " + loc.toVector().toString());
+//			console.sendMessage("   not in: " + frameVecsB.toString());
+			return false;
+		}
+		
+		/*Returns the (String) numeric identifier of the portal */
+		public String getID() {
+			return identifier;
+		}
+		
 		/*
 		 * Returns the location of the portal destination block that corresponds
 		 * to the source location.
@@ -113,15 +152,16 @@ public class PortalHandler {
 
 	/*
 	 * Map of portal block location sets, keyed by world name Intended for fast
-	 * testing of whether a location is in a configured portal.
+	 * testing of whether a location is in a configured portal/frame.
 	 */
-	static HashMap<String, HashSet<Vector>> portalBlocks = new HashMap<String, HashSet<Vector>>();
+	static HashMap<String, HashSet<Vector>> portalBlocks;
+	static HashMap<String, HashSet<Vector>> frameBlocks; 
 
 	/*
 	 * This set of portal objects is for actual correlating of source portal
 	 * locations to destination locations.
 	 */
-	static HashSet<Portal> portals = new HashSet<Portal>();
+	static HashSet<Portal> portals;
 
 	/* Constructor, pass a handle to the plugin for configuration reading. */
 	public PortalHandler(Main plugin) {
@@ -142,26 +182,37 @@ public class PortalHandler {
 	}
 
 	/*
+	 * Tests a given (floored) location to see if it is in the boundaries of any
+	 * configured portal frames.
+	 */
+	public boolean isInAFrame(Location loc) {
+		if (!frameBlocks.containsKey(loc.getWorld().getName())){
+//			console.sendMessage("No portals in world: " + loc.getWorld().getName());
+//			console.sendMessage("Worlds are: " + portalBlocks.toString());
+			return false;
+		}
+		return frameBlocks.get(loc.getWorld().getName()).contains(loc.toVector());
+	}
+
+	/*
 	 * Tests whether a given block is part of a COMPLETE portal. This includes
 	 * the frame blocks as well as the 'activating' blocks placed along the
 	 * inside of the bottom of the frame.
 	 */
-	public ArrayList<String> getCompletePortalVectors(Block block) {
-		// TODO: Build tester function to see if given (recently placed)
-		// block completes a portal
+	public ArrayList<String> getCompletePortalVectors(Block block, ArrayList<String> frameVecs) {
 		FileConfiguration config = plugin.getConfig();
 		if (isInAPortal(block.getLocation())) {
 			console.sendMessage("Activation block set in already active portal. Doing nothing.");
 			return null;
 		}
-		console.sendMessage("Portal is not in an active portal. Continuing.");
+//		console.sendMessage("Portal is not in an active portal. Continuing.");
 		ArrayList<String> activators;
 		activators = (ArrayList<String>) config.getStringList("PortalActivators");
 		if (!activators.contains(block.getType().name())) {
-			console.sendMessage("Placed block is not an activator.");
+//			console.sendMessage("Placed block is not an activator.");
 			return null;
 		}
-		console.sendMessage("Placed block is an activator block. Continuing.");
+//		console.sendMessage("Placed block is an activator block. Continuing.");
 		String currentActivatorName = block.getType().name();
 		String frameMaterialName = config.getString("PortalMaterial");
 		Block frameBaseBlock = block.getLocation().add(new Vector(0, -1 ,0)).getBlock();
@@ -172,11 +223,11 @@ public class PortalHandler {
 		//z = Southing
 		//Check if activator block was placed on a frame block
 		if ( frameMaterialName != firstFrameBaseBlock.getType().name()) {
-			console.sendMessage("Placed activator block is on " + frameBaseBlock.getType().name() + ", not " + frameMaterialName);
+//			console.sendMessage("Placed activator block is on " + frameBaseBlock.getType().name() + ", not " + frameMaterialName);
 			return null;
 		}
 		
-		console.sendMessage("Placed block is over a portal frame block. Continuing.");
+//		console.sendMessage("Placed block is over a portal frame block. Continuing.");
 		
 		Block activatorBlock = block;
 		HashMap<String, Vector> unitVectors = new HashMap<String, Vector>();
@@ -207,26 +258,36 @@ public class PortalHandler {
 		int northMost;
 		int westMost;
 		
+		//Find the most northwest coordinate of activator block
+		//Also find and check portal base blocks
+		Block baseBlock;
+		ArrayList<String> baseVecs = new ArrayList<String>();
 		//Eclipse doesn't like enclosing this in an if (.hasNext()) block
 		try {
 			activatorBlock = actIter.next();
+			//Check for portal base under activator block
+			baseBlock = new Location(activatorBlock.getWorld(), activatorBlock.getX(), activatorBlock.getY()-1, activatorBlock.getZ()).getBlock();
 			northMost = activatorBlock.getLocation().getBlockZ();
 			westMost = activatorBlock.getLocation().getBlockX();
 			//Check for portal base under activator block
 			if (activatorBlock.getLocation().add(new Vector(0, -1, 0)).getBlock().getType().name() != frameMaterialName) {
-				console.sendMessage("Missing portal base under an activator block.");
+//				console.sendMessage("Missing portal base under an activator block.");
 				return null;
 			}
+//			console.sendMessage("Adding base block at: " + baseBlock.getLocation().toVector().toString());
+			baseVecs.add(baseBlock.getLocation().toVector().toString());
 		} finally {}
 		
-		//Find the most northwest coordinate of activator block
 		while (actIter.hasNext()) {
 			activatorBlock = actIter.next();
 			//Check for portal base under activator block
-			if (activatorBlock.getLocation().add(new Vector(0, -1, 0)).getBlock().getType().name() != frameMaterialName) {
-				console.sendMessage("Missing portal base under an activator block.");
+			baseBlock = new Location(activatorBlock.getWorld(), activatorBlock.getX(), activatorBlock.getY()-1, activatorBlock.getZ()).getBlock();
+			if (baseBlock.getType().name() != frameMaterialName) {
+//				console.sendMessage("Missing portal base under an activator block.");
 				return null;
 			}
+//			console.sendMessage("Adding base block at: " + baseBlock.getLocation().toVector().toString());
+			baseVecs.add(baseBlock.getLocation().toVector().toString());
 			if (activatorBlock.getLocation().getBlockZ() < northMost) {
 				northMost = activatorBlock.getLocation().getBlockZ();
 			}
@@ -234,7 +295,7 @@ public class PortalHandler {
 				westMost = activatorBlock.getLocation().getBlockX();
 			}
 		}
-		console.sendMessage("Northwest activator found at: X=" + westMost + ", Z=" + northMost);
+//		console.sendMessage("Northwest activator found at: X=" + westMost + ", Z=" + northMost);
 		
 		//Find the most southeast coordinate of activator block
 		actIter = activatorBlocks.iterator();
@@ -257,7 +318,7 @@ public class PortalHandler {
 				eastMost = activatorBlock.getLocation().getBlockX();
 			}
 		}
-		console.sendMessage("Southeast activator found at: X=" + eastMost + ", Z=" + southMost);
+//		console.sendMessage("Southeast activator found at: X=" + eastMost + ", Z=" + southMost);
 		
 		ArrayList<Block> wallNW = new ArrayList<Block>();
 		ArrayList<Block> wallSE = new ArrayList<Block>();
@@ -266,19 +327,19 @@ public class PortalHandler {
 		Location activatorNW = new Location(block.getWorld(), westMost, block.getLocation().getBlockY(), northMost);
 		Location activatorSE = new Location(block.getWorld(), eastMost, block.getLocation().getBlockY(), southMost);
 		
-		console.sendMessage("NW activator at: " + activatorNW.toVector().toString());		
+//		console.sendMessage("NW activator at: " + activatorNW.toVector().toString());		
 
 		//North/South oriented portal
 		//North of activatorNW
 		Location testLoc = new Location(activatorNW.getWorld(), activatorNW.getX(), activatorNW.getY(), activatorNW.getZ()-1);
-		console.sendMessage("NW activator at: " + activatorNW.toVector().toString());		
-		console.sendMessage("Look for portal: " + testLoc.toVector().toString());
+//		console.sendMessage("NW activator at: " + activatorNW.toVector().toString());		
+//		console.sendMessage("Look for portal: " + testLoc.toVector().toString());
 		
 		if (testLoc.getBlock().getType().name() == frameMaterialName) {
 			wallNW.add(testLoc.getBlock());
 			//South of activatorSE
-			console.sendMessage("SE activator at: " + activatorSE.toVector().toString());
-			console.sendMessage("Look for portal: " + testLoc.toVector().toString());
+//			console.sendMessage("SE activator at: " + activatorSE.toVector().toString());
+//			console.sendMessage("Look for portal: " + testLoc.toVector().toString());
 			testLoc = new Location(activatorSE.getWorld(), activatorSE.getX(), activatorSE.getY(), activatorSE.getZ()+1);
 			if (testLoc.getBlock().getType().name() != frameMaterialName) {
 				console.sendMessage("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
@@ -287,36 +348,36 @@ public class PortalHandler {
 			}
 			wallSE.add(testLoc.getBlock());
 		} else {
-			console.sendMessage("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
+//			console.sendMessage("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 		}
 
 		//East/West oriented portal		
 		//West of activatorNW
 		testLoc = new Location(activatorNW.getWorld(), activatorNW.getX()-1, activatorNW.getY(), activatorNW.getZ());
-		console.sendMessage("NW activator at: " + activatorNW.toVector().toString());
-		console.sendMessage("Look for portal: " + testLoc.toVector().toString());
+//		console.sendMessage("NW activator at: " + activatorNW.toVector().toString());
+//		console.sendMessage("Look for portal: " + testLoc.toVector().toString());
 
 		if (testLoc.getBlock().getType().name() == frameMaterialName) {
 			wallNW.add(testLoc.getBlock());
 			//East of activatorSE
 			testLoc = new Location(activatorSE.getWorld(), activatorSE.getX()+1, activatorSE.getY(), activatorSE.getZ());
-			console.sendMessage("SE activator at: " + activatorSE.toVector().toString());
-			console.sendMessage("Look for portal: " + testLoc.toVector().toString());
+//			console.sendMessage("SE activator at: " + activatorSE.toVector().toString());
+//			console.sendMessage("Look for portal: " + testLoc.toVector().toString());
 			if (testLoc.getBlock().getType().name() != frameMaterialName) {
-				console.sendMessage("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
-				console.sendMessage("Portal is missing an East wall.");
+//				console.sendMessage("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
+//				console.sendMessage("Portal is missing an East wall.");
 				return null;
 			}
 			wallSE.add(testLoc.getBlock());
 		} else {
-			console.sendMessage("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
+//			console.sendMessage("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 		}
 		if (wallSE.size() + wallNW.size() < 2) {
-			console.sendMessage("Portal is missing a North/West wall.");
+//			console.sendMessage("Portal is missing a North/West wall.");
 			return null;
 		}
 		
-		console.sendMessage("Portal walls adjacent to activation blocks found. Continuing.");
+//		console.sendMessage("Portal walls adjacent to activation blocks found. Continuing.");
 		//Find top of North/West wall
 		Block nextBlock = wallNW.get(0).getLocation().add(new Vector(0,1,0)).getBlock();
 		while (nextBlock.getType().name() == frameMaterialName) {
@@ -332,47 +393,71 @@ public class PortalHandler {
 		}
 		
 		int portalHeight = java.lang.Math.min(wallNW.size(), wallSE.size());
-		console.sendMessage("Initial portal height: " + portalHeight);
+//		console.sendMessage("Initial portal height: " + portalHeight);
 		Block portalTopBlock;
 		Block currentActivatorBlock;
 		actIter = activatorBlocks.iterator();
-		ArrayList<String> portalBlocks = new ArrayList<String>();
+		ArrayList<String> newPortalBlocks = new ArrayList<String>();
 		
 		//Adjust portalHeight to fit actual roof height
 		currentActivatorBlock = activatorBlocks.get(0);
 		for (int i=portalHeight; i>=2; i--) {
 			portalTopBlock = new Location(currentActivatorBlock.getWorld(), currentActivatorBlock.getX(), currentActivatorBlock.getY() + i, currentActivatorBlock.getZ()).getBlock();
-			console.sendMessage("Height test: " + i + "Material: " + portalTopBlock.getType().name());
-			console.sendMessage("Test at: " + portalTopBlock.getLocation().toVector().toString());
+//			console.sendMessage("Height test: " + i + "Material: " + portalTopBlock.getType().name());
+//			console.sendMessage("Test at: " + portalTopBlock.getLocation().toVector().toString());
 			if (portalTopBlock.getType().name() == frameMaterialName) {
 				portalHeight = i;
-				console.sendMessage("Portal height adjusted to: " + portalHeight);
+//				console.sendMessage("Portal height adjusted to: " + portalHeight);
 			}
 		}
 
 		//Portal must be at least 2m tall
 		if (portalHeight < 2) {
-			console.sendMessage("Portal walls are not tall enough.");
+//			console.sendMessage("Portal walls are not tall enough.");
 			return null;
 		}
-		console.sendMessage("Portal walls found and are tall enough. Continuing.");
+//		console.sendMessage("Portal walls found and are tall enough. Continuing.");
 		
+		//Store portal walls now that portal height is confirmed
+		Iterator<Block> NWIter = wallNW.iterator();
+		Iterator<Block> SEIter = wallSE.iterator();
+		ArrayList<String> NWVecs = new ArrayList<String>();
+		ArrayList<String> SEVecs = new ArrayList<String>();
+		for (int i=0; i<portalHeight; i++) {
+			NWVecs.add(NWIter.next().getLocation().toVector().toString());
+			SEVecs.add(SEIter.next().getLocation().toVector().toString());
+		}
+		
+		
+		//Check portal roof
+		ArrayList<String> roofVecs = new ArrayList<String>();
 		while (actIter.hasNext()) {
 			currentActivatorBlock = actIter.next();
 			for (int i=0; i<portalHeight; i++) {
-				portalBlocks.add(new Location(currentActivatorBlock.getWorld(), currentActivatorBlock.getX(), currentActivatorBlock.getY() + i, currentActivatorBlock.getZ()).toVector().toString());
+				newPortalBlocks.add(new Location(currentActivatorBlock.getWorld(), currentActivatorBlock.getX(), currentActivatorBlock.getY() + i, currentActivatorBlock.getZ()).toVector().toString());
 			}
 			portalTopBlock = new Location(currentActivatorBlock.getWorld(), currentActivatorBlock.getX(), currentActivatorBlock.getY() + portalHeight, currentActivatorBlock.getZ()).getBlock();
-			console.sendMessage("Roof Block: " + portalTopBlock.getLocation().toVector().toString() + ": " + portalTopBlock.getType().name());
+			
+			roofVecs.add(portalTopBlock.getLocation().toVector().toString());
+//			console.sendMessage("Roof Block: " + portalTopBlock.getLocation().toVector().toString() + ": " + portalTopBlock.getType().name());
 			if (portalTopBlock.getType().name() != frameMaterialName) {
-				console.sendMessage("Portal is missing a roof block");
+//				console.sendMessage("Portal is missing a roof block");
 				return null;
 			}
 		}
 		
-		console.sendMessage("Portal is complete!");
-		console.sendMessage("Interior blocks: " + portalBlocks.toString());
-		return portalBlocks;
+		//Consolidate all frame vecs lists to passed frameVecs variable
+		//ArrayList<String> frameVecs
+//		console.sendMessage("Base Vectors: " + baseVecs.toString());
+		frameVecs.addAll(baseVecs);
+		frameVecs.addAll(roofVecs);
+		frameVecs.addAll(NWVecs);
+		frameVecs.addAll(SEVecs);
+		
+//		console.sendMessage("Portal is complete!");
+//		console.sendMessage("Interior blocks: " + newPortalBlocks.toString());
+//		console.sendMessage("Frame blocks: " + frameVecs.toString());
+		return newPortalBlocks;
 	}
 
 	/*
@@ -380,36 +465,51 @@ public class PortalHandler {
 	 * PortalHandler fields based on the portal configuration.
 	 */
 	public void updatePortals() {
+		portals = new HashSet<Portal>();
+		portalBlocks = new HashMap<String, HashSet<Vector>>();
+		frameBlocks = new HashMap<String, HashSet<Vector>>();
+		
 		FileConfiguration config = plugin.getConfig();
 		if (null == config) {
+//			console.sendMessage("No configurations set!");
 			return;
 		}
 		ConfigurationSection portalSection = config.getConfigurationSection("portals");
 		if (null == portalSection) {
+//			console.sendMessage("No portals data in configurations.");
 			return;
 		}
 		Set<String> portalKeys = portalSection.getKeys(false);
 		if (null == portalKeys) {
+			console.sendMessage("No portals defined in portals data.");
 			return;
 		}
 		portalKeys.remove("0");
-		console.sendMessage("portalKeys: " + portalKeys.toString());
+//		console.sendMessage("portalKeys: " + portalKeys.toString());
 		Iterator<String> configIterator = portalKeys.iterator();
 		Iterator<String> vectorsIterator;
 		String portalNumber;
-		ArrayList<String> vectorStringsA = new ArrayList<String>();
-		ArrayList<String> vectorStringsB = new ArrayList<String>();
-		ArrayList<Vector> vectorsA = new ArrayList<Vector>();
-		ArrayList<Vector> vectorsB = new ArrayList<Vector>();
+		ArrayList<String> vectorStringsA;
+		ArrayList<String> frameStringsA;
+		ArrayList<String> vectorStringsB;
+		ArrayList<String> frameStringsB;
 		World worldA;
 		World worldB;
 		HashSet<Vector> tempVecSet = new HashSet<Vector>();
 		// Read vector string describing each portal, ends A and B
 		while (configIterator.hasNext()) {
 			portalNumber = configIterator.next();
-			console.sendMessage("Loading configuration for portal number: " + portalNumber);
+//			console.sendMessage("Loading configuration for portal number: " + portalNumber);
 			vectorStringsA = (ArrayList<String>) config.getStringList("portals." + portalNumber + ".A.vec");
+			frameStringsA = (ArrayList<String>) config.getStringList("portals." + portalNumber + ".A.frame");
 			vectorStringsB = (ArrayList<String>) config.getStringList("portals." + portalNumber + ".B.vec");
+			frameStringsB = (ArrayList<String>) config.getStringList("portals." + portalNumber + ".B.frame");
+
+			ArrayList<Vector> vectorsA = new ArrayList<Vector>();
+			ArrayList<Vector> vectorsB = new ArrayList<Vector>();
+			ArrayList<Vector> frameVecsA = new ArrayList<Vector>();
+			ArrayList<Vector> frameVecsB = new ArrayList<Vector>();
+			
 			String worldAName = plugin.config.getString("portals." + portalNumber + ".A.world");
 			if (worldAName == null) {
 				console.sendMessage("Error reading configuration!");
@@ -423,7 +523,7 @@ public class PortalHandler {
 			}
 			worldB = Bukkit.getWorld(plugin.config.getString("portals." + portalNumber + ".B.world"));
 			// Convert string lists for A and B to vector lists
-			// Side A
+			// Side A vectors
 			vectorsIterator = vectorStringsA.iterator();
 			while (vectorsIterator.hasNext()) {
 				String[] parts = vectorsIterator.next().split(",");
@@ -445,9 +545,31 @@ public class PortalHandler {
 					tempVecSet = new HashSet<Vector>();
 				}
 			}
+			// Side A frame vectors
+			vectorsIterator = frameStringsA.iterator();
+			while (vectorsIterator.hasNext()) {
+				String[] parts = vectorsIterator.next().split(",");
+				if (parts.length != 3) {
+					console.sendMessage("Error reading frame data!");
+					return;
+				}
+				Vector vec = new Vector();
+				vec.setX(Double.parseDouble(parts[0]));
+				vec.setY(Double.parseDouble(parts[1]));
+				vec.setZ(Double.parseDouble(parts[2]));
+				frameVecsA.add(vec);
+				// Add this vector to the frameBlocks set, keyed by world
+				if (frameBlocks.containsKey(worldA.getName())) {
+					frameBlocks.get(worldA.getName()).add(vec);
+				} else {
+					tempVecSet.add(vec);
+					frameBlocks.put(worldA.getName(), tempVecSet);
+					tempVecSet = new HashSet<Vector>();
+				}
+			}
 
 			vectorsIterator = vectorStringsB.iterator();
-			// Side B
+			// Side B vectors
 			while (vectorsIterator.hasNext()) {
 				String[] parts = vectorsIterator.next().split(",");
 				if (parts.length != 3) {
@@ -468,9 +590,32 @@ public class PortalHandler {
 					tempVecSet = new HashSet<Vector>();
 				}
 			}
-			portals.add(new Portal(worldA, vectorsA, worldB, vectorsB));
-			console.sendMessage("portals: " + portals.toString());
-			console.sendMessage("portalBlocks: " + portalBlocks.toString());
+			// Side B frame vectors
+			vectorsIterator = frameStringsB.iterator();
+			while (vectorsIterator.hasNext()) {
+				String[] parts = vectorsIterator.next().split(",");
+				if (parts.length != 3) {
+					console.sendMessage("Error reading frame data!");
+					return;
+				}
+				Vector vec = new Vector();
+				vec.setX(Double.parseDouble(parts[0]));
+				vec.setY(Double.parseDouble(parts[1]));
+				vec.setZ(Double.parseDouble(parts[2]));
+				frameVecsB.add(vec);
+				// Add this vector to the frameBlocks set, keyed by world
+				if (frameBlocks.containsKey(worldB.getName())) {
+					frameBlocks.get(worldB.getName()).add(vec);
+				} else {
+					tempVecSet.add(vec);
+					frameBlocks.put(worldB.getName(), tempVecSet);
+					tempVecSet = new HashSet<Vector>();
+				}
+			}
+			
+			portals.add( new Portal(portalNumber, worldA, vectorsA, frameVecsA, worldB, vectorsB, frameVecsB));
+			//console.sendMessage("portals: " + portals.toString());
+//			console.sendMessage("portalBlocks: " + portalBlocks.toString());
 		}
 	}
 
@@ -487,6 +632,19 @@ public class PortalHandler {
 				return portal.getDestination(source);
 			}
 		}
+		return null;
+	}
+	
+	public String getPortalFromFrame(Location loc) {
+//		console.sendMessage("Checking location: " + loc.toVector().toString());
+		Iterator<Portal> portalsIterator = portals.iterator();
+		while (portalsIterator.hasNext()) {
+			Portal portal = portalsIterator.next();
+			if (portal.isInFrame(loc)) {
+				return portal.getID();
+			}
+		}
+		
 		return null;
 	}
 }
