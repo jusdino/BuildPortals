@@ -13,5 +13,6 @@ Once installed, any player can build a portal using a designated portal building
 
 Planned updates:
  * Support for 'vehicle' class objects (horses, minecarts, etc.) to be teleported with a player.
+ * Support for in-game configuration changes (frame material, activators).
 
 If someone happens across this project, feel free to critique. I welcome tips/criticism/suggestions!

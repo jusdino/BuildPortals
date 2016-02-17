@@ -18,6 +18,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -58,7 +59,16 @@ public class BPListener implements Listener{
 			return;
 		}
 		alreadyOnPortal.add(player);
+		
+		
+		/*Can cause player/horse to teleport into a place that they don't fit.
+		 * Will need some re-thinking.
+		 */
+		Vehicle vehicle = (Vehicle) player.getVehicle();
+		vehicle.eject();
 		player.teleport(destination);
+		vehicle.teleport(player.getLocation());
+		vehicle.setPassenger(player);
 	}
 	
 	@EventHandler (ignoreCancelled = true)
