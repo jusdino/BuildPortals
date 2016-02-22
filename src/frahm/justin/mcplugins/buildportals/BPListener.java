@@ -17,6 +17,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
@@ -54,21 +55,21 @@ public class BPListener implements Listener{
 		if (alreadyOnPortal.contains(player)) {
 			return;
 		}
-		Location destination = portals.getDestination(loc);
+		Location destination = portals.getDestination(player);
 		if (null == destination){
 			return;
 		}
 		alreadyOnPortal.add(player);
 		
-		
-		/*Can cause player/horse to teleport into a place that they don't fit.
-		 * Will need some re-thinking.
-		 */
 		Vehicle vehicle = (Vehicle) player.getVehicle();
-		vehicle.eject();
-		player.teleport(destination);
-		vehicle.teleport(player.getLocation());
-		vehicle.setPassenger(player);
+		if (vehicle == null) {
+			player.teleport(destination);
+		} else {
+			vehicle.eject();
+			player.teleport(destination);
+			vehicle.teleport(player.getLocation());
+			vehicle.setPassenger(player);
+		}
 	}
 	
 	@EventHandler (ignoreCancelled = true)
@@ -152,7 +153,7 @@ public class BPListener implements Listener{
 			newPortal.put("B.vec", vectors);
 			newPortal.put("B.frame", frameVecs);
 			newPortal.put("B.yaw", yaw.toString());
-//			logger.info("Applying changes to portal " + Integer.toString(i) + ": " + newPortal.toString());
+			logger.info("Applying changes to portal " + Integer.toString(i)); // + ": " + newPortal.toString());
 			config.set("portals.0." + block.getType().name() + ".active", false);
 			config.set("portals.0." + block.getType().name() + ".world", null);
 			config.set("portals.0." + block.getType().name() + ".vec", null);
@@ -215,7 +216,7 @@ public class BPListener implements Listener{
 			}
 		} else {
 			//Save unlinked portal location
-			logger.info("Collecting unlinked portal data...");
+//			logger.info("Collecting unlinked portal data...");
 			newPortal.put("world", block.getWorld().getName());
 			newPortal.put("vec", vectors);
 			newPortal.put("frame", frameVecs);
