@@ -16,6 +16,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -163,7 +164,7 @@ public class PortalHandler {
 					sourceXmin = vec.getBlockX();
 				}
 				if (vec.getBlockY() > sourceYmax) {
-					sourceYmax = vec.getBlockX();
+					sourceYmax = vec.getBlockY();
 				}
 				if (vec.getBlockY() < sourceYmin) {
 					sourceYmin = vec.getBlockY();
@@ -199,7 +200,7 @@ public class PortalHandler {
 					destXmin = vec.getBlockX();
 				}
 				if (vec.getBlockY() > destYmax) {
-					destYmax = vec.getBlockX();
+					destYmax = vec.getBlockY();
 				}
 				if (vec.getBlockY() < destYmin) {
 					destYmin = vec.getBlockY();
@@ -242,9 +243,59 @@ public class PortalHandler {
 			destVec.setY( (sourceVec.getY()/sourceHeight) * destHeight);
 			destVec.setZ( (sourceVec.getZ()/sourceZwidth) * destZwidth);
 			
+			//Some destination refinements to give a buffer inside the portal frame
+			Double yMaxBuffer = 1.8;
+			Double yMinBuffer = 0.0;
+			Double xzBuffer = 0.3;
+			if (player.getVehicle() instanceof Horse) {
+				yMaxBuffer = 2.15;
+				yMinBuffer = 0.0;
+				xzBuffer = 1.0;
+			}
+			if ( destHeight < (yMinBuffer + yMaxBuffer)) {
+				logger.info("Portal is too short. Setting Y to " + yMinBuffer);
+				destVec.setY(yMinBuffer);
+			} else {
+				if (destVec.getY() < yMinBuffer) {
+					logger.info("Destination is too low. Setting Y to " + yMinBuffer);
+					destVec.setY(yMinBuffer);
+				} else if ( (destHeight - destVec.getY()) < yMaxBuffer ) {
+					logger.info("Destination is too high. Setting Y to " + (destHeight - yMaxBuffer));
+					destVec.setY(destHeight - yMaxBuffer);
+				}
+			}
+			if (xzBuffer/2 > destXwidth) {
+				logger.info("Destination X width is too narrow. Setting X to " + destXwidth/2);
+				destVec.setX(destXwidth/2);
+			} else {
+				if (destVec.getX() < xzBuffer) {
+					logger.info("Destination X is too low. Setting X to " + xzBuffer);
+					destVec.setX(xzBuffer);
+				} else if ( (destXwidth - destVec.getX()) < xzBuffer ) {
+					logger.info("Destination X is too high. Setting X to " + (destXwidth - xzBuffer));
+					destVec.setX(destXwidth - xzBuffer);
+				}
+			}
+			if (xzBuffer/2 > destZwidth) {
+				logger.info("Destination Z is too narrow. Setting Z to " + destZwidth/2);
+				destVec.setZ(destZwidth/2);
+				if (destVec.getZ() < xzBuffer) {
+					logger.info("Destination Z is too low. Setting Z to " + xzBuffer);
+					destVec.setZ(xzBuffer);
+				} else if ( (destZwidth - destVec.getZ()) < xzBuffer ) {
+					logger.info("Destination Z is too high. Setting Z to " + (destZwidth - xzBuffer));
+					destVec.setZ(destZwidth - xzBuffer);
+				}
+			}
+			
 			Location destLoc = new Location(destWorld, destVec.getX(), destVec.getY(), destVec.getZ(), destYaw, 0F);
+			logger.info("Destination portal: " + destXwidth + "/" + destHeight + "/" + destZwidth);
+			logger.info("          vertical: " + destYmin + " - " + destYmax);
+			logger.info("Source portal: " + sourceXwidth + "/" + sourceHeight + "/" + sourceZwidth);
+			logger.info("          vertical: " + sourceYmin + " - " + sourceYmax);
 			logger.info("Destination vector, X: " + destVec.getX() + ", Y: " + destVec.getY() + ", Z: " + destVec.getZ());
 			logger.info("Source vector,      X: " + sourceVec.getX() + ", Y: " + sourceVec.getY() + ", Z: " + sourceVec.getZ());
+			logger.info("yup");
 			destLoc.add(new Vector(destXmin, destYmin, destZmin));
 			
 			
