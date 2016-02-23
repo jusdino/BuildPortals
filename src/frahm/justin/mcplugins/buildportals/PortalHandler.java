@@ -240,14 +240,18 @@ public class PortalHandler {
 			
 			Vector destVec = new Vector();
 			destVec.setX( (sourceVec.getX()/sourceXwidth) * destXwidth);
+			logger.info("destVec.setX: " + sourceVec.getX() + "/" + sourceXwidth + " * " + destXwidth);
 			destVec.setY( (sourceVec.getY()/sourceHeight) * destHeight);
+			logger.info("destVec.setY: " + sourceVec.getY() + "/" + sourceHeight + " * " + destHeight);
 			destVec.setZ( (sourceVec.getZ()/sourceZwidth) * destZwidth);
+			logger.info("destVec.setZ: " + sourceVec.getZ() + "/" + sourceZwidth + " * " + destZwidth);
 			
 			//Some destination refinements to give a buffer inside the portal frame
 			Double yMaxBuffer = 1.8;
 			Double yMinBuffer = 0.0;
 			Double xzBuffer = 0.3;
 			if (player.getVehicle() instanceof Horse) {
+				logger.info("Horse detected, increasing buffers.");
 				yMaxBuffer = 2.15;
 				yMinBuffer = 0.0;
 				xzBuffer = 1.0;
@@ -264,9 +268,9 @@ public class PortalHandler {
 					destVec.setY(destHeight - yMaxBuffer);
 				}
 			}
-			if (xzBuffer/2 > destXwidth) {
-				logger.info("Destination X width is too narrow. Setting X to " + destXwidth/2);
-				destVec.setX(destXwidth/2);
+			if (xzBuffer*2 > destXwidth) {
+				logger.info("Destination X width is too narrow. Setting X to " + destXwidth/2.0);
+				destVec.setX(destXwidth/2.0);
 			} else {
 				if (destVec.getX() < xzBuffer) {
 					logger.info("Destination X is too low. Setting X to " + xzBuffer);
@@ -276,9 +280,10 @@ public class PortalHandler {
 					destVec.setX(destXwidth - xzBuffer);
 				}
 			}
-			if (xzBuffer/2 > destZwidth) {
-				logger.info("Destination Z is too narrow. Setting Z to " + destZwidth/2);
-				destVec.setZ(destZwidth/2);
+			if (xzBuffer*2 > destZwidth) {
+				logger.info("Destination Z is too narrow. Setting Z to " + destZwidth/2.0);
+				destVec.setZ(destZwidth/2.0);
+			} else {
 				if (destVec.getZ() < xzBuffer) {
 					logger.info("Destination Z is too low. Setting Z to " + xzBuffer);
 					destVec.setZ(xzBuffer);
@@ -289,13 +294,14 @@ public class PortalHandler {
 			}
 			
 			Location destLoc = new Location(destWorld, destVec.getX(), destVec.getY(), destVec.getZ(), destYaw, 0F);
+			
+			logger.info("Teleportation event:");
 			logger.info("Destination portal: " + destXwidth + "/" + destHeight + "/" + destZwidth);
 			logger.info("          vertical: " + destYmin + " - " + destYmax);
 			logger.info("Source portal: " + sourceXwidth + "/" + sourceHeight + "/" + sourceZwidth);
 			logger.info("          vertical: " + sourceYmin + " - " + sourceYmax);
 			logger.info("Destination vector, X: " + destVec.getX() + ", Y: " + destVec.getY() + ", Z: " + destVec.getZ());
 			logger.info("Source vector,      X: " + sourceVec.getX() + ", Y: " + sourceVec.getY() + ", Z: " + sourceVec.getZ());
-			logger.info("yup");
 			destLoc.add(new Vector(destXmin, destYmin, destZmin));
 			
 			
@@ -430,7 +436,7 @@ public class PortalHandler {
 			northMost = activatorBlock.getLocation().getBlockZ();
 			westMost = activatorBlock.getLocation().getBlockX();
 			//Check for portal base under activator block
-			if (activatorBlock.getLocation().add(new Vector(0, -1, 0)).getBlock().getType().name() != frameMaterialName) {
+			if (activatorBlock.getLocation().add(new Vector(0, -1, 0)).getBlock().getType().name() != Material.getMaterial(frameMaterialName).name()) {
 //				logger.info("Missing portal base under an activator block.");
 				return null;
 			}
@@ -442,7 +448,7 @@ public class PortalHandler {
 			activatorBlock = actIter.next();
 			//Check for portal base under activator block
 			baseBlock = new Location(activatorBlock.getWorld(), activatorBlock.getX(), activatorBlock.getY()-1, activatorBlock.getZ()).getBlock();
-			if (baseBlock.getType().name() != frameMaterialName) {
+			if (baseBlock.getType().name() != Material.getMaterial(frameMaterialName).name()) {
 //				logger.info("Missing portal base under an activator block.");
 				return null;
 			}
@@ -495,15 +501,15 @@ public class PortalHandler {
 //		logger.info("NW activator at: " + activatorNW.toVector().toString());		
 //		logger.info("Look for portal: " + testLoc.toVector().toString());
 
-		if (testLoc.getBlock().getType().name() == frameMaterialName) {
+		if (testLoc.getBlock().getType().name() == Material.getMaterial(frameMaterialName).name()) {
 			wallNW.add(testLoc.getBlock());
 			//South of activatorSE
 //			logger.info("SE activator at: " + activatorSE.toVector().toString());
 //			logger.info("Look for portal: " + testLoc.toVector().toString());
 			testLoc = new Location(activatorSE.getWorld(), activatorSE.getX(), activatorSE.getY(), activatorSE.getZ()+1);
-			if (testLoc.getBlock().getType().name() != frameMaterialName) {
-//				logger.info("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
-//				logger.info("Portal is missing a South wall.");
+			if (testLoc.getBlock().getType().name() != Material.getMaterial(frameMaterialName).name()) {
+				logger.info("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
+				logger.info("Portal is missing a South wall.");
 				return null;
 			}
 			wallSE.add(testLoc.getBlock());
@@ -518,13 +524,13 @@ public class PortalHandler {
 //		logger.info("NW activator at: " + activatorNW.toVector().toString());
 //		logger.info("Look for portal: " + testLoc.toVector().toString());
 
-		if (testLoc.getBlock().getType().name() == frameMaterialName) {
+		if (testLoc.getBlock().getType().name() == Material.getMaterial(frameMaterialName).name()) {
 			wallNW.add(testLoc.getBlock());
 			//East of activatorSE
 			testLoc = new Location(activatorSE.getWorld(), activatorSE.getX()+1, activatorSE.getY(), activatorSE.getZ());
 //			logger.info("SE activator at: " + activatorSE.toVector().toString());
 //			logger.info("Look for portal: " + testLoc.toVector().toString());
-			if (testLoc.getBlock().getType().name() != frameMaterialName) {
+			if (testLoc.getBlock().getType().name() != Material.getMaterial(frameMaterialName).name()) {
 //				logger.info("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 //				logger.info("Portal is missing an East wall.");
 				return null;
@@ -542,14 +548,14 @@ public class PortalHandler {
 //		logger.info("Portal walls adjacent to activation blocks found. Continuing.");
 		//Find top of North/West wall
 		Block nextBlock = wallNW.get(0).getLocation().add(new Vector(0,1,0)).getBlock();
-		while (nextBlock.getType().name() == frameMaterialName) {
+		while (nextBlock.getType().name() == Material.getMaterial(frameMaterialName).name()) {
 			wallNW.add(nextBlock);
 			nextBlock = nextBlock.getLocation().add(new Vector(0,1,0)).getBlock();
 		}
 
 		//Find top of South/East wall
 		nextBlock = wallSE.get(0).getLocation().add(new Vector(0,1,0)).getBlock();
-		while (nextBlock.getType().name() == frameMaterialName) {
+		while (nextBlock.getType().name() == Material.getMaterial(frameMaterialName).name()) {
 			wallSE.add(nextBlock);
 			nextBlock = nextBlock.getLocation().add(new Vector(0,1,0)).getBlock();
 		}
@@ -566,7 +572,7 @@ public class PortalHandler {
 			portalTopBlock = new Location(currentActivatorBlock.getWorld(), currentActivatorBlock.getX(), currentActivatorBlock.getY() + i, currentActivatorBlock.getZ()).getBlock();
 //			logger.info("Height test: " + i + " Material: " + portalTopBlock.getType().name());
 //			logger.info("Test at: " + portalTopBlock.getLocation().toVector().toString());
-			if (portalTopBlock.getType().name() == frameMaterialName) {
+			if (portalTopBlock.getType().name() == Material.getMaterial(frameMaterialName).name()) {
 				portalHeight = i;
 //				logger.info("Portal height adjusted to: " + portalHeight);
 			}
@@ -601,7 +607,7 @@ public class PortalHandler {
 			
 			roofVecs.add(portalTopBlock.getLocation().toVector().toString());
 //			logger.info("Roof Block: " + portalTopBlock.getLocation().toVector().toString() + ": " + portalTopBlock.getType().name());
-			if (portalTopBlock.getType().name() != frameMaterialName) {
+			if (portalTopBlock.getType().name() != Material.getMaterial(frameMaterialName).name()) {
 //				logger.info("Portal is missing a roof block");
 				return null;
 			}

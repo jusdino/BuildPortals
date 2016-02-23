@@ -74,21 +74,22 @@ public class BPListener implements Listener{
 	
 	@EventHandler (ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
+//		logger.info("Block physics registered.");
 		String frameMaterialName = config.getString("PortalMaterial");
-		if (event.getChangedType().name() != frameMaterialName) {
+		if (event.getChangedType().name() != Material.getMaterial(frameMaterialName).name()) {
+//			logger.info("Block is " + event.getChangedType().name() + " not " + frameMaterialName);
 			return;
 		}
-//		logger.info("Block physics registered.");
 		Location loc = event.getBlock().getLocation();
 		if (!portals.isInAFrame(loc)) {
 //			logger.info("Block is not in a frame.");
 			return;
 		}
 		
-//		logger.info("Block is in a frame!");
+		logger.info("Block is in a frame!");
 		String portalNumber = portals.getPortalFromFrame(loc);
 		if (null == portalNumber) {
-			logger.info("portalNumber returned as NULL!");
+//			logger.info("portalNumber returned as NULL!");
 			return;
 		}
 		loc.getWorld().strikeLightningEffect(loc);
@@ -153,7 +154,7 @@ public class BPListener implements Listener{
 			newPortal.put("B.vec", vectors);
 			newPortal.put("B.frame", frameVecs);
 			newPortal.put("B.yaw", yaw.toString());
-			logger.info("Applying changes to portal " + Integer.toString(i)); // + ": " + newPortal.toString());
+//			logger.info("Applying changes to portal " + Integer.toString(i)); // + ": " + newPortal.toString());
 			config.set("portals.0." + block.getType().name() + ".active", false);
 			config.set("portals.0." + block.getType().name() + ".world", null);
 			config.set("portals.0." + block.getType().name() + ".vec", null);
@@ -216,7 +217,7 @@ public class BPListener implements Listener{
 			}
 		} else {
 			//Save unlinked portal location
-//			logger.info("Collecting unlinked portal data...");
+			logger.info("Collecting unlinked portal data...");
 			newPortal.put("world", block.getWorld().getName());
 			newPortal.put("vec", vectors);
 			newPortal.put("frame", frameVecs);
