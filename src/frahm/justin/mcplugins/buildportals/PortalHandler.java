@@ -114,9 +114,7 @@ public class PortalHandler {
 		 * 
 		 * Returns Null if the location is not actually in the portal.
 		 */
-		public Location getDestination(Player player) {
-			Location sourceLoc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-			
+		public Location getDestination(Player player, Location sourceLoc) {
 			Vector sourceVec = new Vector(sourceLoc.getX(), sourceLoc.getY(), sourceLoc.getZ());
 			sourceVec.add(blockCenterOffset);
 			Iterator<Vector> sourceIter;
@@ -241,68 +239,68 @@ public class PortalHandler {
 			
 			Vector destVec = new Vector();
 			destVec.setX( (sourceVec.getX()/sourceXwidth) * destXwidth);
-			logger.info("destVec.setX: " + sourceVec.getX() + "/" + sourceXwidth + " * " + destXwidth);
+//			logger.info("destVec.setX: " + sourceVec.getX() + "/" + sourceXwidth + " * " + destXwidth);
 			destVec.setY( (sourceVec.getY()/sourceHeight) * destHeight);
-			logger.info("destVec.setY: " + sourceVec.getY() + "/" + sourceHeight + " * " + destHeight);
+//			logger.info("destVec.setY: " + sourceVec.getY() + "/" + sourceHeight + " * " + destHeight);
 			destVec.setZ( (sourceVec.getZ()/sourceZwidth) * destZwidth);
-			logger.info("destVec.setZ: " + sourceVec.getZ() + "/" + sourceZwidth + " * " + destZwidth);
+//			logger.info("destVec.setZ: " + sourceVec.getZ() + "/" + sourceZwidth + " * " + destZwidth);
 			
 			//Some destination refinements to give a buffer inside the portal frame
 			Double yMaxBuffer = 1.8;
 			Double yMinBuffer = 0.0;
 			Double xzBuffer = 0.3;
 			if (player.getVehicle() instanceof Horse) {
-				logger.info("Horse detected, increasing buffers.");
+//				logger.info("Horse detected, increasing buffers.");
 				yMaxBuffer = 2.15;
 				yMinBuffer = 0.0;
 				xzBuffer = 1.0;
 			}
 			if ( destHeight < (yMinBuffer + yMaxBuffer)) {
-				logger.info("Portal is too short. Setting Y to " + yMinBuffer);
+//				logger.info("Portal is too short. Setting Y to " + yMinBuffer);
 				destVec.setY(yMinBuffer);
 			} else {
 				if (destVec.getY() < yMinBuffer) {
-					logger.info("Destination is too low. Setting Y to " + yMinBuffer);
+//					logger.info("Destination is too low. Setting Y to " + yMinBuffer);
 					destVec.setY(yMinBuffer);
 				} else if ( (destHeight - destVec.getY()) < yMaxBuffer ) {
-					logger.info("Destination is too high. Setting Y to " + (destHeight - yMaxBuffer));
+//					logger.info("Destination is too high. Setting Y to " + (destHeight - yMaxBuffer));
 					destVec.setY(destHeight - yMaxBuffer);
 				}
 			}
 			if (xzBuffer*2 > destXwidth) {
-				logger.info("Destination X width is too narrow. Setting X to " + destXwidth/2.0);
+//				logger.info("Destination X width is too narrow. Setting X to " + destXwidth/2.0);
 				destVec.setX(destXwidth/2.0);
 			} else {
 				if (destVec.getX() < xzBuffer) {
-					logger.info("Destination X is too low. Setting X to " + xzBuffer);
+//					logger.info("Destination X is too low. Setting X to " + xzBuffer);
 					destVec.setX(xzBuffer);
 				} else if ( (destXwidth - destVec.getX()) < xzBuffer ) {
-					logger.info("Destination X is too high. Setting X to " + (destXwidth - xzBuffer));
+//					logger.info("Destination X is too high. Setting X to " + (destXwidth - xzBuffer));
 					destVec.setX(destXwidth - xzBuffer);
 				}
 			}
 			if (xzBuffer*2 > destZwidth) {
-				logger.info("Destination Z is too narrow. Setting Z to " + destZwidth/2.0);
+//				logger.info("Destination Z is too narrow. Setting Z to " + destZwidth/2.0);
 				destVec.setZ(destZwidth/2.0);
 			} else {
 				if (destVec.getZ() < xzBuffer) {
-					logger.info("Destination Z is too low. Setting Z to " + xzBuffer);
+//					logger.info("Destination Z is too low. Setting Z to " + xzBuffer);
 					destVec.setZ(xzBuffer);
 				} else if ( (destZwidth - destVec.getZ()) < xzBuffer ) {
-					logger.info("Destination Z is too high. Setting Z to " + (destZwidth - xzBuffer));
+//					logger.info("Destination Z is too high. Setting Z to " + (destZwidth - xzBuffer));
 					destVec.setZ(destZwidth - xzBuffer);
 				}
 			}
 			
 			Location destLoc = new Location(destWorld, destVec.getX(), destVec.getY(), destVec.getZ(), destYaw, 0F);
 			
-			logger.info("Teleportation event:");
-			logger.info("Destination portal: " + destXwidth + "/" + destHeight + "/" + destZwidth);
-			logger.info("          vertical: " + destYmin + " - " + destYmax);
-			logger.info("Source portal: " + sourceXwidth + "/" + sourceHeight + "/" + sourceZwidth);
-			logger.info("          vertical: " + sourceYmin + " - " + sourceYmax);
-			logger.info("Destination vector, X: " + destVec.getX() + ", Y: " + destVec.getY() + ", Z: " + destVec.getZ());
-			logger.info("Source vector,      X: " + sourceVec.getX() + ", Y: " + sourceVec.getY() + ", Z: " + sourceVec.getZ());
+//			logger.info("Teleportation event:");
+//			logger.info("Destination portal: " + destXwidth + "/" + destHeight + "/" + destZwidth);
+//			logger.info("          vertical: " + destYmin + " - " + destYmax);
+//			logger.info("Source portal: " + sourceXwidth + "/" + sourceHeight + "/" + sourceZwidth);
+//			logger.info("          vertical: " + sourceYmin + " - " + sourceYmax);
+//			logger.info("Destination vector, X: " + destVec.getX() + ", Y: " + destVec.getY() + ", Z: " + destVec.getZ());
+//			logger.info("Source vector,      X: " + sourceVec.getX() + ", Y: " + sourceVec.getY() + ", Z: " + sourceVec.getZ());
 			destLoc.add(new Vector(destXmin, destYmin, destZmin));
 			
 			
@@ -884,13 +882,13 @@ public class PortalHandler {
 	 * given portal block location. Returns null if the location is not part of
 	 * a configured portal.
 	 */
-	public Location getDestination(Player player) {
-		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+	public Location getDestination(Player player, Location loc) {
 		Iterator<Portal> portalsIterator = portals.iterator();
 		while (portalsIterator.hasNext()) {
 			Portal portal = portalsIterator.next();
 			if (portal.isInPortal(loc)) {
-				return portal.getDestination(player);
+				logger.info(player.getName() + " is in portal number " + portal.getID());
+				return portal.getDestination(player, loc);
 			}
 		}
 		return null;

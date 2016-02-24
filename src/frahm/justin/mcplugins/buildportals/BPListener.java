@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-//import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -17,7 +16,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Horse;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
@@ -44,7 +43,15 @@ public class BPListener implements Listener{
 	@EventHandler (ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
+		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+		logger.info(player.getName() + " moved: " + loc.toVector().toString());
+		//Players in a minecart are listed as 1m below actual, so
+		//add 1 if in a minecart.
+		if (player.getVehicle() instanceof Minecart) {
+			logger.info(player.getName() + " is in a minecart, adding 1m to Y.");
+			loc.add(0, 1, 0);
+		}
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player)) {
 //				logger.info(player.getDisplayName() + " is out of the portal.");
@@ -52,19 +59,24 @@ public class BPListener implements Listener{
 			}
 			return;
 		}
+		logger.info(player.getName() + " is in a portal.");
 		if (alreadyOnPortal.contains(player)) {
+			logger.info(player.getName() + " hasn't left yet. Ignoring.");
 			return;
 		}
-		Location destination = portals.getDestination(player);
+		Location destination = portals.getDestination(player, loc);
 		if (null == destination){
+			logger.info("Can't get a destination for " + player.getName() + "!");
 			return;
 		}
 		alreadyOnPortal.add(player);
 		
 		Vehicle vehicle = (Vehicle) player.getVehicle();
 		if (vehicle == null) {
+			logger.info("Teleporting " + player.getName());
 			player.teleport(destination);
 		} else {
+			logger.info("Teleporting " + player.getName() + " with a vehicle.");
 			vehicle.eject();
 			player.teleport(destination);
 			vehicle.teleport(player.getLocation());
