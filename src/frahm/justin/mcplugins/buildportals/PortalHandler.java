@@ -887,7 +887,7 @@ public class PortalHandler {
 		while (portalsIterator.hasNext()) {
 			Portal portal = portalsIterator.next();
 			if (portal.isInPortal(loc)) {
-				logger.info(player.getName() + " is in portal number " + portal.getID());
+//				logger.info(player.getName() + " is in portal number " + portal.getID());
 				return portal.getDestination(player, loc);
 			}
 		}
