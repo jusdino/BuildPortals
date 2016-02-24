@@ -59,7 +59,7 @@ public class BPListener implements Listener{
 			}
 			return;
 		}
-		logger.info(player.getName() + " is in a portal.");
+//		logger.info(player.getName() + " is in a portal.");
 		if (alreadyOnPortal.contains(player)) {
 //			logger.info(player.getName() + " hasn't left yet. Ignoring.");
 			return;
