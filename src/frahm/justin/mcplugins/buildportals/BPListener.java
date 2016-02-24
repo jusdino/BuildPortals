@@ -17,7 +17,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -53,37 +55,43 @@ public class BPListener implements Listener{
 		if (alreadyOnPortal.contains(player)) {
 			return;
 		}
-		Location destination = portals.getDestination(loc);
+		Location destination = portals.getDestination(player);
 		if (null == destination){
 			return;
 		}
 		alreadyOnPortal.add(player);
-		player.teleport(destination);
+		
+		Vehicle vehicle = (Vehicle) player.getVehicle();
+		if (vehicle == null) {
+			player.teleport(destination);
+		} else {
+			vehicle.eject();
+			player.teleport(destination);
+			vehicle.teleport(player.getLocation());
+			vehicle.setPassenger(player);
+		}
 	}
 	
 	@EventHandler (ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
-		String frameMaterialName = config.getString("PortalMaterial");
-		if (event.getChangedType().name() != frameMaterialName) {
-			return;
-		}
 //		logger.info("Block physics registered.");
-		Location loc = event.getBlock().getLocation();
-		if (!portals.isInAFrame(loc)) {
-//			logger.info("Block is not in a frame.");
+		String frameMaterialName = config.getString("PortalMaterial");
+		if (event.getChangedType().name() != Material.getMaterial(frameMaterialName).name()) {
+//			logger.info("Block is " + event.getChangedType().name() + " not " + frameMaterialName);
 			return;
 		}
 		
-//		logger.info("Block is in a frame!");
-		String portalNumber = portals.getPortalFromFrame(loc);
-		if (null == portalNumber) {
-			logger.info("portalNumber returned as NULL!");
+		//Check all portals for broken frames
+		Location loc = event.getBlock().getLocation();
+		String brokenPortal = portals.integrityCheck(loc);
+		if (null == brokenPortal || null == loc) {
 			return;
 		}
+		
 		loc.getWorld().strikeLightningEffect(loc);
 		loc.getWorld().playEffect(loc, Effect.EXPLOSION_HUGE, 100, 5);
-		logger.info("Clearing portal number " + portalNumber);
-		config.set("portals." + portalNumber, null);
+		logger.info("Clearing portal number " + brokenPortal);
+		config.set("portals." + brokenPortal, null);
 		plugin.saveConfig();
 		portals.updatePortals();
 	}
@@ -142,7 +150,7 @@ public class BPListener implements Listener{
 			newPortal.put("B.vec", vectors);
 			newPortal.put("B.frame", frameVecs);
 			newPortal.put("B.yaw", yaw.toString());
-//			logger.info("Applying changes to portal " + Integer.toString(i) + ": " + newPortal.toString());
+//			logger.info("Applying changes to portal " + Integer.toString(i)); // + ": " + newPortal.toString());
 			config.set("portals.0." + block.getType().name() + ".active", false);
 			config.set("portals.0." + block.getType().name() + ".world", null);
 			config.set("portals.0." + block.getType().name() + ".vec", null);
