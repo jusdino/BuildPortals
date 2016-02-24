@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -311,6 +312,7 @@ public class PortalHandler {
 
 	Main plugin;
 	Logger logger;
+	FileConfiguration config;
 
 	/*
 	 * Map of portal block location sets, keyed by world name Intended for fast
@@ -329,6 +331,30 @@ public class PortalHandler {
 	public PortalHandler(Main plugin) {
 		this.plugin = plugin;
 		this.logger = plugin.getLogger();
+		this.config = plugin.getConfig();
+	}
+	
+	/*
+	 * Runs through each portal frame block, checks that they are still the portal
+	 * frame material and if not, returns the portal number of the first non-portal
+	 * material block it finds.
+	 */
+	public String integrityCheck(Location loc) {
+		String frameMaterialName = config.getString("PortalMaterial");
+		Iterator<Vector> frameVecs;
+		for (Map.Entry<String, HashSet<Vector>> frameEntries : frameBlocks.entrySet()) {
+			String worldName = frameEntries.getKey();
+			World world = Bukkit.getWorld(worldName);
+			frameVecs = frameEntries.getValue().iterator();
+			while (frameVecs.hasNext()) {
+				Vector vec = frameVecs.next();
+				loc = new Location(world, vec.getX(), vec.getY(), vec.getZ());
+				if (loc.getBlock().getType().name() != Material.getMaterial(frameMaterialName).name()) {
+					return getPortalFromFrame(loc);
+				}
+			}
+		}
+		return null;
 	}
 
 	/*

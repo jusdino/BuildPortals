@@ -80,22 +80,18 @@ public class BPListener implements Listener{
 //			logger.info("Block is " + event.getChangedType().name() + " not " + frameMaterialName);
 			return;
 		}
+		
+		//Check all portals for broken frames
 		Location loc = event.getBlock().getLocation();
-		if (!portals.isInAFrame(loc)) {
-//			logger.info("Block is not in a frame.");
+		String brokenPortal = portals.integrityCheck(loc);
+		if (null == brokenPortal || null == loc) {
 			return;
 		}
 		
-		logger.info("Block is in a frame!");
-		String portalNumber = portals.getPortalFromFrame(loc);
-		if (null == portalNumber) {
-//			logger.info("portalNumber returned as NULL!");
-			return;
-		}
 		loc.getWorld().strikeLightningEffect(loc);
 		loc.getWorld().playEffect(loc, Effect.EXPLOSION_HUGE, 100, 5);
-		logger.info("Clearing portal number " + portalNumber);
-		config.set("portals." + portalNumber, null);
+		logger.info("Clearing portal number " + brokenPortal);
+		config.set("portals." + brokenPortal, null);
 		plugin.saveConfig();
 		portals.updatePortals();
 	}
