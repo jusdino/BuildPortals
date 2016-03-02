@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -59,8 +60,15 @@ public class BPListener implements Listener{
 			}
 			return;
 		}
+		
 //		logger.info(player.getName() + " is in a portal.");
 		if (alreadyOnPortal.contains(player)) {
+			//Don't let the player move if their chunk isn't loaded.
+			Chunk chunk = loc.getChunk();
+			if (!chunk.isLoaded()) {
+				event.setCancelled(true);
+				return;
+			}
 //			logger.info(player.getName() + " hasn't left yet. Ignoring.");
 			return;
 		}
