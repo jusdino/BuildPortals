@@ -715,6 +715,10 @@ public class PortalHandler {
 					return;
 				}
 				worldA = Bukkit.getWorld(worldAName);
+				if (worldA == null) {
+					logger.warning("Failed to locate world: " + worldAName + " skipping portal number " + portalNumber);
+					continue;
+				}
 				if (yawAString == null) {
 					logger.info("Error reading yawA from configuration!");
 					return;
@@ -728,7 +732,10 @@ public class PortalHandler {
 					return;
 				}
 				worldB = Bukkit.getWorld(plugin.config.getString("portals." + portalNumber + ".B.world"));
-				if (yawBString == null) {
+				if (worldB == null) {
+					logger.warning("Failed to locate world: " + worldBName + " skipping portal number " + portalNumber);
+					continue;
+				}if (yawBString == null) {
 					logger.info("Error reading yawB from configuration!");
 					return;
 				}
