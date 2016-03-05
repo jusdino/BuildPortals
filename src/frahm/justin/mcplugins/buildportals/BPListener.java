@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,6 +33,7 @@ public class BPListener implements Listener{
 	PortalHandler portals;
 	FileConfiguration config;
 	HashSet<Player> alreadyOnPortal = new HashSet<Player>();
+	HashMap<Player, Vehicle> teleportedVehicle = new HashMap<Player, Vehicle>();
 	
 	public BPListener(Main plugin, PortalHandler portals) {
 		this.plugin = plugin;
@@ -59,8 +61,15 @@ public class BPListener implements Listener{
 			}
 			return;
 		}
+		
 //		logger.info(player.getName() + " is in a portal.");
 		if (alreadyOnPortal.contains(player)) {
+			//Don't let the player move if their chunk isn't loaded.
+			Chunk chunk = loc.getChunk();
+			if (!chunk.isLoaded()) {
+				event.setCancelled(true);
+				return;
+			}
 //			logger.info(player.getName() + " hasn't left yet. Ignoring.");
 			return;
 		}
@@ -77,10 +86,13 @@ public class BPListener implements Listener{
 			player.teleport(destination);
 		} else {
 //			logger.info("Teleporting " + player.getName() + " with a vehicle.");
+			//This is pretty buggy over long distances or between worlds...
+			destination.getChunk().load();
 			vehicle.eject();
+			vehicle.teleport(destination);
 			player.teleport(destination);
-			vehicle.teleport(player.getLocation());
-			vehicle.setPassenger(player);
+			Boolean result = vehicle.setPassenger(player);
+			logger.info("Set passenger result: " + result.toString());
 		}
 	}
 	
