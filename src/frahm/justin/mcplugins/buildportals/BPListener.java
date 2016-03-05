@@ -17,14 +17,17 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 
 public class BPListener implements Listener{
 	Logger logger;
@@ -33,6 +36,7 @@ public class BPListener implements Listener{
 	PortalHandler portals;
 	FileConfiguration config;
 	HashSet<Player> alreadyOnPortal = new HashSet<Player>();
+	HashMap<Player, Vehicle> teleportedVehicle = new HashMap<Player, Vehicle>();
 	
 	public BPListener(Main plugin, PortalHandler portals) {
 		this.plugin = plugin;
@@ -85,10 +89,13 @@ public class BPListener implements Listener{
 			player.teleport(destination);
 		} else {
 //			logger.info("Teleporting " + player.getName() + " with a vehicle.");
+			//This is pretty buggy over long distances or between worlds...
+			destination.getChunk().load();
 			vehicle.eject();
+			vehicle.teleport(destination);
 			player.teleport(destination);
-			vehicle.teleport(player.getLocation());
-			vehicle.setPassenger(player);
+			Boolean result = vehicle.setPassenger(player);
+			logger.info("Set passenger result: " + result.toString());
 		}
 	}
 	
