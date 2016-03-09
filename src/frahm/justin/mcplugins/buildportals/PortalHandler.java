@@ -146,8 +146,8 @@ public class PortalHandler {
 			switch (destYaw.intValue()) {
 				//South
 				case 0:
-					forwardVec = new Vector(0, 0, -1);
-					backwardVec = new Vector(0, 0, 1);
+					forwardVec = new Vector(0, 0, 1);
+					backwardVec = new Vector(0, 0, -1);
 					break;
 				//West
 				case 90:
@@ -156,8 +156,8 @@ public class PortalHandler {
 					break;
 				//North
 				case 180:
-					forwardVec = new Vector(0, 0, 1);
-					backwardVec = new Vector(0, 0, -1);
+					forwardVec = new Vector(0, 0, -1);
+					backwardVec = new Vector(0, 0, 1);
 					break;
 				//East
 				default:
@@ -173,8 +173,8 @@ public class PortalHandler {
 			Integer backwardNonSolidCount = 0;
 			while (destIter.hasNext()) {
 				portalLoc = destIter.next().toLocation(destWorld);
-				forwardBlock = destWorld.getBlockAt(portalLoc.getBlockX() + forwardVec.getBlockX(), portalLoc.getBlockY() + forwardVec.getBlockX(), portalLoc.getBlockZ() + forwardVec.getBlockZ());
-				backwardBlock = destWorld.getBlockAt(portalLoc.getBlockX() + backwardVec.getBlockX(), portalLoc.getBlockY() + backwardVec.getBlockX(), portalLoc.getBlockZ() + backwardVec.getBlockZ());
+				forwardBlock = destWorld.getBlockAt(portalLoc.getBlockX() + forwardVec.getBlockX(), portalLoc.getBlockY() + forwardVec.getBlockY(), portalLoc.getBlockZ() + forwardVec.getBlockZ());
+				backwardBlock = destWorld.getBlockAt(portalLoc.getBlockX() + backwardVec.getBlockX(), portalLoc.getBlockY() + backwardVec.getBlockY(), portalLoc.getBlockZ() + backwardVec.getBlockZ());
 //				logger.info("Forward Block: " + forwardBlock.getLocation().toVector().toString() + " , "+ forwardBlock.getType().name());
 //				logger.info("Backward Block: " + backwardBlock.getLocation().toVector().toString() + " , "+ backwardBlock.getType().name());
 				if (!forwardBlock.getType().isSolid()) {
@@ -189,6 +189,7 @@ public class PortalHandler {
 //			logger.info("Backward Transparent blocks: " + backwardNonSolidCount);
 			//If 'backwards' face has more non-solid blocks, turn the Yaw around.
 			if (backwardNonSolidCount > forwardNonSolidCount) {
+//				logger.info("Turning destination yaw around.");
 				if (destYaw < 180F) {
 					destYaw += 360F;
 				}
