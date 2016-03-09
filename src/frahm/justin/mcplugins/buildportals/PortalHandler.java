@@ -119,23 +119,80 @@ public class PortalHandler {
 			sourceVec.add(blockCenterOffset);
 			Iterator<Vector> sourceIter;
 			Iterator<Vector> destIter;
+			ArrayList<Vector> destVectors;
 			World destWorld;
 			Float destYaw;
 			
 			//If source is in portal A
 			if (sourceLoc.getWorld() == aWorld && vectorsA.contains(sourceLoc.toVector())) {
 					sourceIter = vectorsA.iterator();
+					destVectors = vectorsB;
 					destIter = vectorsB.iterator();
 					destWorld = bWorld;
 					destYaw = yawB;
 			//If source is in portal B
 			} else if (sourceLoc.getWorld() == bWorld && vectorsB.contains(sourceLoc.toVector())) {
 					sourceIter = vectorsB.iterator();
+					destVectors = vectorsA;
 					destIter = vectorsA.iterator();
 					destWorld = aWorld;
 					destYaw = yawA;
 			} else {
 				return null;
+			}
+			Vector forwardVec;
+			Vector backwardVec;
+			//Define a unit vector in the destination Yaw direction
+			switch (destYaw.intValue()) {
+				//South
+				case 0:
+					forwardVec = new Vector(0, 0, -1);
+					backwardVec = new Vector(0, 0, 1);
+					break;
+				//West
+				case 90:
+					forwardVec = new Vector(-1, 0, 0);
+					backwardVec = new Vector(1, 0, 0);
+					break;
+				//North
+				case 180:
+					forwardVec = new Vector(0, 0, 1);
+					backwardVec = new Vector(0, 0, -1);
+					break;
+				//East
+				default:
+					forwardVec = new Vector(1, 0, 0);
+					backwardVec = new Vector(-1, 0, 0);
+					break;
+			}
+			//Count non-solid blocks next to portal blocks
+			Location portalLoc;
+			Block forwardBlock;
+			Block backwardBlock;
+			Integer forwardNonSolidCount = 0;
+			Integer backwardNonSolidCount = 0;
+			while (destIter.hasNext()) {
+				portalLoc = destIter.next().toLocation(destWorld);
+				forwardBlock = destWorld.getBlockAt(portalLoc.getBlockX() + forwardVec.getBlockX(), portalLoc.getBlockY() + forwardVec.getBlockX(), portalLoc.getBlockZ() + forwardVec.getBlockZ());
+				backwardBlock = destWorld.getBlockAt(portalLoc.getBlockX() + backwardVec.getBlockX(), portalLoc.getBlockY() + backwardVec.getBlockX(), portalLoc.getBlockZ() + backwardVec.getBlockZ());
+//				logger.info("Forward Block: " + forwardBlock.getLocation().toVector().toString() + " , "+ forwardBlock.getType().name());
+//				logger.info("Backward Block: " + backwardBlock.getLocation().toVector().toString() + " , "+ backwardBlock.getType().name());
+				if (!forwardBlock.getType().isSolid()) {
+					forwardNonSolidCount += 1;
+				}
+				if (!backwardBlock.getType().isSolid()) {
+					backwardNonSolidCount += 1;
+				}
+			}
+			destIter = destVectors.iterator();
+//			logger.info("Forward Transparent blocks: " + forwardNonSolidCount);
+//			logger.info("Backward Transparent blocks: " + backwardNonSolidCount);
+			//If 'backwards' face has more non-solid blocks, turn the Yaw around.
+			if (backwardNonSolidCount > forwardNonSolidCount) {
+				if (destYaw < 180F) {
+					destYaw += 360F;
+				}
+				destYaw -= 180F;
 			}
 			
 			Integer sourceXmin;
@@ -146,7 +203,6 @@ public class PortalHandler {
 			Integer sourceZmax;
 			
 			Vector vec;
-			
 			vec = sourceIter.next();
 			sourceXmax = sourceXmin = vec.getBlockX();
 			sourceYmax = sourceYmin = vec.getBlockY();
@@ -537,7 +593,7 @@ public class PortalHandler {
 				return null;
 			}
 			wallSE.add(testLoc.getBlock());
-			yaw = 90F;
+			yaw = 90F; //West
 		} else {
 //			logger.info("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 		}
@@ -560,7 +616,7 @@ public class PortalHandler {
 				return null;
 			}
 			wallSE.add(testLoc.getBlock());
-			yaw = 180F;
+			yaw = 180F; //North
 		} else {
 //			logger.info("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 		}
