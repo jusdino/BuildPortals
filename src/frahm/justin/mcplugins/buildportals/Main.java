@@ -44,23 +44,34 @@ public class Main extends JavaPlugin {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		if (cmd.getName().equalsIgnoreCase("check")) {
-			if (!(sender instanceof Player)) {
-				sender.sendMessage("Only a player can check their location.");
+		if (cmd.getName().equalsIgnoreCase("buildportals") || cmd.getName().equalsIgnoreCase("bp")) {
+			if (args.length < 1) {
 				return false;
 			}
-			Player player = (Player) sender;
-			Location loc = player.getLocation().getBlock().getLocation();
-			if (player.getVehicle() instanceof Minecart) {
-				loc.add(0,1,0);
+			switch (args[0].toLowerCase()) {
+				case "check":
+					if (!(sender instanceof Player)) {
+						sender.sendMessage("Only a player can check their location.");
+						return false;
+					}
+					Player player = (Player) sender;
+					Location loc = player.getLocation().getBlock().getLocation();
+					if (player.getVehicle() instanceof Minecart) {
+						loc.add(0,1,0);
+					}
+					sender.sendMessage("Your location is: " + loc.toVector().toString());
+					Boolean inPortal = portals.isInAPortal(loc);
+					if (inPortal) {
+						player.sendMessage("You ARE in a portal!");
+					} else {
+						player.sendMessage("You ARE NOT in a portal.");
+					}
+					return true;
+				default:
+					sender.sendMessage("You typed: " + args[0]);
+					return false;
 			}
-			sender.sendMessage("Your location is: " + loc.toVector().toString());
-			Boolean inPortal = portals.isInAPortal(loc);
-			if (inPortal) {
-				player.sendMessage("You ARE in a portal!");
-			} else {
-				player.sendMessage("You ARE NOT in a portal.");
-			}
+			
 		}
 		return true;
 	}
