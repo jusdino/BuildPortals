@@ -2,5 +2,8 @@ name: BuildPortals
 main: frahm.justin.mcplugins.buildportals.Main
 version: 0.0.1
 commands:
-  check:
-    description: Checks whether player position is in a portal.
+  buildportals:
+    description: All commands for the BuildPortals plugin.
+  bp:
+    description: All commands for the BuildPortals plugin.
+    

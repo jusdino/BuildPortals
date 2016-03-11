@@ -1,6 +1,7 @@
 package frahm.justin.mcplugins.buildportals;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,11 +15,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Main extends JavaPlugin {
 	PortalHandler portals;
 	FileConfiguration config;
+	Logger logger;
 
 	@Override
 	public void onEnable() {
 		config = this.getConfig();
 		portals = new PortalHandler(this);
+		logger = this.getLogger();
 		getServer().getPluginManager().registerEvents(new BPListener(this, portals), this);
 		//Set default portal building material to emerald blocks
 		config.addDefault("PortalMaterial", Material.EMERALD_BLOCK.name());
@@ -67,8 +70,36 @@ public class Main extends JavaPlugin {
 						player.sendMessage("You ARE NOT in a portal.");
 					}
 					return true;
+				case "setmaterial":
+					Material mat = null;
+					try {
+						mat = Material.getMaterial(args[1].toUpperCase());
+					} catch (NullPointerException exc) {
+						sender.sendMessage("You must specify a material.");
+					} catch (ArrayIndexOutOfBoundsException exc) {
+						sender.sendMessage("You must specify a material.");
+					} finally {
+						if (mat == null) {
+							sender.sendMessage("Material name invalid.");
+							sender.sendMessage("Setting portal material failed.");
+							logger.warning("Setting portal material failed.");
+							return false;
+						}
+					}
+					if (!mat.isBlock()) {
+						sender.sendMessage("Material must be a placeable block type.");
+						sender.sendMessage("Setting portal material failed.");
+						logger.warning("Setting portal material failed.");
+						return false;
+					}
+					sender.sendMessage("Setting portal material to " + mat.name());
+					logger.info("Setting portal material to " + mat.name());
+					config.set("PortalMaterial",mat.name());
+					this.saveConfig();
+					sender.sendMessage("Converting existing portals to " + mat.name());
+					logger.info("Converting existing portals to " + mat.name());
+					portals.updatePortals();
 				default:
-					sender.sendMessage("You typed: " + args[0]);
 					return false;
 			}
 			

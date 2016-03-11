@@ -716,6 +716,15 @@ public class PortalHandler {
 		portals = new HashSet<Portal>();
 		portalBlocks = new HashMap<String, HashSet<Vector>>();
 		frameBlocks = new HashMap<String, HashSet<Vector>>();
+		Material mat = null;
+		try {
+			mat = Material.getMaterial(config.getString("PortalMaterial"));
+		} finally {
+			if (mat == null) {
+				logger.warning("Could not read configured portal material! Aporting portal update.");
+				return;
+			}
+		}
 		
 		FileConfiguration config = plugin.getConfig();
 		if (null == config) {
@@ -939,6 +948,19 @@ public class PortalHandler {
 				} //activator while loop
 			} //portalNumber = 0
 		} //portalKeys while loop
+		
+		//Set all frame blocks to frame material
+		Iterator<Vector> frameVecs;
+		for (Map.Entry<String, HashSet<Vector>> frameEntries : frameBlocks.entrySet()) {
+			String worldName = frameEntries.getKey();
+			World world = Bukkit.getWorld(worldName);
+			frameVecs = frameEntries.getValue().iterator();
+			while (frameVecs.hasNext()) {
+				Vector vec = frameVecs.next();
+				Block block = new Location(world, vec.getX(), vec.getY(), vec.getZ()).getBlock();
+				block.setType(mat);
+			}
+		}
 	} //Update portals member
 
 	/*
