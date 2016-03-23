@@ -99,10 +99,85 @@ public class Main extends JavaPlugin {
 					sender.sendMessage("Converting existing portals to " + mat.name());
 					logger.info("Converting existing portals to " + mat.name());
 					portals.updatePortals();
+					return true;
+				case "addactivator":
+					ArrayList<String> activators;
+					mat = null;
+					activators = (ArrayList<String>) config.getStringList("PortalActivators");
+					try {
+						mat = Material.getMaterial(args[1].toUpperCase());
+					} catch (NullPointerException exc) {
+						sender.sendMessage("You must specify a material.");
+					} catch (ArrayIndexOutOfBoundsException exc) {
+						sender.sendMessage("You must specify a material.");
+					} finally {
+						if (mat == null) {
+							sender.sendMessage("Material name invalid.");
+							sender.sendMessage("Adding activator material failed.");
+							logger.warning("Adding activator material failed.");
+							return false;
+						}
+					}
+					if (!mat.isBlock()) {
+						sender.sendMessage("Material must be a placeable block type.");
+						sender.sendMessage("Adding activator material failed.");
+						logger.warning("Adding activator material failed.");
+						return false;
+					}
+					if (activators.contains(mat.name())) {
+						sender.sendMessage("That is already an activator material.");
+						logger.warning(sender.getName() + " attempted to add an already configured activator material.");
+						return false;
+					}
+					activators.add(mat.name());
+					sender.sendMessage("Adding " + mat.name() + " as an activator.");
+					logger.info("Adding " + mat.name() + " as an activator.");
+					config.set("PortalActivators", activators);
+					this.saveConfig();
+					return true;
+				case "removeactivator":
+					String matName = null;
+					activators = (ArrayList<String>) config.getStringList("PortalActivators");
+					try {
+						matName = args[1].toUpperCase();
+					} catch (NullPointerException exc) {
+						sender.sendMessage("You must specify a material.");
+					} catch (ArrayIndexOutOfBoundsException exc) {
+						sender.sendMessage("You must specify a material.");
+					} finally {
+						if (matName == null) {
+							sender.sendMessage("Removing activator material failed.");
+							logger.warning("Removing activator material failed.");
+							return false;
+						}
+					}
+					if (!activators.contains(matName)) {
+						sender.sendMessage("That is not an activator material.");
+						logger.warning(sender.getName() + " attempted to remove to an unconfigured activator material.");
+						return false;
+					}
+					activators.remove(matName);
+					sender.sendMessage("Removing " + matName + " from activators.");
+					logger.info("Removing " + matName + " from activators.");
+					config.set("PortalActivators", activators);
+					this.saveConfig();
+					return true;
+				case "listactivators":
+					activators = (ArrayList<String>) config.getStringList("PortalActivators");
+					sender.sendMessage("Activators are: " + activators.toString());
+					return true;
 				default:
+					sender.sendMessage("BuildPortals command usage:");
+					sender.sendMessage("  /BP Check ");
+					sender.sendMessage("    Returns whether you are currently in a portal.");
+					sender.sendMessage("  /BP SetMaterial <Material_Name>");
+					sender.sendMessage("    Sets the material from which portals should be built. Note that this will change all existing portals to this material.");
+					sender.sendMessage("  /BP AddActivator <Material_Name>");
+					sender.sendMessage("    Adds to the list of activator materials.");
+					sender.sendMessage("  /BP RemoveActivator <Material_Name>");
+					sender.sendMessage("    Removes an activator material.");
 					return false;
 			}
-			
 		}
 		return true;
 	}
