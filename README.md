@@ -22,7 +22,6 @@ The plugin does support in-game configuration changes now:
  * '/BP ListActivators \<MaterialName\>' - This will list all currently configured activator materials. 
 
 Planned updates:
- * Bug fix: Portals can be linked to themselves. This will need fixing.
  * Support for minecart / horse teleportation.
 
 If someone happens across this project, feel free to critique. I welcome tips/criticism/suggestions!
