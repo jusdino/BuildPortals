@@ -176,6 +176,8 @@ public class Main extends JavaPlugin {
 					sender.sendMessage("    Adds to the list of activator materials.");
 					sender.sendMessage("  /BP RemoveActivator <Material_Name>");
 					sender.sendMessage("    Removes an activator material.");
+					sender.sendMessage("  /BP ListActivators <Material_Name>");
+					sender.sendMessage("    Lists all configured activator materials.");
 					return false;
 			}
 		}

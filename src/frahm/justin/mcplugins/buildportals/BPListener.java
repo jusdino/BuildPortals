@@ -100,9 +100,13 @@ public class BPListener implements Listener{
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 //		logger.info("Block physics registered.");
 		String frameMaterialName = config.getString("PortalMaterial");
+		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
+		//If changed block type is neither a frame material or a frame activator, return.
 		if (event.getChangedType().name() != Material.getMaterial(frameMaterialName).name()) {
 //			logger.info("Block is " + event.getChangedType().name() + " not " + frameMaterialName);
-			return;
+			if (!activatorMaterialNames.contains(event.getChangedType().name())) {
+				return;
+			}
 		}
 		
 		//Check all portals for broken frames
@@ -143,8 +147,9 @@ public class BPListener implements Listener{
 //		logger.info(block.getType().name() + " placed. Continuing tests.");
 		//Get vectors to actual portal blocks from handler
 		ArrayList<String> frameVecs = new ArrayList<String>();
+		ArrayList<String> activatorVecs = new ArrayList<String>();
 		ArrayList<String> vectors = new ArrayList<String>();
-		Float yaw = portals.getCompletePortalVectors(block, frameVecs, vectors);
+		Float yaw = portals.getCompletePortalVectors(block, frameVecs, activatorVecs, vectors);
 		
 		if (null == yaw) {
 //			logger.info("This block does NOT complete a portal. No action taken.");
@@ -179,6 +184,7 @@ public class BPListener implements Listener{
 			config.set("portals.0." + block.getType().name() + ".world", null);
 			config.set("portals.0." + block.getType().name() + ".vec", null);
 			config.set("portals.0." + block.getType().name() + ".frame", null);
+			config.set("portals.0." + block.getType().name() + ".activators", null);
 			config.set("portals.0." + block.getType().name() + ".yaw", null);
 			config.createSection("portals." + Integer.toString(i), newPortal);
 			config.set("portals." + Integer.toString(i) + ".active", true);
@@ -241,10 +247,13 @@ public class BPListener implements Listener{
 			newPortal.put("world", block.getWorld().getName());
 			newPortal.put("vec", vectors);
 			newPortal.put("frame", frameVecs);
+			newPortal.put("activators", activatorVecs);
 			newPortal.put("yaw", yaw.toString());
 //			logger.info("Applying changes to portal 0: " + newPortal.toString());
 			config.createSection("portals.0." + block.getType().name(), newPortal);
 			config.set("portals.0." + block.getType().name() + ".active", true);
+			
+			//Make a visible particle effect
 			Location particleLoc;
 			int spread;
 			int count;

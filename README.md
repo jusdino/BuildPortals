@@ -5,7 +5,7 @@ April 16, 2016:
 
 Status:
 
-This project is at a pre-release. It is being beta-tested on a small server before posting to the greater community. I have a couple of bugs to work out before an offical release.
+This project is at a pre-release. It is being beta-tested on a small server before posting to the greater community. I have a couple of bugs to work out before an official release.
 
 Use:
 
@@ -17,7 +17,7 @@ The plugin does support in-game configuration changes now:
  
  * '/BP AddActivator \<MaterialName\>' - You can add a new activator material. This allows activating portals with a new block.
  
- * '/BP RemoveActivator \<MaterialName\>' - You can remove an activator materail. This will disallow activating portals with the named material.
+ * '/BP RemoveActivator \<MaterialName\>' - You can remove an activator material. This will disallow activating portals with the named material.
  
  * '/BP ListActivators \<MaterialName\>' - This will list all currently configured activator materials. 
 

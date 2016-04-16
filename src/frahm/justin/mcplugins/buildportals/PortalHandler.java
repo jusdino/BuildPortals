@@ -34,6 +34,7 @@ public class PortalHandler {
 		ArrayList<Vector> vectorsB;
 		ArrayList<Vector> frameVecsA;
 		ArrayList<Vector> frameVecsB;
+		ArrayList<Vector> activatorVecsA;
 		World aWorld;
 		World bWorld;
 		Float yawA;
@@ -46,11 +47,12 @@ public class PortalHandler {
 		 * vectors representing sides A and B of the portals as well as which
 		 * world each side is in.
 		 */
-		public Portal(String identifier, World aWorld, ArrayList<Vector> vectorsA, ArrayList<Vector> frameVecsA, Float yawA, World bWorld, ArrayList<Vector> vectorsB, ArrayList<Vector> frameVecsB, Float yawB) {
+		public Portal(String identifier, World aWorld, ArrayList<Vector> vectorsA, ArrayList<Vector> frameVecsA, ArrayList<Vector> activatorVecsA, Float yawA, World bWorld, ArrayList<Vector> vectorsB, ArrayList<Vector> frameVecsB, Float yawB) {
 			this.identifier = identifier;
 			this.aWorld = aWorld;
 			this.vectorsA = vectorsA;
 			this.frameVecsA = frameVecsA;
+			this.activatorVecsA = activatorVecsA;
 			this.yawA = yawA;
 			this.bWorld = bWorld;
 			this.vectorsB = vectorsB;
@@ -100,6 +102,21 @@ public class PortalHandler {
 			}
 //			logger.info("isInFrame: " + loc.toVector().toString());
 //			logger.info("   not in: " + frameVecsB.toString());
+			return false;
+		}
+		
+		/*
+		 * Quick tester to see if the given location is within this portal's activators.
+		 * 
+		 * NOTE: the given location MUST be based on the floored coordinates.
+		 * NOTE: only incomplete portals will have activators.
+		 */
+		public boolean isInActivators(Location loc) {
+			if (loc.getWorld() == aWorld) {
+				if (activatorVecsA.contains(loc.toVector())) {
+					return true;
+				}
+			}
 			return false;
 		}
 		
@@ -374,7 +391,8 @@ public class PortalHandler {
 	 * testing of whether a location is in a configured portal/frame.
 	 */
 	static HashMap<String, HashSet<Vector>> portalBlocks;
-	static HashMap<String, HashSet<Vector>> frameBlocks; 
+	static HashMap<String, HashSet<Vector>> frameBlocks;
+	static HashMap<String, HashSet<Vector>> activatorBlocks;
 
 	/*
 	 * This set of portal objects is for actual correlating of source portal
@@ -390,13 +408,14 @@ public class PortalHandler {
 	}
 	
 	/*
-	 * Runs through each portal frame block, checks that they are still the portal
-	 * frame material and if not, returns the portal number of the first non-portal
+	 * Runs through each portal frame block and activator block, checks that they are still the
+	 * correct material and if not, returns the portal number of the first incorrect
 	 * material block it finds.
 	 */
 	public String integrityCheck(Location loc) {
 		String frameMaterialName = config.getString("PortalMaterial");
 		Iterator<Vector> frameVecs;
+		//logger.info("Checking frames...");
 		for (Map.Entry<String, HashSet<Vector>> frameEntries : frameBlocks.entrySet()) {
 			String worldName = frameEntries.getKey();
 			World world = Bukkit.getWorld(worldName);
@@ -406,6 +425,23 @@ public class PortalHandler {
 				loc = new Location(world, vec.getX(), vec.getY(), vec.getZ());
 				if (loc.getBlock().getType().name() != Material.getMaterial(frameMaterialName).name()) {
 					return getPortalFromFrame(loc);
+				}
+			}
+		}
+		logger.info("Checking activators...");
+		Iterator<Vector> activatorVecs;
+		ArrayList<String> activators = (ArrayList<String>) config.getStringList("PortalActivators");
+		for (Map.Entry<String, HashSet<Vector>> activatorEntries : activatorBlocks.entrySet()) {
+			String worldName = activatorEntries.getKey();
+			World world = Bukkit.getWorld(worldName);
+			//logger.info("Checking " + worldName + " activators...");
+			activatorVecs = activatorEntries.getValue().iterator();
+			while (activatorVecs.hasNext()) {
+				Vector vec = activatorVecs.next();
+				loc = new Location(world, vec.getX(), vec.getY(), vec.getZ());
+				if (!activators.contains(loc.getBlock().getType().name())) {
+					//logger.info("Bad activator found at " + loc.toVector().toString() + "!");
+					return getPortalFromActivator(loc);
 				}
 			}
 		}
@@ -444,7 +480,7 @@ public class PortalHandler {
 	 * the frame blocks as well as the 'activating' blocks placed along the
 	 * inside of the bottom of the frame.
 	 */
-	public Float getCompletePortalVectors(Block block, ArrayList<String> frameVecs, ArrayList<String> vectors) {
+	public Float getCompletePortalVectors(Block block, ArrayList<String> frameVecs, ArrayList<String> activatorVecs, ArrayList<String> vectors) {
 		FileConfiguration config = plugin.getConfig();
 		Float yaw = null;
 		
@@ -495,6 +531,7 @@ public class PortalHandler {
 			while (currentActivatorName == activatorBlock.getType().name()) {
 				if (!activatorBlocks.contains(activatorBlock)) {
 					activatorBlocks.add(activatorBlock);
+					activatorVecs.add(activatorBlock.getLocation().toVector().toString());
 				}
 				activatorBlock = activatorBlock.getLocation().add(vec).getBlock();
 			}
@@ -716,6 +753,7 @@ public class PortalHandler {
 		portals = new HashSet<Portal>();
 		portalBlocks = new HashMap<String, HashSet<Vector>>();
 		frameBlocks = new HashMap<String, HashSet<Vector>>();
+		activatorBlocks = new HashMap<String, HashSet<Vector>>();
 		Material mat = null;
 		try {
 			mat = Material.getMaterial(config.getString("PortalMaterial"));
@@ -751,6 +789,7 @@ public class PortalHandler {
 		World worldA;
 		ArrayList<String> vectorStringsA;
 		ArrayList<String> frameStringsA;
+		ArrayList<String> activatorStringsA;
 		Float yawA;
 		World worldB;
 		ArrayList<String> vectorStringsB;
@@ -896,7 +935,7 @@ public class PortalHandler {
 						tempVecSet = new HashSet<Vector>();
 					}
 				}
-				portals.add( new Portal(portalNumber, worldA, vectorsA, frameVecsA, yawA, worldB, vectorsB, frameVecsB, yawB));
+				portals.add( new Portal(portalNumber, worldA, vectorsA, frameVecsA, new ArrayList<Vector>(), yawA, worldB, vectorsB, frameVecsB, yawB));
 				//logger.info("portals: " + portals.toString());
 //				logger.info("portalBlocks: " + portalBlocks.toString());
 			} else { //portalNumber = 0
@@ -906,8 +945,10 @@ public class PortalHandler {
 				while (activatorIter.hasNext()) {
 					activator = activatorIter.next();
 					frameStringsA = (ArrayList<String>) config.getStringList("portals." + portalNumber + "." + activator + ".frame");
+					activatorStringsA = (ArrayList<String>) config.getStringList("portals." + portalNumber + "." + activator + ".activators");
 		
 					ArrayList<Vector> frameVecsA = new ArrayList<Vector>();
+					ArrayList<Vector> activatorVecsA = new ArrayList<Vector>();
 					
 					String worldAName = config.getString("portals." + portalNumber + "." + activator + ".world");
 					String yawAString = config.getString("portals." + portalNumber + "." + activator + ".yaw");
@@ -918,7 +959,7 @@ public class PortalHandler {
 							return;
 						}
 						yawA = Float.parseFloat(yawAString);
-						// Convert string lists for A and B to vector lists
+						// Convert string lists for A to vector lists
 						// Side A frame vectors
 						vectorsIterator = frameStringsA.iterator();
 						while (vectorsIterator.hasNext()) {
@@ -941,7 +982,29 @@ public class PortalHandler {
 								tempVecSet = new HashSet<Vector>();
 							}
 						}
-						portals.add( new Portal(portalNumber + "." + activator, worldA, new ArrayList<Vector>(), frameVecsA, yawA, null, new ArrayList<Vector>(), new ArrayList<Vector>(), 0F));
+						// Side A activator vectors
+						vectorsIterator = activatorStringsA.iterator();
+						while (vectorsIterator.hasNext()) {
+							String[] parts = vectorsIterator.next().split(",");
+							if (parts.length != 3) {
+								logger.info("Error reading frame data!");
+								return;
+							}
+							Vector vec = new Vector();
+							vec.setX(Double.parseDouble(parts[0]));
+							vec.setY(Double.parseDouble(parts[1]));
+							vec.setZ(Double.parseDouble(parts[2]));
+							activatorVecsA.add(vec);
+							// Add this vector to the activatorBlocks set, keyed by world
+							if (activatorBlocks.containsKey(worldA.getName())) {
+								activatorBlocks.get(worldA.getName()).add(vec);
+							} else {
+								tempVecSet.add(vec);
+								activatorBlocks.put(worldA.getName(), tempVecSet);
+								tempVecSet = new HashSet<Vector>();
+							}
+						}
+						portals.add( new Portal(portalNumber + "." + activator, worldA, new ArrayList<Vector>(), frameVecsA, activatorVecsA, yawA, null, new ArrayList<Vector>(), new ArrayList<Vector>(), 0F));
 						//logger.info("portals: " + portals.toString());
 	//					logger.info("portalBlocks: " + portalBlocks.toString());
 					} //WorldAName != null
@@ -990,6 +1053,18 @@ public class PortalHandler {
 			}
 		}
 		
+		return null;
+	}
+	
+	public String getPortalFromActivator(Location loc) {
+//		logger.info("Checking location: " + loc.toVector().toString());
+		Iterator<Portal> portalsIterator = portals.iterator();
+		while (portalsIterator.hasNext()) {
+			Portal portal = portalsIterator.next();
+			if (portal.isInActivators(loc)) {
+				return portal.getID();
+			}
+		}
 		return null;
 	}
 }
