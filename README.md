@@ -13,13 +13,13 @@ Once installed, any player can build a portal using a designated portal building
 
 The plugin does support in-game configuration changes now:
 
- * '/BP SetMaterial <MaterialName>' - You can change the portal frame material. This will convert all existing portals to the new material and also allow building new portals from the new named material.
+ * '/BP SetMaterial \<MaterialName\>' - You can change the portal frame material. This will convert all existing portals to the new material and also allow building new portals from the new named material.
  
-  * '/BP AddActivator <MaterialName>' - You can add a new activator material. This allows activating portals with a new block.
-  
-  * '/BP RemoveActivator <MaterialName>' - You can remove an activator materail. This will disallow activating portals with the named material.
-  
-  * '/BP ListActivators <MaterialName>' - This will list all currently configured activator materials. 
+ * '/BP AddActivator \<MaterialName\>' - You can add a new activator material. This allows activating portals with a new block.
+ 
+ * '/BP RemoveActivator \<MaterialName\>' - You can remove an activator materail. This will disallow activating portals with the named material.
+ 
+ * '/BP ListActivators \<MaterialName\>' - This will list all currently configured activator materials. 
 
 Planned updates:
  * Bug fix: Portals can be linked to themselves. This will need fixing.
