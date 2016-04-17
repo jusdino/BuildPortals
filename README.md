@@ -5,11 +5,16 @@ April 16, 2016:
 
 Status:
 
-This project is at a pre-release. It is being beta-tested on a small server before posting to the greater community. I have a couple of bugs to work out before an official release.
+This project is freshly released.
 
 Use:
 
-Once installed, any player can build a portal using a designated portal building material (Emerald Blocks by default) in a nether-portal-like rectangle, with at least large enough interior for a player to walk through and place an 'activator block' (any of Redstone blocks, Gold blocks or Diamond blocks by default) on each bottom block along the interior of the portal. They then build another portal where they would like to connect, placing matching 'activator block's in this portal. Once two complete and like-activated portals are built, the plugin converts the portal interior (including activator blocks) to air and links the portals! Each portal can be built by any player, in any world. Portals activated with each material can be started independently with no conflict issues.
+Once installed, any player can build a teleportation portal by doing:
+ 1) Using a designated portal building material (Emerald Blocks by default) to make a nether-portal-like rectangle, with at least large enough interior for a player to walk through and;
+ 2) Place an 'activator block' (any of Redstone blocks, Gold blocks or Diamond blocks by default) on each bottom block along the interior of the portal.
+ 3) Then build another portal where they would like to connect, placing matching 'activator block's in this portal.
+ 
+Once two complete and like-activated portals are built, the plugin converts the portal interior (including activator blocks) to air and links the portals! Each portal can be built by any player, in any world. Portals activated with each material can be started independently with no conflict issues.
 
 The plugin does support in-game configuration changes now:
 
