@@ -1,16 +1,17 @@
 # BuildPortals
 Bukkit/Spigot server plugin to allow players to build their own inter-world portals without the use of commands. These portals do not currently support teleporting players with horses or other vehicle-class objects they are riding; I'm trying to find a way to get around some issues there...
 
-April 16, 2016:
+April 17, 2016:
 
 Status:
 
-This project is freshly released.
+This project is freshly released at spigotmc.org:
+https://www.spigotmc.org/resources/buildportals.21922/
 
 Use:
 
 Once installed, any player can build a teleportation portal by doing:
- 1) Using a designated portal building material (Emerald Blocks by default) to make a nether-portal-like rectangle, with at least large enough interior for a player to walk through and;
+ 1) Using a designated portal building material (Emerald Blocks by default) to make a nether-portal-like rectangle, with interior at least large enough for a player to walk through and;
  2) Place an 'activator block' (any of Redstone blocks, Gold blocks or Diamond blocks by default) on each bottom block along the interior of the portal.
  3) Then build another portal where they would like to connect, placing matching 'activator block's in this portal.
  
