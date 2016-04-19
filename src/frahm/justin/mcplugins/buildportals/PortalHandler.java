@@ -428,7 +428,7 @@ public class PortalHandler {
 				}
 			}
 		}
-		logger.info("Checking activators...");
+		//logger.info("Checking activators...");
 		Iterator<Vector> activatorVecs;
 		ArrayList<String> activators = (ArrayList<String>) config.getStringList("PortalActivators");
 		for (Map.Entry<String, HashSet<Vector>> activatorEntries : activatorBlocks.entrySet()) {

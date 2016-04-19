@@ -6,4 +6,12 @@ commands:
     description: All commands for the BuildPortals plugin.
   bp:
     description: All commands for the BuildPortals plugin.
-    
+permissions:
+  buildportals.*:
+    description: Gives access to all BuildPortals commands
+    default: op
+    children:
+      buildportals.listmaterials: true
+  buildportals.listactivators:
+    description: Give access to the activator material list.
+    default: true

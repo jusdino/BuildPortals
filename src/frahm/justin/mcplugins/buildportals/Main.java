@@ -71,6 +71,11 @@ public class Main extends JavaPlugin {
 					}
 					return true;
 				case "setmaterial":
+					if (sender.hasPermission("buildportals.*")) {
+					} else {
+						sender.sendMessage("You do not have permission to use this command.");
+						return true;
+					}
 					Material mat = null;
 					try {
 						mat = Material.getMaterial(args[1].toUpperCase());
@@ -101,6 +106,11 @@ public class Main extends JavaPlugin {
 					portals.updatePortals();
 					return true;
 				case "addactivator":
+					if (sender.hasPermission("buildportals.*")) {
+					} else {
+						sender.sendMessage("You do not have permission to use this command.");
+						return true;
+					}
 					ArrayList<String> activators;
 					mat = null;
 					activators = (ArrayList<String>) config.getStringList("PortalActivators");
@@ -136,6 +146,11 @@ public class Main extends JavaPlugin {
 					this.saveConfig();
 					return true;
 				case "removeactivator":
+					if (sender.hasPermission("buildportals.*")) {
+					} else {
+						sender.sendMessage("You do not have permission to use this command.");
+						return true;
+					}
 					String matName = null;
 					activators = (ArrayList<String>) config.getStringList("PortalActivators");
 					try {
@@ -163,9 +178,14 @@ public class Main extends JavaPlugin {
 					this.saveConfig();
 					return true;
 				case "listactivators":
+					if (sender.hasPermission("buildportals.listactivators")) {
 					activators = (ArrayList<String>) config.getStringList("PortalActivators");
 					sender.sendMessage("Activators are: " + activators.toString());
 					return true;
+					} else {
+						sender.sendMessage("You do not have permission to use this command.");
+						return true;
+					}
 				default:
 					sender.sendMessage("BuildPortals command usage:");
 					sender.sendMessage("  /BP Check ");
