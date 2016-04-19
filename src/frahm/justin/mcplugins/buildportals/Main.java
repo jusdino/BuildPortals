@@ -52,6 +52,9 @@ public class Main extends JavaPlugin {
 				return false;
 			}
 			switch (args[0].toLowerCase()) {
+				case "version":
+					sender.sendMessage("This is BuildPortals version 1.0-160418");
+						return true;
 				case "check":
 					if (!(sender instanceof Player)) {
 						sender.sendMessage("Only a player can check their location.");
@@ -188,6 +191,8 @@ public class Main extends JavaPlugin {
 					}
 				default:
 					sender.sendMessage("BuildPortals command usage:");
+					sender.sendMessage("  /BP Version ");
+					sender.sendMessage("    Returns the BuildPortals Version info.");
 					sender.sendMessage("  /BP Check ");
 					sender.sendMessage("    Returns whether you are currently in a portal.");
 					sender.sendMessage("  /BP SetMaterial <Material_Name>");
