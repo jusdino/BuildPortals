@@ -1,7 +1,7 @@
 # BuildPortals
-Bukkit/Spigot server plugin to allow players to build their own inter-world portals without the use of commands. These portals do not currently support teleporting players with horses or other vehicle-class objects they are riding; I'm trying to find a way to get around some issues there...
+Bukkit/Spigot server plugin to allow players to build their own inter-world portals without the use of commands. These portals do support teleporting players with horses or pigs!
 
-April 17, 2016:
+April 20, 2016:
 
 Status:
 
@@ -28,6 +28,6 @@ The plugin does support in-game configuration changes now:
  * '/BP ListActivators \<MaterialName\>' - This will list all currently configured activator materials. 
 
 Planned updates:
- * Support for minecart / horse teleportation.
+ * Support for minecart teleportation.
 
 If someone happens across this project, feel free to critique. I welcome tips/criticism/suggestions!
