@@ -17,7 +17,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.Minecart;
+import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
@@ -28,9 +30,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class BPListener implements Listener{
 	Logger logger;
-	
 	Main plugin;
 	PortalHandler portals;
+	VehicleHandler vehicleHandler;
 	FileConfiguration config;
 	HashSet<Player> alreadyOnPortal = new HashSet<Player>();
 	HashMap<Player, Vehicle> teleportedVehicle = new HashMap<Player, Vehicle>();
@@ -39,6 +41,7 @@ public class BPListener implements Listener{
 		this.plugin = plugin;
 		this.portals = portals;
 		this.logger = this.plugin.getLogger();
+		vehicleHandler = new VehicleHandler();
 		config = plugin.getConfig();
 	}
 	
@@ -50,6 +53,9 @@ public class BPListener implements Listener{
 //		logger.info(player.getName() + " moved: " + loc.toVector().toString());
 		//Players in a minecart are listed as 1m below actual, so
 		//add 1 if in a minecart.
+		if (player.getVehicle() != null) {
+//			logger.info(player.getName() + " is in a " + player.getVehicle().getClass().getName());
+		}
 		if (player.getVehicle() instanceof Minecart) {
 //			logger.info(player.getName() + " is in a minecart, adding 1m to Y.");
 			loc.add(0, 1, 0);
@@ -75,24 +81,31 @@ public class BPListener implements Listener{
 		}
 		Location destination = portals.getDestination(player, loc);
 		if (null == destination){
-//			logger.info("Can't get a destination for " + player.getName() + "!");
+			logger.info("Can't get a destination for " + player.getName() + "!");
 			return;
 		}
 		alreadyOnPortal.add(player);
 		
 		Vehicle vehicle = (Vehicle) player.getVehicle();
+		destination.getChunk().load();
+		
 		if (vehicle == null) {
 //			logger.info("Teleporting " + player.getName());
 			player.teleport(destination);
 		} else {
 //			logger.info("Teleporting " + player.getName() + " with a vehicle.");
-			//This is pretty buggy over long distances or between worlds...
-			destination.getChunk().load();
 			vehicle.eject();
-			vehicle.teleport(destination);
 			player.teleport(destination);
-			Boolean result = vehicle.setPassenger(player);
-			logger.info("Set passenger result: " + result.toString());
+			if (vehicle instanceof Horse) {
+				vehicle = vehicleHandler.teleport((Horse) vehicle, destination);
+			}
+			if (vehicle instanceof Minecart) {
+				vehicle = vehicleHandler.teleport((Minecart) vehicle, destination);
+			}
+			if (vehicle instanceof Pig) {
+				vehicle = vehicleHandler.teleport((Pig) vehicle, destination);
+			}
+			vehicle.setPassenger(player);
 		}
 	}
 	
