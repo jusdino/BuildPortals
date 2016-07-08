@@ -17,9 +17,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Horse;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Minecart;
-import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
@@ -27,12 +26,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.vehicle.VehicleMoveEvent;
 
 public class BPListener implements Listener{
 	Logger logger;
 	Main plugin;
 	PortalHandler portals;
-	VehicleHandler vehicleHandler;
+	Teleporter teleporter;
 	FileConfiguration config;
 	HashSet<Player> alreadyOnPortal = new HashSet<Player>();
 	HashMap<Player, Vehicle> teleportedVehicle = new HashMap<Player, Vehicle>();
@@ -41,21 +41,22 @@ public class BPListener implements Listener{
 		this.plugin = plugin;
 		this.portals = portals;
 		this.logger = this.plugin.getLogger();
-		vehicleHandler = new VehicleHandler();
+		teleporter = new Teleporter();
 		config = plugin.getConfig();
 	}
-	
+
 	@EventHandler (ignoreCancelled = true)
-	public void onPlayerMove(PlayerMoveEvent event) {
-		Player player = event.getPlayer();
+	public void onVehicleMove(VehicleMoveEvent event) {
+		Entity passenger = event.getVehicle().getPassenger();
+		if (!(passenger instanceof Player)) {
+			return;
+		}
+		Player player = (Player) event.getVehicle().getPassenger();
 		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 //		logger.info(player.getName() + " moved: " + loc.toVector().toString());
 		//Players in a minecart are listed as 1m below actual, so
 		//add 1 if in a minecart.
-		if (player.getVehicle() != null) {
-//			logger.info(player.getName() + " is in a " + player.getVehicle().getClass().getName());
-		}
 		if (player.getVehicle() instanceof Minecart) {
 //			logger.info(player.getName() + " is in a minecart, adding 1m to Y.");
 			loc.add(0, 1, 0);
@@ -67,7 +68,35 @@ public class BPListener implements Listener{
 			}
 			return;
 		}
+		Location destination = portals.getDestination(player, loc);
+		if (null == destination){
+			logger.info("Can't get a destination for " + player.getName() + "!");
+			return;
+		}
+		alreadyOnPortal.add(player);
+		teleporter.teleport(player, destination);
+		return;
+	}
+	
+	@EventHandler (ignoreCancelled = true)
+	public void onPlayerMove(PlayerMoveEvent event) {
+		Player player = event.getPlayer();
 		
+		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+//		logger.info(player.getName() + " moved: " + loc.toVector().toString());
+		//Players in a minecart are listed as 1m below actual, so
+		//add 1 if in a minecart.
+		if (player.getVehicle() instanceof Minecart) {
+//			logger.info(player.getName() + " is in a minecart, adding 1m to Y.");
+			loc.add(0, 1, 0);
+		}
+		if (!portals.isInAPortal(loc)) {
+			if (alreadyOnPortal.contains(player)) {
+//				logger.info(player.getDisplayName() + " is out of the portal.");
+				alreadyOnPortal.remove(player);
+			}
+			return;
+		}
 //		logger.info(player.getName() + " is in a portal.");
 		if (alreadyOnPortal.contains(player)) {
 			//Don't let the player move if their chunk isn't loaded.
@@ -85,28 +114,8 @@ public class BPListener implements Listener{
 			return;
 		}
 		alreadyOnPortal.add(player);
-		
-		Vehicle vehicle = (Vehicle) player.getVehicle();
-		destination.getChunk().load();
-		
-		if (vehicle == null) {
-//			logger.info("Teleporting " + player.getName());
-			player.teleport(destination);
-		} else {
-//			logger.info("Teleporting " + player.getName() + " with a vehicle.");
-			vehicle.eject();
-			player.teleport(destination);
-			if (vehicle instanceof Horse) {
-				vehicle = vehicleHandler.teleport((Horse) vehicle, destination);
-			}
-			if (vehicle instanceof Minecart) {
-				vehicle = vehicleHandler.teleport((Minecart) vehicle, destination);
-			}
-			if (vehicle instanceof Pig) {
-				vehicle = vehicleHandler.teleport((Pig) vehicle, destination);
-			}
-			vehicle.setPassenger(player);
-		}
+		teleporter.teleport(player, destination);
+		return;
 	}
 	
 	@EventHandler (ignoreCancelled = true)

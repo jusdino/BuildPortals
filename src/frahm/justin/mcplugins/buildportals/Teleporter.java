@@ -4,11 +4,42 @@ import org.bukkit.Location;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Pig;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 
-public class VehicleHandler {
+public class Teleporter {
 	
-	public VehicleHandler() {
+	public Teleporter() {
 		
+	}
+	
+	public boolean teleport(Player player, Location destination) {
+
+		Vehicle vehicle = (Vehicle) player.getVehicle();
+		destination.getChunk().load();
+		
+		if (vehicle == null) {
+//			logger.info("Teleporting " + player.getName());
+			player.teleport(destination);
+		} else {
+//			logger.info("Teleporting " + player.getName() + " with a vehicle.");
+			vehicle.eject();
+			//Don't teleport the vehicle if the player's teleport event was canceled
+			if (player.teleport(destination)){
+				if (vehicle instanceof Horse) {
+					vehicle = teleport((Horse) vehicle, destination);
+				}
+				if (vehicle instanceof Minecart) {
+					vehicle = teleport((Minecart) vehicle, destination);
+				}
+				if (vehicle instanceof Pig) {
+					vehicle = teleport((Pig) vehicle, destination);
+				}
+			}
+			vehicle.setPassenger(player);
+		}
+		
+		return true;
 	}
 	
 	public Minecart teleport(Minecart minecart, Location destination) {
