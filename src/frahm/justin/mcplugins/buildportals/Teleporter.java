@@ -67,15 +67,16 @@ public class Teleporter {
 		destHorse.setJumpStrength(horse.getJumpStrength());;
 		destHorse.setHealth(horse.getHealth());
 		destHorse.setMaximumAir(horse.getMaximumAir());
+		destHorse.setDomestication(horse.getDomestication());
+		destHorse.setMaxDomestication(horse.getMaxDomestication());
 		destHorse.setOwner(horse.getOwner());
 		if (horse instanceof Horse) {
 			((Horse)destHorse).setColor(((Horse)horse).getColor());
 			((Horse)destHorse).setStyle(((Horse)horse).getStyle());
 			((Horse)destHorse).getInventory().setArmor(((Horse)horse).getInventory().getArmor());
 			((Horse)destHorse).getInventory().setSaddle(((Horse)horse).getInventory().getSaddle());
-		}
-		if (horse instanceof SkeletonHorse) {
-			((Horse)destHorse).getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
+		} else if (horse instanceof SkeletonHorse) {
+			horse.getInventory().setItem(0, new ItemStack(Material.SADDLE, 1));
 		}
 		horse.remove();
 		
