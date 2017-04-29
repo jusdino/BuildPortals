@@ -1,5 +1,6 @@
 package frahm.justin.mcplugins.buildportals;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -19,7 +20,11 @@ public class Teleporter {
 	}
 	
 	public boolean teleport(Player player, Location destination) {
-
+		
+		
+		Bukkit.broadcastMessage("Teleporting " + player.getName());
+		
+		
 		Vehicle vehicle = (Vehicle) player.getVehicle();
 		destination.getChunk().load();
 		
@@ -27,6 +32,11 @@ public class Teleporter {
 //			logger.info("Teleporting " + player.getName());
 			player.teleport(destination);
 		} else {
+			
+			
+			Bukkit.broadcastMessage(player.getName() + " was riding a " + vehicle.getClass().toString());
+			
+			
 //			logger.info("Teleporting " + player.getName() + " with a vehicle.");
 			//Update for 1.11
 //			vehicle.eject();
@@ -58,6 +68,11 @@ public class Teleporter {
 	}
 	
 	public AbstractHorse teleport(AbstractHorse horse, Location destination) {
+		
+		
+		Bukkit.broadcastMessage("Teleporting " + horse.getClass().toString());
+		
+		
 		AbstractHorse destHorse = destination.getWorld().spawn(destination, horse.getClass());
 		destHorse.setAge(horse.getAge());
 		destHorse.setCustomName(horse.getCustomName());
@@ -69,7 +84,14 @@ public class Teleporter {
 		destHorse.setMaximumAir(horse.getMaximumAir());
 		destHorse.setDomestication(horse.getDomestication());
 		destHorse.setMaxDomestication(horse.getMaxDomestication());
+		destHorse.setTamed(horse.isTamed());
 		destHorse.setOwner(horse.getOwner());
+		
+		
+		Bukkit.broadcastMessage("Old Horse Tame: " + horse.isTamed());
+		Bukkit.broadcastMessage("New Horse Tame: " + destHorse.isTamed());
+		
+		
 		if (horse instanceof Horse) {
 			((Horse)destHorse).setColor(((Horse)horse).getColor());
 			((Horse)destHorse).setStyle(((Horse)horse).getStyle());
