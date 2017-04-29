@@ -85,11 +85,16 @@ public class Teleporter {
 		destHorse.setDomestication(horse.getDomestication());
 		destHorse.setMaxDomestication(horse.getMaxDomestication());
 		destHorse.setTamed(horse.isTamed());
-		destHorse.setOwner(horse.getOwner());
 		
 		
 		Bukkit.broadcastMessage("Old Horse Tame: " + horse.isTamed());
+		if (horse.getOwner() != null) {
+			Bukkit.broadcastMessage("Old Horse Owner: " + horse.getOwner().getName());
+		}
 		Bukkit.broadcastMessage("New Horse Tame: " + destHorse.isTamed());
+		if (destHorse.getOwner() != null) {
+			Bukkit.broadcastMessage("New Horse Owner: " + destHorse.getOwner().getName());
+		}
 		
 		
 		if (horse instanceof Horse) {
@@ -97,6 +102,7 @@ public class Teleporter {
 			((Horse)destHorse).setStyle(((Horse)horse).getStyle());
 			((Horse)destHorse).getInventory().setArmor(((Horse)horse).getInventory().getArmor());
 			((Horse)destHorse).getInventory().setSaddle(((Horse)horse).getInventory().getSaddle());
+			destHorse.setOwner(horse.getOwner());
 		} else if (horse instanceof SkeletonHorse) {
 			horse.getInventory().setItem(0, new ItemStack(Material.SADDLE, 1));
 		}
