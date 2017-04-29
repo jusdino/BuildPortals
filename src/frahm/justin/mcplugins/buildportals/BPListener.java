@@ -47,11 +47,11 @@ public class BPListener implements Listener{
 
 	@EventHandler (ignoreCancelled = true)
 	public void onVehicleMove(VehicleMoveEvent event) {
-		Entity passenger = event.getVehicle().getPassenger();
+		Entity passenger = event.getVehicle().getPassengers().get(0);
 		if (!(passenger instanceof Player)) {
 			return;
 		}
-		Player player = (Player) event.getVehicle().getPassenger();
+		Player player = (Player) event.getVehicle().getPassengers().get(0);
 		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 //		logger.info(player.getName() + " moved: " + loc.toVector().toString());

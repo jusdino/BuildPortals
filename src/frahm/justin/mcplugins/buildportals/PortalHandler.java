@@ -368,14 +368,14 @@ public class PortalHandler {
 			
 			Location destLoc = new Location(destWorld, destVec.getX(), destVec.getY(), destVec.getZ(), destYaw, 0F);
 			
-//			logger.info("Teleportation event:");
-//			logger.info("Destination portal: " + destXwidth + "/" + destHeight + "/" + destZwidth);
-//			logger.info("          vertical: " + destYmin + " - " + destYmax);
-//			logger.info("Source portal: " + sourceXwidth + "/" + sourceHeight + "/" + sourceZwidth);
-//			logger.info("          vertical: " + sourceYmin + " - " + sourceYmax);
-//			logger.info("Destination vector, X: " + destVec.getX() + ", Y: " + destVec.getY() + ", Z: " + destVec.getZ());
-//			logger.info("Source vector,      X: " + sourceVec.getX() + ", Y: " + sourceVec.getY() + ", Z: " + sourceVec.getZ());
+			logger.info("Teleportation event:");
+			logger.info("Destination portal: " + destXwidth + "/" + destHeight + "/" + destZwidth);
+			logger.info("          vertical: " + destYmin + " - " + destYmax);
+			logger.info("Source portal: " + sourceXwidth + "/" + sourceHeight + "/" + sourceZwidth);
+			logger.info("          vertical: " + sourceYmin + " - " + sourceYmax);
+			logger.info("Source location: " + sourceLoc.getX() + ", " + sourceLoc.getY() + ", " + sourceLoc.getZ() );
 			destLoc.add(new Vector(destXmin, destYmin, destZmin));
+			logger.info("Destination location: " + destLoc.getX() + ", " + destLoc.getY() + ", " + destLoc.getZ() );
 			
 			
 			return destLoc;
