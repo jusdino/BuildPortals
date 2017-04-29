@@ -1,6 +1,5 @@
 package frahm.justin.mcplugins.buildportals;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -20,11 +19,6 @@ public class Teleporter {
 	}
 	
 	public boolean teleport(Player player, Location destination) {
-		
-		
-		Bukkit.broadcastMessage("Teleporting " + player.getName());
-		
-		
 		Vehicle vehicle = (Vehicle) player.getVehicle();
 		destination.getChunk().load();
 		
@@ -32,11 +26,6 @@ public class Teleporter {
 //			logger.info("Teleporting " + player.getName());
 			player.teleport(destination);
 		} else {
-			
-			
-			Bukkit.broadcastMessage(player.getName() + " was riding a " + vehicle.getClass().toString());
-			
-			
 //			logger.info("Teleporting " + player.getName() + " with a vehicle.");
 			//Update for 1.11
 //			vehicle.eject();
@@ -68,11 +57,6 @@ public class Teleporter {
 	}
 	
 	public AbstractHorse teleport(AbstractHorse horse, Location destination) {
-		
-		
-		Bukkit.broadcastMessage("Teleporting " + horse.getClass().toString());
-		
-		
 		AbstractHorse destHorse = destination.getWorld().spawn(destination, horse.getClass());
 		destHorse.setAge(horse.getAge());
 		destHorse.setCustomName(horse.getCustomName());
@@ -86,17 +70,6 @@ public class Teleporter {
 		destHorse.setMaxDomestication(horse.getMaxDomestication());
 		destHorse.setTamed(horse.isTamed());
 		
-		
-		Bukkit.broadcastMessage("Old Horse Tame: " + horse.isTamed());
-		if (horse.getOwner() != null) {
-			Bukkit.broadcastMessage("Old Horse Owner: " + horse.getOwner().getName());
-		}
-		Bukkit.broadcastMessage("New Horse Tame: " + destHorse.isTamed());
-		if (destHorse.getOwner() != null) {
-			Bukkit.broadcastMessage("New Horse Owner: " + destHorse.getOwner().getName());
-		}
-		
-		
 		if (horse instanceof Horse) {
 			((Horse)destHorse).setColor(((Horse)horse).getColor());
 			((Horse)destHorse).setStyle(((Horse)horse).getStyle());
@@ -104,8 +77,7 @@ public class Teleporter {
 			((Horse)destHorse).getInventory().setSaddle(((Horse)horse).getInventory().getSaddle());
 			destHorse.setOwner(horse.getOwner());
 		} else if (horse instanceof SkeletonHorse) {
-			Bukkit.broadcastMessage("Adding saddle to " + horse.getClass().toString());
-			horse.getInventory().setItem(0, new ItemStack(Material.SADDLE, 1));
+			destHorse.getInventory().setItem(0, new ItemStack(Material.SADDLE));
 		}
 		horse.remove();
 		
