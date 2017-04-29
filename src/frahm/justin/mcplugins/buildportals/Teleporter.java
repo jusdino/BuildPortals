@@ -104,6 +104,7 @@ public class Teleporter {
 			((Horse)destHorse).getInventory().setSaddle(((Horse)horse).getInventory().getSaddle());
 			destHorse.setOwner(horse.getOwner());
 		} else if (horse instanceof SkeletonHorse) {
+			Bukkit.broadcastMessage("Adding saddle to " + horse.getClass().toString());
 			horse.getInventory().setItem(0, new ItemStack(Material.SADDLE, 1));
 		}
 		horse.remove();
