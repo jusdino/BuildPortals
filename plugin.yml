@@ -1,6 +1,6 @@
 name: BuildPortals
 main: frahm.justin.mcplugins.buildportals.Main
-version: 0.0.1
+version: 1.170429
 commands:
   buildportals:
     description: All commands for the BuildPortals plugin.

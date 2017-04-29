@@ -1,12 +1,16 @@
 package frahm.justin.mcplugins.buildportals;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.SkeletonHorse;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.inventory.ItemStack;
 
 public class Teleporter {
 	
@@ -29,8 +33,8 @@ public class Teleporter {
 			vehicle.removePassenger(player);
 			//Don't teleport the vehicle if the player's teleport event was canceled
 			if (player.teleport(destination)){
-				if (vehicle instanceof Horse) {
-					vehicle = teleport((Horse) vehicle, destination);
+				if (vehicle instanceof AbstractHorse) {
+					vehicle = teleport((AbstractHorse) vehicle, destination);
 				}
 				if (vehicle instanceof Minecart) {
 					vehicle = teleport((Minecart) vehicle, destination);
@@ -53,10 +57,9 @@ public class Teleporter {
 		return destCart;
 	}
 	
-	public Horse teleport(Horse horse, Location destination) {
-		Horse destHorse = destination.getWorld().spawn(destination, Horse.class);
+	public AbstractHorse teleport(AbstractHorse horse, Location destination) {
+		AbstractHorse destHorse = destination.getWorld().spawn(destination, horse.getClass());
 		destHorse.setAge(horse.getAge());
-		destHorse.setColor(horse.getColor());
 		destHorse.setCustomName(horse.getCustomName());
 		destHorse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(horse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getBaseValue());
 		destHorse.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(horse.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
@@ -65,9 +68,15 @@ public class Teleporter {
 		destHorse.setHealth(horse.getHealth());
 		destHorse.setMaximumAir(horse.getMaximumAir());
 		destHorse.setOwner(horse.getOwner());
-		destHorse.setStyle(horse.getStyle());
-		destHorse.getInventory().setArmor(horse.getInventory().getArmor());
-		destHorse.getInventory().setSaddle(horse.getInventory().getSaddle());
+		if (horse instanceof Horse) {
+			((Horse)destHorse).setColor(((Horse)horse).getColor());
+			((Horse)destHorse).setStyle(((Horse)horse).getStyle());
+			((Horse)destHorse).getInventory().setArmor(((Horse)horse).getInventory().getArmor());
+			((Horse)destHorse).getInventory().setSaddle(((Horse)horse).getInventory().getSaddle());
+		}
+		if (horse instanceof SkeletonHorse) {
+			((Horse)destHorse).getInventory().setSaddle(new ItemStack(Material.SADDLE, 1));
+		}
 		horse.remove();
 		
 		return destHorse;
