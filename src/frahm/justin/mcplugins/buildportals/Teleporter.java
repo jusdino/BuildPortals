@@ -1,6 +1,7 @@
 package frahm.justin.mcplugins.buildportals;
 
 import java.util.List;
+import java.lang.Math;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 public class Teleporter {
 	
@@ -26,12 +28,24 @@ public class Teleporter {
 			return teleport((AbstractHorse) entity, destination);
 		} else if (entity instanceof Pig) {
 			return teleport((Pig) entity, destination);
+		} else if (entity instanceof Vehicle) {
+			return teleport((Vehicle) entity, destination);
 		} else {
 			//Fallback attempt to 'teleport' whatever this is...
 			Entity destEntity = destination.getWorld().spawn(destination, entity.getClass());
 			entity.remove();
 			return destEntity;
 		}
+	}
+	
+	public Vehicle teleport(Vehicle vehicle, Location destination) {
+		Vehicle destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
+		Vector speedVec = vehicle.getVelocity();
+		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
+		Vector destVec = destination.getDirection().multiply(speed);
+		destVehicle.setVelocity(destVec);
+		
+		return destVehicle;
 	}
 	
 	public Player teleport(Player player, Location destination) {
