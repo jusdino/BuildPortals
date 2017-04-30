@@ -70,7 +70,6 @@ public class BPListener implements Listener{
 		}
 		Location destination = portals.getDestination(player, loc);
 		if (null == destination){
-			logger.info("Can't get a destination for " + player.getName() + "!");
 			return;
 		}
 		alreadyOnPortal.add(player);
@@ -83,21 +82,17 @@ public class BPListener implements Listener{
 		Player player = event.getPlayer();
 		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-//		logger.info(player.getName() + " moved: " + loc.toVector().toString());
 		//Players in a minecart are listed as 1m below actual, so
 		//add 1 if in a minecart.
 		if (player.getVehicle() instanceof Minecart) {
-//			logger.info(player.getName() + " is in a minecart, adding 1m to Y.");
 			loc.add(0, 1, 0);
 		}
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player)) {
-//				logger.info(player.getDisplayName() + " is out of the portal.");
 				alreadyOnPortal.remove(player);
 			}
 			return;
 		}
-//		logger.info(player.getName() + " is in a portal.");
 		if (alreadyOnPortal.contains(player)) {
 			//Don't let the player move if their chunk isn't loaded.
 			Chunk chunk = loc.getChunk();
@@ -105,7 +100,6 @@ public class BPListener implements Listener{
 				event.setCancelled(true);
 				return;
 			}
-//			logger.info(player.getName() + " hasn't left yet. Ignoring.");
 			return;
 		}
 		Location destination = portals.getDestination(player, loc);

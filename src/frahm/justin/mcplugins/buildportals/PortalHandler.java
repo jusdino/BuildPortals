@@ -1,6 +1,5 @@
 package frahm.justin.mcplugins.buildportals;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -59,13 +58,6 @@ public class PortalHandler {
 			this.vectorsB = vectorsB;
 			this.frameVecsB = frameVecsB;
 			this.yawB = yawB;
-//			logger.info("Portal number " + identifier + " created.");
-//			logger.info("Portal A, world: " + aWorld.getName());
-//			logger.info("       vectorsA: " + vectorsA.toString());
-//			logger.info("     frameVecsA: " + frameVecsA.toString());
-//			logger.info("Portal B, world: " + bWorld.toString());
-//			logger.info("       vectorsB: " + vectorsB.toString());
-//			logger.info("     frameVecsB: " + frameVecsB.toString());
 		}
 
 		/*
@@ -95,14 +87,10 @@ public class PortalHandler {
 				if (frameVecsA.contains(loc.toVector())) {
 					return true;
 				}
-//				logger.info("isInFrame: " + loc.toVector().toString());
-//				logger.info("   not in: " + frameVecsA.toString());
 			}
 			if (loc.getWorld() == bWorld) {
 				return frameVecsB.contains(loc.toVector());
 			}
-//			logger.info("isInFrame: " + loc.toVector().toString());
-//			logger.info("   not in: " + frameVecsB.toString());
 			return false;
 		}
 		
@@ -210,7 +198,6 @@ public class PortalHandler {
 			destIter = destVectors.iterator();
 			//If 'backwards' face has more non-solid blocks, turn the Yaw around.
 			if (backwardNonSolidCount > forwardNonSolidCount) {
-//				logger.info("Turning destination yaw around.");
 				if (destYaw < 180F) {
 					destYaw += 360F;
 				}
@@ -373,14 +360,6 @@ public class PortalHandler {
 			if (sourceHeight < 0 || sourceZwidth < 0 || sourceXwidth < 0 || destHeight < 0 || destZwidth < 0 || destXwidth < 0) {
 				return null;
 			}
-			
-			
-			DecimalFormat f = new DecimalFormat("##.00");
-			Bukkit.broadcastMessage("Source Portal Dimensions: " + f.format(sourceXwidth) + " x " + f.format(sourceHeight) + " x " + f.format(sourceZwidth));
-			Bukkit.broadcastMessage("Dest Portal Dimensions:   " + f.format(destXwidth) + " x " + f.format(destHeight) + " x " + f.format(destZwidth));
-			Bukkit.broadcastMessage("Player entered: " + f.format(sourceVec.getX()) + " x " + f.format(sourceVec.getY()) + " x " + f.format(sourceVec.getZ()));
-			
-			
 			//Map location in source portal to location in dest portal
 			Vector destVec = new Vector();
 			if (sourceXwidth > 0) {
@@ -398,11 +377,6 @@ public class PortalHandler {
 			} else {
 				destVec.setZ(zMargin);
 			}
-			
-
-			Bukkit.broadcastMessage("Player exited:  " + f.format(destVec.getX()) + " x " + f.format(destVec.getY()) + " x " + f.format(destVec.getZ()));
-			
-			
 			Location destLoc = new Location(destWorld, destVec.getX(), destVec.getY(), destVec.getZ(), destYaw, 0F);
 			destLoc.add(new Vector(destXmin, destYmin, destZmin));
 			
