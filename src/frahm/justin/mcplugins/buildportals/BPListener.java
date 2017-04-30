@@ -52,6 +52,7 @@ public class BPListener implements Listener{
 			return;
 		}
 		Player player = (Player) event.getVehicle().getPassengers().get(0);
+		logger.info(player.getName() + " is moving in a vehicle.");
 		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		//Players in a minecart are listed as 1m below actual, so
@@ -77,6 +78,7 @@ public class BPListener implements Listener{
 	@EventHandler (ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
+		logger.info(player.getName() + " is moving.");
 		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		//Players in a minecart are listed as 1m below actual, so
