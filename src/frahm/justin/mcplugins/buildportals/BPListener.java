@@ -11,15 +11,14 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Horse;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Minecart;
-import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
@@ -27,12 +26,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.vehicle.VehicleMoveEvent;
 
 public class BPListener implements Listener{
 	Logger logger;
 	Main plugin;
 	PortalHandler portals;
-	VehicleHandler vehicleHandler;
+	Teleporter teleporter;
 	FileConfiguration config;
 	HashSet<Player> alreadyOnPortal = new HashSet<Player>();
 	HashMap<Player, Vehicle> teleportedVehicle = new HashMap<Player, Vehicle>();
@@ -41,8 +41,37 @@ public class BPListener implements Listener{
 		this.plugin = plugin;
 		this.portals = portals;
 		this.logger = this.plugin.getLogger();
-		vehicleHandler = new VehicleHandler();
+		teleporter = new Teleporter();
 		config = plugin.getConfig();
+	}
+
+	@EventHandler (ignoreCancelled = true)
+	public void onVehicleMove(VehicleMoveEvent event) {
+		Entity passenger = event.getVehicle().getPassengers().get(0);
+		if (!(passenger instanceof Player)) {
+			return;
+		}
+		Player player = (Player) event.getVehicle().getPassengers().get(0);
+		
+		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+		//Players in a minecart are listed as 1m below actual, so
+		//add 1 if in a minecart.
+		if (player.getVehicle() instanceof Minecart) {
+			loc.add(0, 1, 0);
+		}
+		if (!portals.isInAPortal(loc)) {
+			if (alreadyOnPortal.contains(player)) {
+				alreadyOnPortal.remove(player);
+			}
+			return;
+		}
+		Location destination = portals.getDestination(player, loc);
+		if (null == destination){
+			return;
+		}
+		alreadyOnPortal.add(player);
+		teleporter.teleport(player, destination);
+		return;
 	}
 	
 	@EventHandler (ignoreCancelled = true)
@@ -50,25 +79,17 @@ public class BPListener implements Listener{
 		Player player = event.getPlayer();
 		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-//		logger.info(player.getName() + " moved: " + loc.toVector().toString());
 		//Players in a minecart are listed as 1m below actual, so
 		//add 1 if in a minecart.
-		if (player.getVehicle() != null) {
-//			logger.info(player.getName() + " is in a " + player.getVehicle().getClass().getName());
-		}
 		if (player.getVehicle() instanceof Minecart) {
-//			logger.info(player.getName() + " is in a minecart, adding 1m to Y.");
 			loc.add(0, 1, 0);
 		}
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player)) {
-//				logger.info(player.getDisplayName() + " is out of the portal.");
 				alreadyOnPortal.remove(player);
 			}
 			return;
 		}
-		
-//		logger.info(player.getName() + " is in a portal.");
 		if (alreadyOnPortal.contains(player)) {
 			//Don't let the player move if their chunk isn't loaded.
 			Chunk chunk = loc.getChunk();
@@ -76,7 +97,6 @@ public class BPListener implements Listener{
 				event.setCancelled(true);
 				return;
 			}
-//			logger.info(player.getName() + " hasn't left yet. Ignoring.");
 			return;
 		}
 		Location destination = portals.getDestination(player, loc);
@@ -85,38 +105,15 @@ public class BPListener implements Listener{
 			return;
 		}
 		alreadyOnPortal.add(player);
-		
-		Vehicle vehicle = (Vehicle) player.getVehicle();
-		destination.getChunk().load();
-		
-		if (vehicle == null) {
-//			logger.info("Teleporting " + player.getName());
-			player.teleport(destination);
-		} else {
-//			logger.info("Teleporting " + player.getName() + " with a vehicle.");
-			vehicle.eject();
-			player.teleport(destination);
-			if (vehicle instanceof Horse) {
-				vehicle = vehicleHandler.teleport((Horse) vehicle, destination);
-			}
-			if (vehicle instanceof Minecart) {
-				vehicle = vehicleHandler.teleport((Minecart) vehicle, destination);
-			}
-			if (vehicle instanceof Pig) {
-				vehicle = vehicleHandler.teleport((Pig) vehicle, destination);
-			}
-			vehicle.setPassenger(player);
-		}
+		teleporter.teleport(player, destination);
+		return;
 	}
 	
 	@EventHandler (ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
-//		logger.info("Block physics registered.");
 		String frameMaterialName = config.getString("PortalMaterial");
 		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
-		//If changed block type is neither a frame material or a frame activator, return.
 		if (event.getChangedType().name() != Material.getMaterial(frameMaterialName).name()) {
-//			logger.info("Block is " + event.getChangedType().name() + " not " + frameMaterialName);
 			if (!activatorMaterialNames.contains(event.getChangedType().name())) {
 				return;
 			}
@@ -130,7 +127,7 @@ public class BPListener implements Listener{
 		}
 		
 		loc.getWorld().strikeLightningEffect(loc);
-		loc.getWorld().playEffect(loc, Effect.EXPLOSION_HUGE, 100, 5);
+		loc.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, loc, 1);
 		logger.info("Clearing portal number " + brokenPortal);
 		config.set("portals." + brokenPortal, null);
 		plugin.saveConfig();
@@ -146,18 +143,13 @@ public class BPListener implements Listener{
 		 *management necessary for the plugin
 		 */
 		
-//		logger.info("Block Place registered.");
-		
 		//Get relevant info about event
-//		logger.info("Looking up relevant event details...");
 		Block block = event.getBlockPlaced();
 		if (!config.getStringList("PortalActivators").contains(block.getType().name())) {
-//			logger.info(block.getType().name() + " placed. No action taken.");
 			return;
 		}
 		
 		World world = block.getWorld();
-//		logger.info(block.getType().name() + " placed. Continuing tests.");
 		//Get vectors to actual portal blocks from handler
 		ArrayList<String> frameVecs = new ArrayList<String>();
 		ArrayList<String> activatorVecs = new ArrayList<String>();
@@ -165,11 +157,8 @@ public class BPListener implements Listener{
 		Float yaw = portals.getCompletePortalVectors(block, frameVecs, activatorVecs, vectors);
 		
 		if (null == yaw) {
-//			logger.info("This block does NOT complete a portal. No action taken.");
 			return;
 		}
-		
-//		logger.info("This block completes a portal. Saving location!");
 		
 		Boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<String, Object>();
@@ -178,7 +167,6 @@ public class BPListener implements Listener{
 			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".vec");
 			ArrayList<String> frameVecsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".frame");
 			Set<String> portalKeys = config.getConfigurationSection("portals").getKeys(false);
-//			logger.info("portalKeys: " + portalKeys.toString());
 			int i = 1;
 			while (portalKeys.contains(Integer.toString(i))) {
 				i+=1;
@@ -192,7 +180,6 @@ public class BPListener implements Listener{
 			newPortal.put("B.vec", vectors);
 			newPortal.put("B.frame", frameVecs);
 			newPortal.put("B.yaw", yaw.toString());
-//			logger.info("Applying changes to portal " + Integer.toString(i)); // + ": " + newPortal.toString());
 			config.set("portals.0." + block.getType().name() + ".active", false);
 			config.set("portals.0." + block.getType().name() + ".world", null);
 			config.set("portals.0." + block.getType().name() + ".vec", null);
@@ -207,52 +194,21 @@ public class BPListener implements Listener{
 			Iterator<String> locIter = vectors.iterator();
 			while (locIter.hasNext()) {
 				String[] locStr = locIter.next().split(",");
-//				logger.info("Portal B Interior block: " + locStr[0] + ", " + locStr[1] + ", " + locStr[2]);
 				portalLoc = new Location(block.getWorld(), Double.parseDouble(locStr[0]), Double.parseDouble(locStr[1]), Double.parseDouble(locStr[2]));
 				portalLoc.getBlock().setType(Material.AIR);
 			}
 
-			Location particleLoc;
-			int spread;
-			int count;
-			int range;
-			Random rand = new Random();
 			if (null != portalLoc) {
-//				logger.info("Generating particle effect at portal B.");
 				portalLoc.getWorld().strikeLightningEffect(portalLoc);
-				spread = vectors.size();
-				count = vectors.size()*200;
-				if (count > 1000) {
-					count = 1000;
-				}
-				range = vectors.size() * 10;
-				
-				for (int j=0; j<count; j++) {
-					particleLoc = new Location(portalLoc.getWorld(), portalLoc.getX() + (rand.nextDouble() * spread), portalLoc.getY() + (rand.nextDouble() * spread), portalLoc.getZ() + (rand.nextDouble() * spread));
-					portalLoc.getWorld().playEffect(particleLoc, Effect.MAGIC_CRIT, range);
-				}
 			}
 			locIter = vectorsA.iterator();
 			while (locIter.hasNext()) {
 				String[] locStr = locIter.next().split(",");
-//				logger.info("Portal A Interior block: " + locStr[0] + ", " + locStr[1] + ", " + locStr[2]);
 				portalLoc = new Location(Bukkit.getWorld((String) newPortal.get("A.world")), Double.parseDouble(locStr[0]), Double.parseDouble(locStr[1]), Double.parseDouble(locStr[2]));
 				portalLoc.getBlock().setType(Material.AIR);
 			}
 			if (null != portalLoc) {
-//				logger.info("Generating particle effect at portal A.");
 				portalLoc.getWorld().strikeLightningEffect(portalLoc);
-				spread = vectorsA.size();
-				count = vectorsA.size()*200;
-				if (count > 1000) {
-					count = 1000;
-				}
-				range = vectors.size()*10;
-				
-				for (int j=0; j<count; j++) {
-					particleLoc = new Location(portalLoc.getWorld(), portalLoc.getX() + (rand.nextDouble() * spread), portalLoc.getY() + (rand.nextDouble() * spread), portalLoc.getZ() + (rand.nextDouble() * spread));
-					portalLoc.getWorld().playEffect(particleLoc, Effect.MAGIC_CRIT, range);
-				}
 			}
 		} else {
 			//Save unlinked portal location
@@ -262,7 +218,6 @@ public class BPListener implements Listener{
 			newPortal.put("frame", frameVecs);
 			newPortal.put("activators", activatorVecs);
 			newPortal.put("yaw", yaw.toString());
-//			logger.info("Applying changes to portal 0: " + newPortal.toString());
 			config.createSection("portals.0." + block.getType().name(), newPortal);
 			config.set("portals.0." + block.getType().name() + ".active", true);
 			
@@ -270,7 +225,6 @@ public class BPListener implements Listener{
 			Location particleLoc;
 			int spread;
 			int count;
-			int range;
 			Random rand = new Random();
 			if (null != block) {
 				spread = vectors.size();
@@ -278,11 +232,10 @@ public class BPListener implements Listener{
 				if (count > 500) {
 					count = 500;
 				}
-				range = vectors.size() * 10;
 				
 				for (int j=0; j<count; j++) {
 					particleLoc = new Location(block.getWorld(), block.getX() + (rand.nextDouble() * spread), block.getY() + (rand.nextDouble() * spread), block.getZ() + (rand.nextDouble() * spread));
-					block.getWorld().playEffect(particleLoc, Effect.MAGIC_CRIT, range);
+					block.getWorld().spawnParticle(Particle.CRIT_MAGIC, particleLoc, 1);
 				}
 			}
 		}

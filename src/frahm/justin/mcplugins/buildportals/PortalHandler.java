@@ -17,7 +17,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Horse;
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -58,13 +58,6 @@ public class PortalHandler {
 			this.vectorsB = vectorsB;
 			this.frameVecsB = frameVecsB;
 			this.yawB = yawB;
-//			logger.info("Portal number " + identifier + " created.");
-//			logger.info("Portal A, world: " + aWorld.getName());
-//			logger.info("       vectorsA: " + vectorsA.toString());
-//			logger.info("     frameVecsA: " + frameVecsA.toString());
-//			logger.info("Portal B, world: " + bWorld.toString());
-//			logger.info("       vectorsB: " + vectorsB.toString());
-//			logger.info("     frameVecsB: " + frameVecsB.toString());
 		}
 
 		/*
@@ -94,14 +87,10 @@ public class PortalHandler {
 				if (frameVecsA.contains(loc.toVector())) {
 					return true;
 				}
-//				logger.info("isInFrame: " + loc.toVector().toString());
-//				logger.info("   not in: " + frameVecsA.toString());
 			}
 			if (loc.getWorld() == bWorld) {
 				return frameVecsB.contains(loc.toVector());
 			}
-//			logger.info("isInFrame: " + loc.toVector().toString());
-//			logger.info("   not in: " + frameVecsB.toString());
 			return false;
 		}
 		
@@ -133,16 +122,21 @@ public class PortalHandler {
 		 */
 		public Location getDestination(Player player, Location sourceLoc) {
 			Vector sourceVec = new Vector(sourceLoc.getX(), sourceLoc.getY(), sourceLoc.getZ());
+			
+			//Move source to center of block
 			sourceVec.add(blockCenterOffset);
 			Iterator<Vector> sourceIter;
+			Float sourceYaw;
 			Iterator<Vector> destIter;
 			ArrayList<Vector> destVectors;
 			World destWorld;
 			Float destYaw;
 			
+			//Define source and destination vectors
 			//If source is in portal A
 			if (sourceLoc.getWorld() == aWorld && vectorsA.contains(sourceLoc.toVector())) {
 					sourceIter = vectorsA.iterator();
+					sourceYaw = yawA;
 					destVectors = vectorsB;
 					destIter = vectorsB.iterator();
 					destWorld = bWorld;
@@ -150,6 +144,7 @@ public class PortalHandler {
 			//If source is in portal B
 			} else if (sourceLoc.getWorld() == bWorld && vectorsB.contains(sourceLoc.toVector())) {
 					sourceIter = vectorsB.iterator();
+					sourceYaw = yawB;
 					destVectors = vectorsA;
 					destIter = vectorsA.iterator();
 					destWorld = aWorld;
@@ -182,6 +177,7 @@ public class PortalHandler {
 					backwardVec = new Vector(-1, 0, 0);
 					break;
 			}
+
 			//Count non-solid blocks next to portal blocks
 			Location portalLoc;
 			Block forwardBlock;
@@ -192,8 +188,6 @@ public class PortalHandler {
 				portalLoc = destIter.next().toLocation(destWorld);
 				forwardBlock = destWorld.getBlockAt(portalLoc.getBlockX() + forwardVec.getBlockX(), portalLoc.getBlockY() + forwardVec.getBlockY(), portalLoc.getBlockZ() + forwardVec.getBlockZ());
 				backwardBlock = destWorld.getBlockAt(portalLoc.getBlockX() + backwardVec.getBlockX(), portalLoc.getBlockY() + backwardVec.getBlockY(), portalLoc.getBlockZ() + backwardVec.getBlockZ());
-//				logger.info("Forward Block: " + forwardBlock.getLocation().toVector().toString() + " , "+ forwardBlock.getType().name());
-//				logger.info("Backward Block: " + backwardBlock.getLocation().toVector().toString() + " , "+ backwardBlock.getType().name());
 				if (!forwardBlock.getType().isSolid()) {
 					forwardNonSolidCount += 1;
 				}
@@ -202,11 +196,8 @@ public class PortalHandler {
 				}
 			}
 			destIter = destVectors.iterator();
-//			logger.info("Forward Transparent blocks: " + forwardNonSolidCount);
-//			logger.info("Backward Transparent blocks: " + backwardNonSolidCount);
 			//If 'backwards' face has more non-solid blocks, turn the Yaw around.
 			if (backwardNonSolidCount > forwardNonSolidCount) {
-//				logger.info("Turning destination yaw around.");
 				if (destYaw < 180F) {
 					destYaw += 360F;
 				}
@@ -286,97 +277,108 @@ public class PortalHandler {
 				}
 			}
 			
-			//Adjust sourceVec to an offset from min x/y/z locations
-			sourceVec.subtract(new Vector(sourceXmin, sourceYmin, sourceZmin));
-			
-			//Measure some portal geometry features
-			Integer sourceXwidth;
-			Integer sourceZwidth;
-			Double sourceTmp;
+			//Measure dimensions
+			Double sourceXwidth = 0D;
+			Double sourceZwidth = 0D;
+			Double destXwidth = 0D;
+			Double destZwidth = 0D;
+			Double sourceTmp = 0D;
+
+			//Some source / destination refinements to give a margin inside the portal frame
+			Double yMargin = 2D;
+			Double zMargin = 0.3;
+			Double xMargin = 0.3;
+			if (player.getVehicle() instanceof AbstractHorse) {
+				xMargin = 1D;
+				zMargin = 1D;
+			}
 			
 			//Swap source z/x if portals are in different orientations
 			if (!yawA.equals(yawB)) {
-				sourceZwidth = sourceXmax - sourceXmin + 1;
-				sourceXwidth = sourceZmax - sourceZmin + 1;
+				//If source is open North/South, dest is open East/West
+				if ( sourceYaw == 0F || sourceYaw == 180F) {
+					xMargin = 0.5;
+					sourceXwidth = 0D;
+					sourceZwidth = sourceXmax - sourceXmin + 1 - 2*zMargin;
+					destXwidth = 0D;
+					destZwidth = destZmax - destZmin + 1 - 2*zMargin;
+				//If portal is open East/West, dest is open North/South
+				} else {
+					zMargin = 0.5;
+					sourceXwidth = sourceZmax - sourceZmin + 1 - 2*xMargin;
+					sourceZwidth = 0D;
+					destXwidth = destXmax - destXmin + 1 - 2*xMargin;
+					destZwidth = 0D;
+				}
+				
+				//Adjust sourceVec to an offset from min x/y/z locations
+				sourceVec.subtract(new Vector(sourceXmin + zMargin, sourceYmin, sourceZmin + xMargin));
+				//Then swap X/Z
 				sourceTmp = sourceVec.getZ();
 				sourceVec.setZ(sourceVec.getX());
 				sourceVec.setX(sourceTmp);
 			} else {
-				sourceXwidth = sourceXmax - sourceXmin + 1;
-				sourceZwidth = sourceZmax - sourceZmin + 1;
+				//If source and dest are open North/South
+				if ( sourceYaw == 0F || sourceYaw == 180F ){
+					zMargin = 0.5;
+					sourceXwidth = sourceXmax - sourceXmin + 1 - 2*xMargin;
+					sourceZwidth = 0D;
+					destXwidth = destXmax - destXmin + 1 - 2*xMargin;
+					destZwidth = 0D;
+				//If source and dest are open East/West
+				} else {
+					xMargin = 0.5;
+					sourceXwidth = 0D;
+					sourceZwidth = sourceZmax - sourceZmin + 1 - 2*zMargin;
+					destXwidth = 0D;
+					destZwidth = destZmax - destZmin + 1 - 2*zMargin;
+				}
+				//Adjust sourceVec to an offset from min x/y/z locations
+				sourceVec.subtract(new Vector(sourceXmin + xMargin, sourceYmin, sourceZmin + zMargin));
 			}
-			Integer sourceHeight = sourceYmax - sourceYmin + 1;
+			Double sourceHeight = sourceYmax - sourceYmin + 1 - yMargin;
+			Double destHeight = destYmax - destYmin + 1 - yMargin;
 			
-			Integer destXwidth = destXmax - destXmin + 1;
-			Integer destZwidth = destZmax - destZmin + 1;
-			Integer destHeight = destYmax - destYmin + 1;
+			//Shift sourceVec to be sure it is in sourcePortal minus margins
+			if (sourceVec.getX() < 0) {
+				sourceVec.setX(0D);
+			} else if (sourceVec.getX() > sourceXwidth) {
+				sourceVec.setX(sourceXwidth);
+			}
+			if (sourceVec.getY() < 0) {
+				sourceVec.setY(0);
+			} else if (sourceVec.getY() > sourceHeight) {
+				sourceVec.setY(sourceHeight);
+			}
+			if (sourceVec.getZ() < 0) {
+				sourceVec.setZ(0D);
+			} else if (sourceVec.getZ() > sourceZwidth) {
+				sourceVec.setZ(sourceZwidth);
+			}
 			
+			//Bail if a portal is too small
+			if (sourceHeight < 0 || sourceZwidth < 0 || sourceXwidth < 0 || destHeight < 0 || destZwidth < 0 || destXwidth < 0) {
+				return null;
+			}
+			//Map location in source portal to location in dest portal
 			Vector destVec = new Vector();
-			destVec.setX( (sourceVec.getX()/sourceXwidth) * destXwidth);
-//			logger.info("destVec.setX: " + sourceVec.getX() + "/" + sourceXwidth + " * " + destXwidth);
-			destVec.setY( (sourceVec.getY()/sourceHeight) * destHeight);
-//			logger.info("destVec.setY: " + sourceVec.getY() + "/" + sourceHeight + " * " + destHeight);
-			destVec.setZ( (sourceVec.getZ()/sourceZwidth) * destZwidth);
-//			logger.info("destVec.setZ: " + sourceVec.getZ() + "/" + sourceZwidth + " * " + destZwidth);
-			
-			//Some destination refinements to give a buffer inside the portal frame
-			Double yMaxBuffer = 1.8;
-			Double yMinBuffer = 0.0;
-			Double xzBuffer = 0.3;
-			if (player.getVehicle() instanceof Horse) {
-//				logger.info("Horse detected, increasing buffers.");
-				yMaxBuffer = 2.15;
-				yMinBuffer = 0.0;
-				xzBuffer = 1.0;
-			}
-			if ( destHeight < (yMinBuffer + yMaxBuffer)) {
-//				logger.info("Portal is too short. Setting Y to " + yMinBuffer);
-				destVec.setY(yMinBuffer);
+			if (sourceXwidth > 0) {
+				destVec.setX(xMargin + (sourceVec.getX()/sourceXwidth) * destXwidth);
 			} else {
-				if (destVec.getY() < yMinBuffer) {
-//					logger.info("Destination is too low. Setting Y to " + yMinBuffer);
-					destVec.setY(yMinBuffer);
-				} else if ( (destHeight - destVec.getY()) < yMaxBuffer ) {
-//					logger.info("Destination is too high. Setting Y to " + (destHeight - yMaxBuffer));
-					destVec.setY(destHeight - yMaxBuffer);
-				}
+				destVec.setX(xMargin);
 			}
-			if (xzBuffer*2 > destXwidth) {
-//				logger.info("Destination X width is too narrow. Setting X to " + destXwidth/2.0);
-				destVec.setX(destXwidth/2.0);
+			if (sourceHeight > 0) {
+				destVec.setY( (sourceVec.getY()/sourceHeight) * destHeight);
 			} else {
-				if (destVec.getX() < xzBuffer) {
-//					logger.info("Destination X is too low. Setting X to " + xzBuffer);
-					destVec.setX(xzBuffer);
-				} else if ( (destXwidth - destVec.getX()) < xzBuffer ) {
-//					logger.info("Destination X is too high. Setting X to " + (destXwidth - xzBuffer));
-					destVec.setX(destXwidth - xzBuffer);
-				}
+				destVec.setY(0);
 			}
-			if (xzBuffer*2 > destZwidth) {
-//				logger.info("Destination Z is too narrow. Setting Z to " + destZwidth/2.0);
-				destVec.setZ(destZwidth/2.0);
+			if (sourceZwidth > 0) {
+				destVec.setZ(zMargin +  (sourceVec.getZ()/sourceZwidth) * destZwidth);
 			} else {
-				if (destVec.getZ() < xzBuffer) {
-//					logger.info("Destination Z is too low. Setting Z to " + xzBuffer);
-					destVec.setZ(xzBuffer);
-				} else if ( (destZwidth - destVec.getZ()) < xzBuffer ) {
-//					logger.info("Destination Z is too high. Setting Z to " + (destZwidth - xzBuffer));
-					destVec.setZ(destZwidth - xzBuffer);
-				}
+				destVec.setZ(zMargin);
 			}
-			
 			Location destLoc = new Location(destWorld, destVec.getX(), destVec.getY(), destVec.getZ(), destYaw, 0F);
-			
-//			logger.info("Teleportation event:");
-//			logger.info("Destination portal: " + destXwidth + "/" + destHeight + "/" + destZwidth);
-//			logger.info("          vertical: " + destYmin + " - " + destYmax);
-//			logger.info("Source portal: " + sourceXwidth + "/" + sourceHeight + "/" + sourceZwidth);
-//			logger.info("          vertical: " + sourceYmin + " - " + sourceYmax);
-//			logger.info("Destination vector, X: " + destVec.getX() + ", Y: " + destVec.getY() + ", Z: " + destVec.getZ());
-//			logger.info("Source vector,      X: " + sourceVec.getX() + ", Y: " + sourceVec.getY() + ", Z: " + sourceVec.getZ());
 			destLoc.add(new Vector(destXmin, destYmin, destZmin));
-			
 			
 			return destLoc;
 		}
@@ -388,7 +390,7 @@ public class PortalHandler {
 
 	/*
 	 * Map of portal block location sets, keyed by world name Intended for fast
-	 * testing of whether a location is in a configured portal/frame.
+	 * testing of whether a location is in a configured portal/frame.say feel
 	 */
 	static HashMap<String, HashSet<Vector>> portalBlocks;
 	static HashMap<String, HashSet<Vector>> frameBlocks;
@@ -936,10 +938,7 @@ public class PortalHandler {
 					}
 				}
 				portals.add( new Portal(portalNumber, worldA, vectorsA, frameVecsA, new ArrayList<Vector>(), yawA, worldB, vectorsB, frameVecsB, yawB));
-				//logger.info("portals: " + portals.toString());
-//				logger.info("portalBlocks: " + portalBlocks.toString());
 			} else { //portalNumber = 0
-//				logger.info("Loading configuration for portal number: " + portalNumber);
 				Iterator<String> activatorIter = activators.iterator();
 				String activator;
 				while (activatorIter.hasNext()) {
