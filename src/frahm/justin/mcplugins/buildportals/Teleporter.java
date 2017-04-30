@@ -3,6 +3,7 @@ package frahm.justin.mcplugins.buildportals;
 import java.util.List;
 import java.lang.Math;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -41,9 +42,12 @@ public class Teleporter {
 	public Vehicle teleport(Vehicle vehicle, Location destination) {
 		Vehicle destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
+		Bukkit.broadcastMessage("Entrance velocity: " + speedVec.toString());
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
+		Bukkit.broadcastMessage("Entrance Speed: " + speed);
 		Vector destVec = destination.getDirection().multiply(speed);
 		destVehicle.setVelocity(destVec);
+		Bukkit.broadcastMessage("Exit velocity: " + destVec.toString());
 		vehicle.remove();
 		return destVehicle;
 	}
