@@ -1,5 +1,6 @@
 package frahm.justin.mcplugins.buildportals;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -296,7 +297,7 @@ public class PortalHandler {
 			Double sourceTmp;
 
 			//Some source / destination refinements to give a margin inside the portal frame
-			Double yMargin = 1.8;
+			Double yMargin = 2D;
 			Double xzMargin = 0.3;
 			if (player.getVehicle() instanceof AbstractHorse) {
 //				logger.info("Horse detected, increasing buffers.");
@@ -322,18 +323,29 @@ public class PortalHandler {
 			
 			Double destXwidth = destXmax - destXmin + 1 - 2*xzMargin;
 			Double destZwidth = destZmax - destZmin + 1 - 2*xzMargin;
-			Double destHeight = destYmax - destYmin + 1 - 2*xzMargin;
+			Double destHeight = destYmax - destYmin + 1 - yMargin;
 			
 			//Bail if a portal is too small
 			if (sourceHeight < 0 || sourceZwidth < 0 || sourceXwidth < 0 || destHeight < 0 || destZwidth < 0 || destXwidth < 0) {
 				return null;
 			}
 			
+			
+			DecimalFormat f = new DecimalFormat("##.00");
+			Bukkit.broadcastMessage("Source Portal Dimensions: " + f.format(sourceXwidth) + " x " + f.format(sourceHeight) + " x " + f.format(sourceZwidth));
+			Bukkit.broadcastMessage("Dest Portal Dimensions:   " + f.format(destXwidth) + " x " + f.format(destHeight) + " x " + f.format(destZwidth));
+			Bukkit.broadcastMessage("Player entered: " + f.format(sourceVec.getX()) + " x " + f.format(sourceVec.getY()) + " x " + f.format(sourceVec.getZ()));
+			
+			
 			//Map location in source portal to location in dest portal
 			Vector destVec = new Vector();
-			destVec.setX( (sourceVec.getX()/sourceXwidth) * destXwidth);
+			destVec.setX(xzMargin + (sourceVec.getX()/sourceXwidth) * destXwidth);
 			destVec.setY( (sourceVec.getY()/sourceHeight) * destHeight);
-			destVec.setZ( (sourceVec.getZ()/sourceZwidth) * destZwidth);
+			destVec.setZ(xzMargin +  (sourceVec.getZ()/sourceZwidth) * destZwidth);
+			
+
+			Bukkit.broadcastMessage("Player exited:  " + f.format(destVec.getX()) + " x " + f.format(destVec.getY()) + " x " + f.format(destVec.getZ()));
+			
 
 //			logger.info("destVec.setX: " + sourceVec.getX() + "/" + sourceXwidth + " * " + destXwidth);
 //			logger.info("destVec.setY: " + sourceVec.getY() + "/" + sourceHeight + " * " + destHeight);
