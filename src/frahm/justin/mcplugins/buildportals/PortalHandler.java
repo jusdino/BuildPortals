@@ -339,9 +339,21 @@ public class PortalHandler {
 			
 			//Map location in source portal to location in dest portal
 			Vector destVec = new Vector();
-			destVec.setX(xzMargin + (sourceVec.getX()/sourceXwidth) * destXwidth);
-			destVec.setY( (sourceVec.getY()/sourceHeight) * destHeight);
-			destVec.setZ(xzMargin +  (sourceVec.getZ()/sourceZwidth) * destZwidth);
+			if (sourceXwidth > 0) {
+				destVec.setX(xzMargin + (sourceVec.getX()/sourceXwidth) * destXwidth);
+			} else {
+				destVec.setX(xzMargin);
+			}
+			if (sourceHeight > 0) {
+				destVec.setY( (sourceVec.getY()/sourceHeight) * destHeight);
+			} else {
+				destVec.setY(yMargin);
+			}
+			if (sourceZwidth > 0) {
+				destVec.setZ(xzMargin +  (sourceVec.getZ()/sourceZwidth) * destZwidth);
+			} else {
+				destVec.setZ(xzMargin);
+			}
 			
 
 			Bukkit.broadcastMessage("Player exited:  " + f.format(destVec.getX()) + " x " + f.format(destVec.getY()) + " x " + f.format(destVec.getZ()));
@@ -373,7 +385,7 @@ public class PortalHandler {
 
 	/*
 	 * Map of portal block location sets, keyed by world name Intended for fast
-	 * testing of whether a location is in a configured portal/frame.
+	 * testing of whether a location is in a configured portal/frame.say feel
 	 */
 	static HashMap<String, HashSet<Vector>> portalBlocks;
 	static HashMap<String, HashSet<Vector>> frameBlocks;
