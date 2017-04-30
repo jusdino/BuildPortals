@@ -82,6 +82,10 @@ public class BPListener implements Listener{
 //			logger.info(player.getName() + " could not teleport");
 			return;
 		}
+		//Lower the destination by a meter to adjust for mincart
+		if (player.getVehicle() instanceof Minecart) {
+			destination.subtract(0, 1, 0);
+		}
 //		logger.info(player.getName() + " teleported");
 		alreadyOnPortal.add(player);
 //		logger.info("alreadyOnPortal size: " + alreadyOnPortal.size());
