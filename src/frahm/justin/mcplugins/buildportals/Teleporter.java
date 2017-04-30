@@ -44,7 +44,7 @@ public class Teleporter {
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		Vector destVec = destination.getDirection().multiply(speed);
 		destVehicle.setVelocity(destVec);
-		
+		vehicle.remove();
 		return destVehicle;
 	}
 	
