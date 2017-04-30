@@ -23,6 +23,7 @@ public class Teleporter {
 	}
 	
 	public Entity teleport(Entity entity, Location destination) {
+		Bukkit.broadcastMessage("Teleporting Entity");
 		if (entity instanceof Player) {
 			return teleport((Player) entity, destination);
 		} else if (entity instanceof AbstractHorse) {
@@ -40,6 +41,7 @@ public class Teleporter {
 	}
 	
 	public Vehicle teleport(Vehicle vehicle, Location destination) {
+		Bukkit.broadcastMessage("Teleporting vehicle");
 		Vehicle destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
 		Bukkit.broadcastMessage("Entrance velocity: " + speedVec.toString());
