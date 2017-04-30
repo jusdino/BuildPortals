@@ -17,7 +17,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Horse;
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -133,6 +133,8 @@ public class PortalHandler {
 		 */
 		public Location getDestination(Player player, Location sourceLoc) {
 			Vector sourceVec = new Vector(sourceLoc.getX(), sourceLoc.getY(), sourceLoc.getZ());
+			
+			//Move source to center of block
 			sourceVec.add(blockCenterOffset);
 			Iterator<Vector> sourceIter;
 			Iterator<Vector> destIter;
@@ -140,6 +142,7 @@ public class PortalHandler {
 			World destWorld;
 			Float destYaw;
 			
+			//Define source and destination vectors
 			//If source is in portal A
 			if (sourceLoc.getWorld() == aWorld && vectorsA.contains(sourceLoc.toVector())) {
 					sourceIter = vectorsA.iterator();
@@ -182,6 +185,7 @@ public class PortalHandler {
 					backwardVec = new Vector(-1, 0, 0);
 					break;
 			}
+
 			//Count non-solid blocks next to portal blocks
 			Location portalLoc;
 			Block forwardBlock;
@@ -289,82 +293,51 @@ public class PortalHandler {
 			//Adjust sourceVec to an offset from min x/y/z locations
 			sourceVec.subtract(new Vector(sourceXmin, sourceYmin, sourceZmin));
 			
-			//Measure some portal geometry features
-			Integer sourceXwidth;
-			Integer sourceZwidth;
+			//Measure dimensions
+			Double sourceXwidth;
+			Double sourceZwidth;
 			Double sourceTmp;
+
+			//Some source / destination refinements to give a margin inside the portal frame
+			Double yMargin = 1.8;
+			Double xzMargin = 0.3;
+			if (player.getVehicle() instanceof AbstractHorse) {
+//				logger.info("Horse detected, increasing buffers.");
+				yMargin = 2.15;
+				xzMargin = 1.0;
+			}
 			
 			//Swap source z/x if portals are in different orientations
 			if (!yawA.equals(yawB)) {
-				sourceZwidth = sourceXmax - sourceXmin + 1;
-				sourceXwidth = sourceZmax - sourceZmin + 1;
+				sourceZwidth = sourceXmax - sourceXmin + 1 - xzMargin;
+				sourceXwidth = sourceZmax - sourceZmin + 1 - xzMargin;
 				sourceTmp = sourceVec.getZ();
 				sourceVec.setZ(sourceVec.getX());
 				sourceVec.setX(sourceTmp);
 			} else {
-				sourceXwidth = sourceXmax - sourceXmin + 1;
-				sourceZwidth = sourceZmax - sourceZmin + 1;
+				sourceXwidth = sourceXmax - sourceXmin + 1 - xzMargin;
+				sourceZwidth = sourceZmax - sourceZmin + 1 - xzMargin;
 			}
-			Integer sourceHeight = sourceYmax - sourceYmin + 1;
+			Double sourceHeight = sourceYmax - sourceYmin + 1 - yMargin;
 			
-			Integer destXwidth = destXmax - destXmin + 1;
-			Integer destZwidth = destZmax - destZmin + 1;
-			Integer destHeight = destYmax - destYmin + 1;
+			Double destXwidth = destXmax - destXmin + 1 - xzMargin;
+			Double destZwidth = destZmax - destZmin + 1 - xzMargin;
+			Double destHeight = destYmax - destYmin + 1 - xzMargin;
 			
+			//Bail if a portal is too small
+			if (sourceHeight < 0 || sourceZwidth < 0 || sourceXwidth < 0 || destHeight < 0 || destZwidth < 0 || destXwidth < 0) {
+				return null;
+			}
+			
+			//Map location in source portal to location in dest portal
 			Vector destVec = new Vector();
 			destVec.setX( (sourceVec.getX()/sourceXwidth) * destXwidth);
-//			logger.info("destVec.setX: " + sourceVec.getX() + "/" + sourceXwidth + " * " + destXwidth);
 			destVec.setY( (sourceVec.getY()/sourceHeight) * destHeight);
-//			logger.info("destVec.setY: " + sourceVec.getY() + "/" + sourceHeight + " * " + destHeight);
 			destVec.setZ( (sourceVec.getZ()/sourceZwidth) * destZwidth);
+
+//			logger.info("destVec.setX: " + sourceVec.getX() + "/" + sourceXwidth + " * " + destXwidth);
+//			logger.info("destVec.setY: " + sourceVec.getY() + "/" + sourceHeight + " * " + destHeight);
 //			logger.info("destVec.setZ: " + sourceVec.getZ() + "/" + sourceZwidth + " * " + destZwidth);
-			
-			//Some destination refinements to give a buffer inside the portal frame
-			Double yMaxBuffer = 1.8;
-			Double yMinBuffer = 0.0;
-			Double xzBuffer = 0.3;
-			if (player.getVehicle() instanceof Horse) {
-//				logger.info("Horse detected, increasing buffers.");
-				yMaxBuffer = 2.15;
-				yMinBuffer = 0.0;
-				xzBuffer = 1.0;
-			}
-			if ( destHeight < (yMinBuffer + yMaxBuffer)) {
-//				logger.info("Portal is too short. Setting Y to " + yMinBuffer);
-				destVec.setY(yMinBuffer);
-			} else {
-				if (destVec.getY() < yMinBuffer) {
-//					logger.info("Destination is too low. Setting Y to " + yMinBuffer);
-					destVec.setY(yMinBuffer);
-				} else if ( (destHeight - destVec.getY()) < yMaxBuffer ) {
-//					logger.info("Destination is too high. Setting Y to " + (destHeight - yMaxBuffer));
-					destVec.setY(destHeight - yMaxBuffer);
-				}
-			}
-			if (xzBuffer*2 > destXwidth) {
-//				logger.info("Destination X width is too narrow. Setting X to " + destXwidth/2.0);
-				destVec.setX(destXwidth/2.0);
-			} else {
-				if (destVec.getX() < xzBuffer) {
-//					logger.info("Destination X is too low. Setting X to " + xzBuffer);
-					destVec.setX(xzBuffer);
-				} else if ( (destXwidth - destVec.getX()) < xzBuffer ) {
-//					logger.info("Destination X is too high. Setting X to " + (destXwidth - xzBuffer));
-					destVec.setX(destXwidth - xzBuffer);
-				}
-			}
-			if (xzBuffer*2 > destZwidth) {
-//				logger.info("Destination Z is too narrow. Setting Z to " + destZwidth/2.0);
-				destVec.setZ(destZwidth/2.0);
-			} else {
-				if (destVec.getZ() < xzBuffer) {
-//					logger.info("Destination Z is too low. Setting Z to " + xzBuffer);
-					destVec.setZ(xzBuffer);
-				} else if ( (destZwidth - destVec.getZ()) < xzBuffer ) {
-//					logger.info("Destination Z is too high. Setting Z to " + (destZwidth - xzBuffer));
-					destVec.setZ(destZwidth - xzBuffer);
-				}
-			}
 			
 			Location destLoc = new Location(destWorld, destVec.getX(), destVec.getY(), destVec.getZ(), destYaw, 0F);
 			
