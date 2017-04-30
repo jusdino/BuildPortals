@@ -1,4 +1,6 @@
-/target/
+target/
+images/
 .project
 .settings
 .classpath
+/bin/
