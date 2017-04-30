@@ -73,6 +73,10 @@ public class BPListener implements Listener{
 			logger.info(player.getName() + " is not in a portal");
 			return;
 		}
+		if (alreadyOnPortal.contains(player)) {
+			logger.info(player.getName() + " was already in a portal");
+			return;
+		}
 		Location destination = portals.getDestination(player, loc);
 		if (null == destination){
 			logger.info(player.getName() + " could not teleport");
