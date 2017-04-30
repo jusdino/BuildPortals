@@ -53,7 +53,7 @@ public class Main extends JavaPlugin {
 			}
 			switch (args[0].toLowerCase()) {
 				case "version":
-					sender.sendMessage("This is BuildPortals version 1.0-160418");
+					sender.sendMessage("This is BuildPortals version " + this.getDescription().getVersion());
 						return true;
 				case "check":
 					if (!(sender instanceof Player)) {
