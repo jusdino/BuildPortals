@@ -2,7 +2,7 @@
 Bukkit/Spigot server plugin to allow players to build their own inter-world portals without the use of commands. These portals do currently support teleporting players on horses but not other vehicle-class objects they are riding; I'm trying to find a way to get around some issues there...
 
 April 29, 2017:
-I'm working on updating to match changes in 1.11. Horses are working right again but there are a few other bugs I'm working on tracking down before releasing an update.
+Released an update on dev.bukkit.org and spigotmc.org
 -Justin
 
 Status:
