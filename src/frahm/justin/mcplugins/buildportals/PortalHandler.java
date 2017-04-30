@@ -290,9 +290,6 @@ public class PortalHandler {
 				}
 			}
 			
-			//Adjust sourceVec to an offset from min x/y/z locations
-			sourceVec.subtract(new Vector(sourceXmin, sourceYmin, sourceZmin));
-			
 			//Measure dimensions
 			Double sourceXwidth;
 			Double sourceZwidth;
@@ -307,22 +304,25 @@ public class PortalHandler {
 				xzMargin = 1.0;
 			}
 			
+			//Adjust sourceVec to an offset from min x/y/z locations
+			sourceVec.subtract(new Vector(sourceXmin + xzMargin, sourceYmin, sourceZmin + xzMargin));
+			
 			//Swap source z/x if portals are in different orientations
 			if (!yawA.equals(yawB)) {
-				sourceZwidth = sourceXmax - sourceXmin + 1 - xzMargin;
-				sourceXwidth = sourceZmax - sourceZmin + 1 - xzMargin;
+				sourceZwidth = sourceXmax - sourceXmin + 1 - 2*xzMargin;
+				sourceXwidth = sourceZmax - sourceZmin + 1 - 2*xzMargin;
 				sourceTmp = sourceVec.getZ();
 				sourceVec.setZ(sourceVec.getX());
 				sourceVec.setX(sourceTmp);
 			} else {
-				sourceXwidth = sourceXmax - sourceXmin + 1 - xzMargin;
-				sourceZwidth = sourceZmax - sourceZmin + 1 - xzMargin;
+				sourceXwidth = sourceXmax - sourceXmin + 1 - 2*xzMargin;
+				sourceZwidth = sourceZmax - sourceZmin + 1 - 2*xzMargin;
 			}
 			Double sourceHeight = sourceYmax - sourceYmin + 1 - yMargin;
 			
-			Double destXwidth = destXmax - destXmin + 1 - xzMargin;
-			Double destZwidth = destZmax - destZmin + 1 - xzMargin;
-			Double destHeight = destYmax - destYmin + 1 - xzMargin;
+			Double destXwidth = destXmax - destXmin + 1 - 2*xzMargin;
+			Double destZwidth = destZmax - destZmin + 1 - 2*xzMargin;
+			Double destHeight = destYmax - destYmin + 1 - 2*xzMargin;
 			
 			//Bail if a portal is too small
 			if (sourceHeight < 0 || sourceZwidth < 0 || sourceXwidth < 0 || destHeight < 0 || destZwidth < 0 || destXwidth < 0) {
