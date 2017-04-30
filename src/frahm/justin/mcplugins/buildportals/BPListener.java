@@ -80,6 +80,7 @@ public class BPListener implements Listener{
 		}
 		logger.info(player.getName() + " teleported");
 		alreadyOnPortal.add(player);
+		logger.info("alreadyOnPortal size: " + alreadyOnPortal.size());
 		teleporter.teleport(player, destination);
 		return;
 	}
