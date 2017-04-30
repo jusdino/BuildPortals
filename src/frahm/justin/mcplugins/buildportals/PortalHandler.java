@@ -291,58 +291,83 @@ public class PortalHandler {
 			}
 			
 			//Measure dimensions
-			Double sourceXwidth;
-			Double sourceZwidth;
-			Double destXwidth;
-			Double destZwidth;
-			Double sourceTmp;
+			Double sourceXwidth = 0D;
+			Double sourceZwidth = 0D;
+			Double destXwidth = 0D;
+			Double destZwidth = 0D;
+			Double sourceTmp = 0D;
 
 			//Some source / destination refinements to give a margin inside the portal frame
 			Double yMargin = 2D;
-			Double xzMargin = 0.3;
+			Double zMargin = 0.3;
+			Double xMargin = 0.3;
 			if (player.getVehicle() instanceof AbstractHorse) {
-				xzMargin = 1.0;
+				xMargin = 1D;
+				zMargin = 1D;
 			}
-			
-			//Adjust sourceVec to an offset from min x/y/z locations
-			sourceVec.subtract(new Vector(sourceXmin + xzMargin, sourceYmin, sourceZmin + xzMargin));
 			
 			//Swap source z/x if portals are in different orientations
 			if (!yawA.equals(yawB)) {
 				//If source is open North/South, dest is open East/West
 				if ( sourceYaw == 0F || sourceYaw == 180F) {
+					xMargin = 0.5;
 					sourceXwidth = 0D;
-					sourceZwidth = sourceXmax - sourceXmin + 1 - 2*xzMargin;
+					sourceZwidth = sourceXmax - sourceXmin + 1 - 2*zMargin;
 					destXwidth = 0D;
-					destZwidth = destZmax - destZmin + 1 - 2*xzMargin;
+					destZwidth = destZmax - destZmin + 1 - 2*zMargin;
 				//If portal is open East/West, dest is open North/South
 				} else {
-					sourceXwidth = sourceZmax - sourceZmin + 1 - 2*xzMargin;
+					zMargin = 0.5;
+					sourceXwidth = sourceZmax - sourceZmin + 1 - 2*xMargin;
 					sourceZwidth = 0D;
-					destXwidth = destXmax - destXmin + 1 - 2*xzMargin;
+					destXwidth = destXmax - destXmin + 1 - 2*xMargin;
 					destZwidth = 0D;
 				}
+				
+				//Adjust sourceVec to an offset from min x/y/z locations
+				sourceVec.subtract(new Vector(sourceXmin + zMargin, sourceYmin, sourceZmin + xMargin));
+				//Then swap X/Z
 				sourceTmp = sourceVec.getZ();
 				sourceVec.setZ(sourceVec.getX());
 				sourceVec.setX(sourceTmp);
 			} else {
 				//If source and dest are open North/South
 				if ( sourceYaw == 0F || sourceYaw == 180F ){
-					sourceXwidth = 0D;
-					sourceZwidth = sourceZmax - sourceZmin + 1 - 2*xzMargin;
-					destXwidth = destXmax - destXmin + 1 - 2*xzMargin;
+					zMargin = 0.5;
+					sourceXwidth = sourceXmax - sourceXmin + 1 - 2*xMargin;
+					sourceZwidth = 0D;
+					destXwidth = destXmax - destXmin + 1 - 2*xMargin;
 					destZwidth = 0D;
 				//If source and dest are open East/West
 				} else {
-					sourceXwidth = sourceXmax - sourceXmin + 1 - 2*xzMargin;
-					sourceZwidth = 0D;
+					xMargin = 0.5;
+					sourceXwidth = 0D;
+					sourceZwidth = sourceZmax - sourceZmin + 1 - 2*zMargin;
 					destXwidth = 0D;
-					destZwidth = destZmax - destZmin + 1 - 2*xzMargin;
+					destZwidth = destZmax - destZmin + 1 - 2*zMargin;
 				}
+				//Adjust sourceVec to an offset from min x/y/z locations
+				sourceVec.subtract(new Vector(sourceXmin + xMargin, sourceYmin, sourceZmin + zMargin));
 			}
 			Double sourceHeight = sourceYmax - sourceYmin + 1 - yMargin;
-			
 			Double destHeight = destYmax - destYmin + 1 - yMargin;
+			
+			//Shift sourceVec to be sure it is in sourcePortal minus margins
+			if (sourceVec.getX() < 0) {
+				sourceVec.setX(0D);
+			} else if (sourceVec.getX() > sourceXwidth) {
+				sourceVec.setX(sourceXwidth);
+			}
+			if (sourceVec.getY() < 0) {
+				sourceVec.setY(0);
+			} else if (sourceVec.getY() > sourceHeight) {
+				sourceVec.setY(sourceHeight);
+			}
+			if (sourceVec.getZ() < 0) {
+				sourceVec.setZ(0D);
+			} else if (sourceVec.getZ() > sourceZwidth) {
+				sourceVec.setZ(sourceZwidth);
+			}
 			
 			//Bail if a portal is too small
 			if (sourceHeight < 0 || sourceZwidth < 0 || sourceXwidth < 0 || destHeight < 0 || destZwidth < 0 || destXwidth < 0) {
@@ -359,9 +384,9 @@ public class PortalHandler {
 			//Map location in source portal to location in dest portal
 			Vector destVec = new Vector();
 			if (sourceXwidth > 0) {
-				destVec.setX(xzMargin + (sourceVec.getX()/sourceXwidth) * destXwidth);
+				destVec.setX(xMargin + (sourceVec.getX()/sourceXwidth) * destXwidth);
 			} else {
-				destVec.setX(xzMargin);
+				destVec.setX(xMargin);
 			}
 			if (sourceHeight > 0) {
 				destVec.setY( (sourceVec.getY()/sourceHeight) * destHeight);
@@ -369,9 +394,9 @@ public class PortalHandler {
 				destVec.setY(0);
 			}
 			if (sourceZwidth > 0) {
-				destVec.setZ(xzMargin +  (sourceVec.getZ()/sourceZwidth) * destZwidth);
+				destVec.setZ(zMargin +  (sourceVec.getZ()/sourceZwidth) * destZwidth);
 			} else {
-				destVec.setZ(xzMargin);
+				destVec.setZ(zMargin);
 			}
 			
 
