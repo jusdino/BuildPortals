@@ -57,7 +57,7 @@ public class BPListener implements Listener{
 			return;
 		}
 		Player player = (Player)passenger;
-		logger.info(player.getName() + " is moving in a vehicle.");
+//		logger.info(player.getName() + " is moving in a vehicle.");
 		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		//Players in a minecart are listed as 1m below actual, so
@@ -67,24 +67,24 @@ public class BPListener implements Listener{
 		}
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player)) {
-				logger.info(player.getName() + " left a portal");
+//				logger.info(player.getName() + " left a portal");
 				alreadyOnPortal.remove(player);
 			}
-			logger.info(player.getName() + " is not in a portal");
+//			logger.info(player.getName() + " is not in a portal");
 			return;
 		}
 		if (alreadyOnPortal.contains(player)) {
-			logger.info(player.getName() + " was already in a portal");
+//			logger.info(player.getName() + " was already in a portal");
 			return;
 		}
 		Location destination = portals.getDestination(player, loc);
 		if (null == destination){
-			logger.info(player.getName() + " could not teleport");
+//			logger.info(player.getName() + " could not teleport");
 			return;
 		}
-		logger.info(player.getName() + " teleported");
+//		logger.info(player.getName() + " teleported");
 		alreadyOnPortal.add(player);
-		logger.info("alreadyOnPortal size: " + alreadyOnPortal.size());
+//		logger.info("alreadyOnPortal size: " + alreadyOnPortal.size());
 		teleporter.teleport(player, destination);
 		return;
 	}
