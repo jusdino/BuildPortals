@@ -18,7 +18,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
@@ -58,39 +57,23 @@ public class BPListener implements Listener{
 			return;
 		}
 		Player player = (Player)passenger;
-//		logger.info(player.getName() + " is moving in a vehicle.");
 		
 		Location loc = event.getFrom();
 		loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-//		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-		//Players in a minecart are listed as 1m below actual, so add 1 if in a minecart.
-//		if (player.getVehicle() instanceof Minecart) {
-//			loc.add(0, 1, 0);
-//		}
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player) && loc.getChunk().isLoaded()) {
-				logger.info(player.getName() + " left a portal");
 				alreadyOnPortal.remove(player);
 			}
-			logger.info(player.getName() + " is not in a portal " + loc.toString());
 			return;
 		}
 		if (alreadyOnPortal.contains(player)) {
-			logger.info(player.getName() + " was already in a portal");
 			return;
 		}
 		Location destination = portals.getDestination(player, loc);
 		if (null == destination){
-			logger.info(player.getName() + " could not teleport");
 			return;
 		}
-//		//Lower the destination by a meter to adjust for minecart
-//		if (player.getVehicle() instanceof Minecart) {
-//			destination.subtract(0, 1, 0);
-//		}
-		logger.info(player.getName() + " teleported");
 		alreadyOnPortal.add(player);
-//		logger.info("alreadyOnPortal size: " + alreadyOnPortal.size());
 		teleporter.teleport(player, destination);
 		return;
 	}
@@ -100,12 +83,6 @@ public class BPListener implements Listener{
 		Player player = event.getPlayer();
 		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-		//Players in a minecart are listed as 1m below actual, so
-		//add 1 if in a minecart.
-		if (player.getVehicle() instanceof Minecart) {
-			logger.info(player.getName() + " in a minecart in ON PLAYER MOVE!");
-			loc.add(0, 1, 0);
-		}
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player)) {
 				alreadyOnPortal.remove(player);

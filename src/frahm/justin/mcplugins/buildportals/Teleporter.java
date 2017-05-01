@@ -3,7 +3,6 @@ package frahm.justin.mcplugins.buildportals;
 import java.util.List;
 import java.lang.Math;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -23,7 +22,6 @@ public class Teleporter {
 	}
 	
 	public Entity teleport(Entity entity, Location destination) {
-		Bukkit.broadcastMessage("Teleporting Entity");
 		if (entity instanceof Player) {
 			return teleport((Player) entity, destination);
 		} else if (entity instanceof AbstractHorse) {
@@ -41,19 +39,15 @@ public class Teleporter {
 	}
 	
 	public Vehicle teleport(Vehicle vehicle, Location destination) {
-		Bukkit.broadcastMessage("Teleporting vehicle");
 		Vehicle destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
-		Bukkit.broadcastMessage("Entrance velocity: " + speedVec.toString());
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		//Set minimum exit velocity
 		if (speed == 0) {
 			speed = 0.1;
 		}
-		Bukkit.broadcastMessage("Entrance Speed: " + speed);
 		Vector destVec = destination.getDirection().multiply(speed);
 		destVehicle.setVelocity(destVec);
-		Bukkit.broadcastMessage("Exit velocity: " + destVec.toString());
 		vehicle.remove();
 		return destVehicle;
 	}
