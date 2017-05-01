@@ -65,7 +65,7 @@ public class Teleporter {
 					teleport(passenger, destination);
 				}
 			}
-			vehicle = (Vehicle)teleport(vehicle, destination);
+			vehicle = (Vehicle)teleport((Entity)vehicle, destination);
 			if (vehicle != null) {
 				for (Entity passenger: passengers) {
 					vehicle.addPassenger(passenger);
