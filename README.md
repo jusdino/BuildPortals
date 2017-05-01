@@ -1,8 +1,8 @@
 # BuildPortals
 Bukkit/Spigot server plugin to allow players to build their own inter-world portals without the use of commands. These portals do currently support teleporting players on horses but not other vehicle-class objects they are riding; I'm trying to find a way to get around some issues there...
 
-April 29, 2017:
-Released an update on dev.bukkit.org and spigotmc.org
+April 30, 2017: Mine cart update!
+The plugin now full supports running rail networks through portals!
 -Justin
 
 Status:
