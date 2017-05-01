@@ -46,6 +46,10 @@ public class Teleporter {
 		Vector speedVec = vehicle.getVelocity();
 		Bukkit.broadcastMessage("Entrance velocity: " + speedVec.toString());
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
+		//Set minimum exit velocity
+		if (speed == 0) {
+			speed = 0.1;
+		}
 		Bukkit.broadcastMessage("Entrance Speed: " + speed);
 		Vector destVec = destination.getDirection().multiply(speed);
 		destVehicle.setVelocity(destVec);
