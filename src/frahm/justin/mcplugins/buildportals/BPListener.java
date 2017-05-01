@@ -27,6 +27,7 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.util.Vector;
 
 public class BPListener implements Listener{
 	Logger logger;
@@ -35,7 +36,7 @@ public class BPListener implements Listener{
 	Teleporter teleporter;
 	FileConfiguration config;
 	HashSet<Player> alreadyOnPortal = new HashSet<Player>();
-	HashMap<Player, Vehicle> teleportedVehicle = new HashMap<Player, Vehicle>();
+	HashMap<Player, HashMap<Vehicle, Vector>> vehicleMomentumBank = new HashMap<Player, HashMap<Vehicle, Vector>>();
 	
 	public BPListener(Main plugin, PortalHandler portals) {
 		this.plugin = plugin;
@@ -60,33 +61,32 @@ public class BPListener implements Listener{
 //		logger.info(player.getName() + " is moving in a vehicle.");
 		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-		//Players in a minecart are listed as 1m below actual, so
-		//add 1 if in a minecart.
+		//Players in a minecart are listed as 1m below actual, so add 1 if in a minecart.
 		if (player.getVehicle() instanceof Minecart) {
 			loc.add(0, 1, 0);
 		}
 		if (!portals.isInAPortal(loc)) {
-			if (alreadyOnPortal.contains(player)) {
-//				logger.info(player.getName() + " left a portal");
+			if (alreadyOnPortal.contains(player) && loc.getChunk().isLoaded()) {
+				logger.info(player.getName() + " left a portal");
 				alreadyOnPortal.remove(player);
 			}
-//			logger.info(player.getName() + " is not in a portal");
+			logger.info(player.getName() + " is not in a portal");
 			return;
 		}
 		if (alreadyOnPortal.contains(player)) {
-//			logger.info(player.getName() + " was already in a portal");
+			logger.info(player.getName() + " was already in a portal");
 			return;
 		}
 		Location destination = portals.getDestination(player, loc);
 		if (null == destination){
-//			logger.info(player.getName() + " could not teleport");
+			logger.info(player.getName() + " could not teleport");
 			return;
 		}
-//		//Lower the destination by a meter to adjust for mincart
+//		//Lower the destination by a meter to adjust for minecart
 //		if (player.getVehicle() instanceof Minecart) {
 //			destination.subtract(0, 1, 0);
 //		}
-//		logger.info(player.getName() + " teleported");
+		logger.info(player.getName() + " teleported");
 		alreadyOnPortal.add(player);
 //		logger.info("alreadyOnPortal size: " + alreadyOnPortal.size());
 		teleporter.teleport(player, destination);
