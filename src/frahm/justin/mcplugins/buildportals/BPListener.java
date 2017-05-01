@@ -60,17 +60,19 @@ public class BPListener implements Listener{
 		Player player = (Player)passenger;
 //		logger.info(player.getName() + " is moving in a vehicle.");
 		
-		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+		Location loc = event.getFrom();
+		loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+//		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		//Players in a minecart are listed as 1m below actual, so add 1 if in a minecart.
-		if (player.getVehicle() instanceof Minecart) {
-			loc.add(0, 1, 0);
-		}
+//		if (player.getVehicle() instanceof Minecart) {
+//			loc.add(0, 1, 0);
+//		}
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player) && loc.getChunk().isLoaded()) {
 				logger.info(player.getName() + " left a portal");
 				alreadyOnPortal.remove(player);
 			}
-			logger.info(player.getName() + " is not in a portal");
+			logger.info(player.getName() + " is not in a portal " + loc.toString());
 			return;
 		}
 		if (alreadyOnPortal.contains(player)) {
