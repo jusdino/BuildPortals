@@ -26,7 +26,6 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
-import org.bukkit.util.Vector;
 
 public class BPListener implements Listener{
 	Logger logger;
@@ -34,8 +33,7 @@ public class BPListener implements Listener{
 	PortalHandler portals;
 	Teleporter teleporter;
 	FileConfiguration config;
-	HashSet<Player> alreadyOnPortal = new HashSet<Player>();
-	HashMap<Player, HashMap<Vehicle, Vector>> vehicleMomentumBank = new HashMap<Player, HashMap<Vehicle, Vector>>();
+	HashSet<Entity> alreadyOnPortal = new HashSet<Entity>();
 	
 	public BPListener(Main plugin, PortalHandler portals) {
 		this.plugin = plugin;
@@ -47,40 +45,33 @@ public class BPListener implements Listener{
 
 	@EventHandler (ignoreCancelled = true)
 	public void onVehicleMove(VehicleMoveEvent event) {
-		Entity passenger = null;
-		try{
-			passenger = event.getVehicle().getPassengers().get(0);
-		} catch (Exception exc) {
-			return;
-		}
-		if (!(passenger instanceof Player)) {
-			return;
-		}
-		Player player = (Player)passenger;
-		
+		Vehicle vehicle = event.getVehicle();
 		Location loc = event.getFrom();
 		loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 		if (!portals.isInAPortal(loc)) {
-			if (alreadyOnPortal.contains(player) && loc.getChunk().isLoaded()) {
-				alreadyOnPortal.remove(player);
+			if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
+				alreadyOnPortal.remove(vehicle);
 			}
 			return;
 		}
-		if (alreadyOnPortal.contains(player)) {
+		if (alreadyOnPortal.contains(vehicle)) {
 			return;
 		}
-		Location destination = portals.getDestination(player, loc);
+		Location destination = portals.getDestination(vehicle, loc);
 		if (null == destination){
 			return;
 		}
-		alreadyOnPortal.add(player);
-		teleporter.teleport(player, destination);
+		Entity entity = teleporter.teleport((Entity)vehicle, destination);
+		if (entity != null) {
+			alreadyOnPortal.add(entity);
+		}
 		return;
 	}
 	
 	@EventHandler (ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
+		Entity vehicle = player.getVehicle();
 		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		if (!portals.isInAPortal(loc)) {
@@ -98,13 +89,26 @@ public class BPListener implements Listener{
 			}
 			return;
 		}
-		Location destination = portals.getDestination(player, loc);
-		if (null == destination){
-			logger.info("Can't get a destination for " + player.getName() + "!");
-			return;
+		if (vehicle == null) {
+			Location destination = portals.getDestination(player, loc);
+			if (null == destination){
+				logger.info("Can't get a destination for " + player.getName() + "!");
+				return;
+			}
+			if (teleporter.teleport((Entity)player, destination) == null) {
+				return;
+			}
+		} else {
+			Location destination = portals.getDestination(vehicle, loc);
+			if (null == destination){
+				logger.info("Can't get a destination for " + player.getName() + "!");
+				return;
+			}
+			if (teleporter.teleport(vehicle, destination) == null) {
+				return;
+			}
 		}
 		alreadyOnPortal.add(player);
-		teleporter.teleport(player, destination);
 		return;
 	}
 	

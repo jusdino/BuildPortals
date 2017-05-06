@@ -18,7 +18,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 public class PortalHandler {
@@ -120,7 +120,7 @@ public class PortalHandler {
 		 * 
 		 * Returns Null if the location is not actually in the portal.
 		 */
-		public Location getDestination(Player player, Location sourceLoc) {
+		public Location getDestination(Entity entity, Location sourceLoc) {
 			Vector sourceVec = new Vector(sourceLoc.getX(), sourceLoc.getY(), sourceLoc.getZ());
 			
 			//Move source to center of block
@@ -288,7 +288,7 @@ public class PortalHandler {
 			Double yMargin = 2D;
 			Double zMargin = 0.3;
 			Double xMargin = 0.3;
-			if (player.getVehicle() instanceof AbstractHorse) {
+			if (entity instanceof AbstractHorse) {
 				xMargin = 1D;
 				zMargin = 1D;
 			}
@@ -1030,13 +1030,13 @@ public class PortalHandler {
 	 * given portal block location. Returns null if the location is not part of
 	 * a configured portal.
 	 */
-	public Location getDestination(Player player, Location loc) {
+	public Location getDestination(Entity entity, Location loc) {
 		Iterator<Portal> portalsIterator = portals.iterator();
 		while (portalsIterator.hasNext()) {
 			Portal portal = portalsIterator.next();
 			if (portal.isInPortal(loc)) {
 //				logger.info(player.getName() + " is in portal number " + portal.getID());
-				return portal.getDestination(player, loc);
+				return portal.getDestination(entity, loc);
 			}
 		}
 		return null;
