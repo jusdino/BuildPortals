@@ -6,13 +6,9 @@ May 7, 2017: Expanded Minecart support!
 Expanded minecart support:
 
     empty minecarts
-    
     command minecarts
-    
     minecarts with chests
-    
     minecarts with hoppers
-    
     minecarts with TNT
     
 -Jusdino
