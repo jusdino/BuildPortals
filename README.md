@@ -2,13 +2,20 @@
 Bukkit/Spigot server plugin to allow players to build their own inter-world portals without the use of commands. These portals support teleporting players on horses as well as minecarts.
 
 May 7, 2017: Expanded Minecart support!
+
 Expanded minecart support:
+
     empty minecarts
+    
     command minecarts
+    
     minecarts with chests
+    
     minecarts with hoppers
+    
     minecarts with TNT
--Justin
+    
+-Jusdino
 
 Status:
 
