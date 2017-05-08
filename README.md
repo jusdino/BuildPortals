@@ -40,6 +40,8 @@ The plugin does support in-game configuration changes now:
  * '/BP ListActivators \<MaterialName\>' - This will list all currently configured activator materials. 
 
 Planned updates:
- * Support for minecart teleportation.
+* More Minecart Support - carrying villagers and livestock.
+* Feudal Kingdom Limits - Limits on how many portals can be created in each kingom (From the Feudal plugin)
+* Entities on Leashes - Be able to drag your stubborn sheep through the portal on a lead.
 
 If someone happens across this project, feel free to critique. I welcome tips/criticism/suggestions!
