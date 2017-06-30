@@ -19,6 +19,7 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.Villager;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -31,30 +32,28 @@ public class Teleporter {
 	}
 	
 	public Entity teleport(Entity entity, Location destination) {
+		Bukkit.broadcastMessage("Teleporting Entity...");
 		destination.getChunk().load();
 		if (entity instanceof Vehicle) {
 			List<Entity> passengers = ((Vehicle)entity).getPassengers();
 			List<Entity> destPassengers = new ArrayList<Entity>();
 			for (Entity passenger: passengers) {
+				Bukkit.broadcastMessage("Removing passenger...");
 				if (((Vehicle)entity).removePassenger(passenger)) {
-					Entity destPassenger = teleport(passenger, destination) ;
+					Entity destPassenger = teleport(passenger, destination);
 					if ( destPassenger != null) {
 						destPassengers.add(destPassenger);
 					}
+				} else {
+					Bukkit.broadcastMessage("FAILED TO REMOVE PASSENGER!");
 				}
 			}
 			if (entity instanceof AbstractHorse) {
 				entity = teleport((AbstractHorse)entity, destination);
-			} else if (entity instanceof Pig) {
-//				entity = teleport((Pig) entity, destination);
-//			} else if (entity instanceof Cow) {
-//				entity = teleport((Cow) entity, destination);
-//			} else if (entity instanceof Sheep) {
-//				entity = teleport((Sheep) entity, destination);
-//			} else if (entity instanceof Chicken) {
-//				entity = teleport((Chicken) entity, destination);
 			} else if (entity instanceof Minecart){
 				entity = teleport((Minecart)entity, destination);
+			} else if (entity instanceof Pig) {
+				entity = teleport((Pig) entity, destination);
 			}
 			if (entity != null) {
 				for (Entity passenger: destPassengers) {
@@ -62,17 +61,27 @@ public class Teleporter {
 				}
 			}
 			return entity;
+		} else if (entity instanceof Cow) {
+			entity = teleport((Cow) entity, destination);
+		} else if (entity instanceof Sheep) {
+			entity = teleport((Sheep) entity, destination);
+		} else if (entity instanceof Chicken) {
+			entity = teleport((Chicken) entity, destination);
+		} else if (entity instanceof Player) {
+			entity = teleport((Player) entity, destination);
+		} else if (entity instanceof Villager) {
+			entity = teleport((Villager) entity, destination);
 		}
-		if (entity instanceof Player) {
-			return teleport((Player) entity, destination);
-		} else {
+		else {
 			//Bail on the teleport for unhandled Entities
 			return null;
 		}
+		return entity;
 	}
 	
 	
 	public Minecart teleport(Minecart vehicle, Location destination) {
+		Bukkit.broadcastMessage("Teleporting minecart...");
 		Minecart destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
@@ -114,11 +123,13 @@ public class Teleporter {
 	}
 	
 	public Player teleport(Player player, Location destination) {
+		Bukkit.broadcastMessage("Teleporting player...");
 		player.teleport(destination);
 		return player;
 	}
 	
 	public AbstractHorse teleport(AbstractHorse horse, Location destination) {
+		Bukkit.broadcastMessage("Teleporting abstract horse...");
 		AbstractHorse destHorse = destination.getWorld().spawn(destination, horse.getClass());
 		try {
 			destHorse.setAge(horse.getAge());
@@ -154,6 +165,7 @@ public class Teleporter {
 	
 	
 	public Chicken teleport(Chicken chicken, Location destination) {
+		Bukkit.broadcastMessage("Teleporting chicken..");
 		Chicken destChicken = destination.getWorld().spawn(destination, chicken.getClass());
 		try {
 			destChicken.setAge(chicken.getAge());
@@ -172,6 +184,7 @@ public class Teleporter {
 	
 	
 	public Cow teleport(Cow cow, Location destination) {
+		Bukkit.broadcastMessage("Teleporting cow...");
 		Cow destCow = destination.getWorld().spawn(destination, cow.getClass());
 		try {
 			destCow.setAge(cow.getAge());
@@ -190,6 +203,7 @@ public class Teleporter {
 	
 	
 	public Pig teleport(Pig pig, Location destination) {
+		Bukkit.broadcastMessage("Teleporting pig...");
 		Pig destPig = destination.getWorld().spawn(destination, pig.getClass());
 		try {
 			destPig.setAge(pig.getAge());
@@ -209,6 +223,7 @@ public class Teleporter {
 	
 	
 	public Sheep teleport(Sheep sheep, Location destination) {
+		Bukkit.broadcastMessage("Teleporting sheep...");
 		Sheep destSheep = destination.getWorld().spawn(destination, sheep.getClass());
 		try {
 			destSheep.setAge(sheep.getAge());
@@ -225,5 +240,28 @@ public class Teleporter {
 			return null;
 		} 
 		return destSheep;
+	}
+
+
+	public Villager teleport(Villager villager, Location destination) {
+		Bukkit.broadcastMessage("Teleporting villager...");
+		Villager destVillager = destination.getWorld().spawn(destination, villager.getClass());
+		
+		try {
+			destVillager.setAge(villager.getAge());
+			destVillager.setCustomName(villager.getCustomName());
+			destVillager.setHealth(villager.getHealth());
+			destVillager.setGlowing(villager.isGlowing());
+			destVillager.setRiches(villager.getRiches());
+			destVillager.setProfession(villager.getProfession());
+			destVillager.getInventory().setContents(villager.getInventory().getContents());
+			destVillager.setRecipes(villager.getRecipes());
+			villager.remove();
+		} catch (Exception exc) {
+			Bukkit.broadcastMessage(exc.getMessage());
+			destVillager.remove();
+			return null;
+		}
+		return destVillager;
 	}
 }
