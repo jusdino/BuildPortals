@@ -48,6 +48,7 @@ public class Teleporter {
 			} else if (entity instanceof Pig) {
 				entity = teleport((Pig) entity, destination);
 			} else if (entity instanceof Cow) {
+				Bukkit.broadcastMessage("Teleporting cow...");
 				entity = teleport((Cow) entity, destination);
 			} else if (entity instanceof Sheep) {
 				entity = teleport((Sheep) entity, destination);
