@@ -1,6 +1,9 @@
 name: BuildPortals
 main: frahm.justin.mcplugins.buildportals.Main
-version: 1.170507
+version: 1.170521_DEV
+softdepend:
+  - Multiverse-Core
+  - Multiworld
 commands:
   buildportals:
     description: All commands for the BuildPortals plugin.
