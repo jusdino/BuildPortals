@@ -64,11 +64,12 @@ public class Teleporter {
 		} else if (entity instanceof Chicken) {
 			entity = teleport((Chicken) entity, destination);
 		} else if (entity instanceof Player) {
-			return teleport((Player) entity, destination);
+			entity = teleport((Player) entity, destination);
 		} else {
 			//Bail on the teleport for unhandled Entities
 			return null;
 		}
+		return entity;
 	}
 	
 	
