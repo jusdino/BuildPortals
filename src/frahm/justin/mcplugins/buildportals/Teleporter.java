@@ -245,6 +245,14 @@ public class Teleporter {
 		Villager destVillager = destination.getWorld().spawn(destination, villager.getClass());
 		
 		try {
+			destVillager.setAge(villager.getAge());
+			destVillager.setCustomName(villager.getCustomName());
+			destVillager.setHealth(villager.getHealth());
+			destVillager.setGlowing(villager.isGlowing());
+			destVillager.setRiches(villager.getRiches());
+			destVillager.setProfession(villager.getProfession());
+			destVillager.getInventory().setContents(villager.getInventory().getContents());
+			destVillager.setRecipes(villager.getRecipes());
 			
 		} catch (Exception exc) {
 			Bukkit.broadcastMessage(exc.getMessage());
