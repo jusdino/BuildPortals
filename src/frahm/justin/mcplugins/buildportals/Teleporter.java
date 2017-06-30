@@ -256,7 +256,7 @@ public class Teleporter {
 			destVillager.setProfession(villager.getProfession());
 			destVillager.getInventory().setContents(villager.getInventory().getContents());
 			destVillager.setRecipes(villager.getRecipes());
-			
+			villager.remove();
 		} catch (Exception exc) {
 			Bukkit.broadcastMessage(exc.getMessage());
 			destVillager.remove();
