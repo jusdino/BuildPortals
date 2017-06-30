@@ -31,13 +31,15 @@ public class Teleporter {
 	}
 	
 	public Entity teleport(Entity entity, Location destination) {
+		Bukkit.broadcastMessage("Teleporting Entity...");
 		destination.getChunk().load();
 		if (entity instanceof Vehicle) {
 			List<Entity> passengers = ((Vehicle)entity).getPassengers();
 			List<Entity> destPassengers = new ArrayList<Entity>();
 			for (Entity passenger: passengers) {
+				Bukkit.broadcastMessage("Removing passenger...");
 				if (((Vehicle)entity).removePassenger(passenger)) {
-					Entity destPassenger = teleport(passenger, destination) ;
+					Entity destPassenger = teleport(passenger, destination);
 					if ( destPassenger != null) {
 						destPassengers.add(destPassenger);
 					}
@@ -57,7 +59,6 @@ public class Teleporter {
 		} else if (entity instanceof Pig) {
 			entity = teleport((Pig) entity, destination);
 		} else if (entity instanceof Cow) {
-			Bukkit.broadcastMessage("Teleporting cow...");
 			entity = teleport((Cow) entity, destination);
 		} else if (entity instanceof Sheep) {
 			entity = teleport((Sheep) entity, destination);
@@ -191,6 +192,7 @@ public class Teleporter {
 	
 	
 	public Pig teleport(Pig pig, Location destination) {
+		Bukkit.broadcastMessage("Teleporting pig...");
 		Pig destPig = destination.getWorld().spawn(destination, pig.getClass());
 		try {
 			destPig.setAge(pig.getAge());
