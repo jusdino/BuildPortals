@@ -54,8 +54,7 @@ public class Teleporter {
 				}
 			}
 			return entity;
-		}
-		if (entity instanceof Pig) {
+		} else if (entity instanceof Pig) {
 			entity = teleport((Pig) entity, destination);
 		} else if (entity instanceof Cow) {
 			Bukkit.broadcastMessage("Teleporting cow...");
@@ -64,8 +63,7 @@ public class Teleporter {
 			entity = teleport((Sheep) entity, destination);
 		} else if (entity instanceof Chicken) {
 			entity = teleport((Chicken) entity, destination);
-		}
-		if (entity instanceof Player) {
+		} else if (entity instanceof Player) {
 			return teleport((Player) entity, destination);
 		} else {
 			//Bail on the teleport for unhandled Entities
