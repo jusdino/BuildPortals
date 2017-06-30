@@ -46,13 +46,13 @@ public class Teleporter {
 			if (entity instanceof AbstractHorse) {
 				entity = teleport((AbstractHorse)entity, destination);
 			} else if (entity instanceof Pig) {
-//				entity = teleport((Pig) entity, destination);
-//			} else if (entity instanceof Cow) {
-//				entity = teleport((Cow) entity, destination);
-//			} else if (entity instanceof Sheep) {
-//				entity = teleport((Sheep) entity, destination);
-//			} else if (entity instanceof Chicken) {
-//				entity = teleport((Chicken) entity, destination);
+				entity = teleport((Pig) entity, destination);
+			} else if (entity instanceof Cow) {
+				entity = teleport((Cow) entity, destination);
+			} else if (entity instanceof Sheep) {
+				entity = teleport((Sheep) entity, destination);
+			} else if (entity instanceof Chicken) {
+				entity = teleport((Chicken) entity, destination);
 			} else if (entity instanceof Minecart){
 				entity = teleport((Minecart)entity, destination);
 			}
