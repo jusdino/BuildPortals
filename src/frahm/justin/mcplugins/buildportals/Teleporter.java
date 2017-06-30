@@ -43,6 +43,8 @@ public class Teleporter {
 					if ( destPassenger != null) {
 						destPassengers.add(destPassenger);
 					}
+				} else {
+					Bukkit.broadcastMessage("FAILED TO REMOVE PASSENGER!");
 				}
 			}
 			if (entity instanceof AbstractHorse) {
@@ -75,6 +77,7 @@ public class Teleporter {
 	
 	
 	public Minecart teleport(Minecart vehicle, Location destination) {
+		Bukkit.broadcastMessage("Teleporting minecart...");
 		Minecart destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
@@ -116,11 +119,13 @@ public class Teleporter {
 	}
 	
 	public Player teleport(Player player, Location destination) {
+		Bukkit.broadcastMessage("Teleporting player...");
 		player.teleport(destination);
 		return player;
 	}
 	
 	public AbstractHorse teleport(AbstractHorse horse, Location destination) {
+		Bukkit.broadcastMessage("Teleporting abstract horse...");
 		AbstractHorse destHorse = destination.getWorld().spawn(destination, horse.getClass());
 		try {
 			destHorse.setAge(horse.getAge());
@@ -156,6 +161,7 @@ public class Teleporter {
 	
 	
 	public Chicken teleport(Chicken chicken, Location destination) {
+		Bukkit.broadcastMessage("Teleporting chicken..");
 		Chicken destChicken = destination.getWorld().spawn(destination, chicken.getClass());
 		try {
 			destChicken.setAge(chicken.getAge());
@@ -174,6 +180,7 @@ public class Teleporter {
 	
 	
 	public Cow teleport(Cow cow, Location destination) {
+		Bukkit.broadcastMessage("Teleporting cow...");
 		Cow destCow = destination.getWorld().spawn(destination, cow.getClass());
 		try {
 			destCow.setAge(cow.getAge());
@@ -212,6 +219,7 @@ public class Teleporter {
 	
 	
 	public Sheep teleport(Sheep sheep, Location destination) {
+		Bukkit.broadcastMessage("Teleporting sheep...");
 		Sheep destSheep = destination.getWorld().spawn(destination, sheep.getClass());
 		try {
 			destSheep.setAge(sheep.getAge());
