@@ -19,6 +19,7 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.Villager;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -51,6 +52,8 @@ public class Teleporter {
 				entity = teleport((AbstractHorse)entity, destination);
 			} else if (entity instanceof Minecart){
 				entity = teleport((Minecart)entity, destination);
+			} else if (entity instanceof Pig) {
+				entity = teleport((Pig) entity, destination);
 			}
 			if (entity != null) {
 				for (Entity passenger: destPassengers) {
@@ -58,8 +61,6 @@ public class Teleporter {
 				}
 			}
 			return entity;
-		} else if (entity instanceof Pig) {
-			entity = teleport((Pig) entity, destination);
 		} else if (entity instanceof Cow) {
 			entity = teleport((Cow) entity, destination);
 		} else if (entity instanceof Sheep) {
@@ -236,5 +237,20 @@ public class Teleporter {
 			return null;
 		} 
 		return destSheep;
+	}
+
+
+	public Villager teleport(Villager villager, Location destination) {
+		Bukkit.broadcastMessage("Teleporting villager...");
+		Villager destVillager = destination.getWorld().spawn(destination, villager.getClass());
+		
+		try {
+			
+		} catch (Exception exc) {
+			Bukkit.broadcastMessage(exc.getMessage());
+			destVillager.remove();
+			return null;
+		}
+		return destVillager;
 	}
 }
