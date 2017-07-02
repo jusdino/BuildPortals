@@ -2,6 +2,8 @@ package frahm.justin.mcplugins.buildportals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.lang.Math;
 
@@ -14,6 +16,7 @@ import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Horse;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -61,14 +64,26 @@ public class Teleporter {
 				}
 			}
 			return entity;
+		} else if (entity instanceof Player) {
+			Location source = ((Player)entity).getLocation();
+			ArrayList<Entity> leadees = new ArrayList<Entity>();
+			Collection<Entity> entities = source.getWorld().getNearbyEntities(source, 11, 11, 11);
+			for (Entity ent: entities) {
+				if (ent instanceof LivingEntity) {
+					if (((LivingEntity)ent).isLeashed() && ((LivingEntity)ent).getLeashHolder() == entity) {
+						Bukkit.broadcastMessage("Leashed entity detected: " + ent);
+						
+					}
+				}
+			}
+			
+			entity = teleport((Player) entity, destination);
 		} else if (entity instanceof Cow) {
 			entity = teleport((Cow) entity, destination);
 		} else if (entity instanceof Sheep) {
 			entity = teleport((Sheep) entity, destination);
 		} else if (entity instanceof Chicken) {
 			entity = teleport((Chicken) entity, destination);
-		} else if (entity instanceof Player) {
-			entity = teleport((Player) entity, destination);
 		} else if (entity instanceof Villager) {
 			entity = teleport((Villager) entity, destination);
 		}
