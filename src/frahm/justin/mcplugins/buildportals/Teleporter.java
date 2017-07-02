@@ -32,20 +32,17 @@ public class Teleporter {
 	}
 	
 	public Entity teleport(Entity entity, Location destination) {
-		Bukkit.broadcastMessage("Teleporting Entity...");
 		destination.getChunk().load();
 		if (entity instanceof Vehicle) {
 			List<Entity> passengers = ((Vehicle)entity).getPassengers();
 			List<Entity> destPassengers = new ArrayList<Entity>();
 			for (Entity passenger: passengers) {
-				Bukkit.broadcastMessage("Removing passenger...");
 				if (((Vehicle)entity).removePassenger(passenger)) {
 					Entity destPassenger = teleport(passenger, destination);
 					if ( destPassenger != null) {
 						destPassengers.add(destPassenger);
 					}
 				} else {
-					Bukkit.broadcastMessage("FAILED TO REMOVE PASSENGER!");
 				}
 			}
 			if (entity instanceof AbstractHorse) {
@@ -81,7 +78,6 @@ public class Teleporter {
 	
 	
 	public Minecart teleport(Minecart vehicle, Location destination) {
-		Bukkit.broadcastMessage("Teleporting minecart...");
 		Minecart destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
@@ -110,7 +106,6 @@ public class Teleporter {
 				((InventoryHolder)destVehicle).getInventory().setContents(items);
 				((InventoryHolder)vehicle).getInventory().clear();
 			} catch (Exception exc) {
-				Bukkit.broadcastMessage(exc.getMessage());
 				destVehicle.remove();
 				return null;
 			}
@@ -123,13 +118,11 @@ public class Teleporter {
 	}
 	
 	public Player teleport(Player player, Location destination) {
-		Bukkit.broadcastMessage("Teleporting player...");
 		player.teleport(destination);
 		return player;
 	}
 	
 	public AbstractHorse teleport(AbstractHorse horse, Location destination) {
-		Bukkit.broadcastMessage("Teleporting abstract horse...");
 		AbstractHorse destHorse = destination.getWorld().spawn(destination, horse.getClass());
 		try {
 			destHorse.setAge(horse.getAge());
@@ -165,7 +158,6 @@ public class Teleporter {
 	
 	
 	public Chicken teleport(Chicken chicken, Location destination) {
-		Bukkit.broadcastMessage("Teleporting chicken..");
 		Chicken destChicken = destination.getWorld().spawn(destination, chicken.getClass());
 		try {
 			destChicken.setAge(chicken.getAge());
@@ -175,7 +167,6 @@ public class Teleporter {
 			destChicken.setGlowing(chicken.isGlowing());
 			chicken.remove();
 		} catch (Exception exc){
-			Bukkit.broadcastMessage(exc.getMessage());
 			destChicken.remove();
 			return null;
 		} 
@@ -184,7 +175,6 @@ public class Teleporter {
 	
 	
 	public Cow teleport(Cow cow, Location destination) {
-		Bukkit.broadcastMessage("Teleporting cow...");
 		Cow destCow = destination.getWorld().spawn(destination, cow.getClass());
 		try {
 			destCow.setAge(cow.getAge());
@@ -194,7 +184,6 @@ public class Teleporter {
 			destCow.setGlowing(cow.isGlowing());
 			cow.remove();
 		} catch (Exception exc){
-			Bukkit.broadcastMessage(exc.getMessage());
 			destCow.remove();
 			return null;
 		} 
@@ -203,7 +192,6 @@ public class Teleporter {
 	
 	
 	public Pig teleport(Pig pig, Location destination) {
-		Bukkit.broadcastMessage("Teleporting pig...");
 		Pig destPig = destination.getWorld().spawn(destination, pig.getClass());
 		try {
 			destPig.setAge(pig.getAge());
@@ -214,7 +202,6 @@ public class Teleporter {
 			destPig.setGlowing(pig.isGlowing());
 			pig.remove();
 		} catch (Exception exc){
-			Bukkit.broadcastMessage(exc.getMessage());
 			destPig.remove();
 			return null;
 		} 
@@ -223,7 +210,6 @@ public class Teleporter {
 	
 	
 	public Sheep teleport(Sheep sheep, Location destination) {
-		Bukkit.broadcastMessage("Teleporting sheep...");
 		Sheep destSheep = destination.getWorld().spawn(destination, sheep.getClass());
 		try {
 			destSheep.setAge(sheep.getAge());
@@ -235,7 +221,6 @@ public class Teleporter {
 			destSheep.setSheared(sheep.isSheared());
 			sheep.remove();
 		} catch (Exception exc){
-			Bukkit.broadcastMessage(exc.getMessage());
 			destSheep.remove();
 			return null;
 		} 
@@ -244,7 +229,6 @@ public class Teleporter {
 
 
 	public Villager teleport(Villager villager, Location destination) {
-		Bukkit.broadcastMessage("Teleporting villager...");
 		Villager destVillager = destination.getWorld().spawn(destination, villager.getClass());
 		
 		try {
@@ -258,7 +242,6 @@ public class Teleporter {
 			destVillager.setRecipes(villager.getRecipes());
 			villager.remove();
 		} catch (Exception exc) {
-			Bukkit.broadcastMessage(exc.getMessage());
 			destVillager.remove();
 			return null;
 		}
