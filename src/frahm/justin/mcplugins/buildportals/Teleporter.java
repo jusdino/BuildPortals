@@ -2,10 +2,10 @@ package frahm.justin.mcplugins.buildportals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.lang.Math;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -14,6 +14,7 @@ import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Horse;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -58,14 +59,28 @@ public class Teleporter {
 				}
 			}
 			return entity;
+		} else if (entity instanceof Player) {
+			Location source = ((Player)entity).getLocation();
+			ArrayList<LivingEntity> leadees = new ArrayList<LivingEntity>();
+			Collection<Entity> entities = source.getWorld().getNearbyEntities(source, 11, 11, 11);
+			for (Entity ent: entities) {
+				if (ent instanceof LivingEntity) {
+					if (((LivingEntity)ent).isLeashed() && ((LivingEntity)ent).getLeashHolder() == entity) {
+						Entity destEnt = teleport(ent, destination);
+						leadees.add((LivingEntity)destEnt);
+					}
+				}
+			}
+			entity = teleport((Player) entity, destination);
+			for (LivingEntity ent: leadees) {
+				ent.setLeashHolder(entity);
+			}
 		} else if (entity instanceof Cow) {
 			entity = teleport((Cow) entity, destination);
 		} else if (entity instanceof Sheep) {
 			entity = teleport((Sheep) entity, destination);
 		} else if (entity instanceof Chicken) {
 			entity = teleport((Chicken) entity, destination);
-		} else if (entity instanceof Player) {
-			entity = teleport((Player) entity, destination);
 		} else if (entity instanceof Villager) {
 			entity = teleport((Villager) entity, destination);
 		}
