@@ -1,6 +1,20 @@
 name: BuildPortals
-main: frahm.justin.mcplugins.BuildPortals.Main
-version: 0.0.1
+main: frahm.justin.mcplugins.buildportals.Main
+version: 1.170704
+softdepend:
+  - Multiverse-Core
+  - Multiworld
 commands:
-  vec:
-    description: Reports your position as a vector and string.
+  buildportals:
+    description: All commands for the BuildPortals plugin.
+  bp:
+    description: All commands for the BuildPortals plugin.
+permissions:
+  buildportals.*:
+    description: Gives access to all BuildPortals commands
+    default: op
+    children:
+      buildportals.listmaterials: true
+  buildportals.listactivators:
+    description: Give access to the activator material list.
+    default: true
