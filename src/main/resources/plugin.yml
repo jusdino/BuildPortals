@@ -1,6 +1,6 @@
 name: BuildPortals
 main: frahm.justin.mcplugins.buildportals.Main
-version: 1.170704
+version: 1.18.1
 softdepend:
   - Multiverse-Core
   - Multiworld
@@ -17,4 +17,7 @@ permissions:
       buildportals.listmaterials: true
   buildportals.listactivators:
     description: Give access to the activator material list.
+    default: true
+  buildportals.activate:
+    description: Can activate a new portal
     default: true

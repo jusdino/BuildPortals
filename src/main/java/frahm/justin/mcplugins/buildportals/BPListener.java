@@ -163,6 +163,13 @@ public class BPListener implements Listener{
 			return;
 		}
 		
+		Player player;
+		player = event.getPlayer();
+		if (!player.hasPermission("buildportals.activate")) {
+			player.sendMessage("You do not have permission to activate portals!");
+			return;
+		}
+		
 		Boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<String, Object>();
 		
