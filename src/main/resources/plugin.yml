@@ -21,3 +21,6 @@ permissions:
   buildportals.activate:
     description: Can activate a new portal
     default: true
+  buildportals.teleport:
+    description: Can use a portal
+    default: true

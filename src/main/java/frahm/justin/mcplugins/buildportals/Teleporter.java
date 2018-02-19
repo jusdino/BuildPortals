@@ -60,8 +60,16 @@ public class Teleporter {
 			}
 			return entity;
 		} else if (entity instanceof Player) {
-			Location source = ((Player)entity).getLocation();
+			Player player;
+			player = (Player)entity;
+			if (!player.hasPermission("buildportals.teleport")) {
+				player.sendMessage("You do not have permission to use portals!");
+				return null;
+			}
+			Location source = player.getLocation();
 			ArrayList<LivingEntity> leadees = new ArrayList<LivingEntity>();
+			// There doesn't seem to be an easy way to get a collection of leashed entities
+			// from the player directly...
 			Collection<Entity> entities = source.getWorld().getNearbyEntities(source, 11, 11, 11);
 			for (Entity ent: entities) {
 				if (ent instanceof LivingEntity) {
@@ -71,6 +79,7 @@ public class Teleporter {
 					}
 				}
 			}
+			
 			entity = teleport((Player) entity, destination);
 			for (LivingEntity ent: leadees) {
 				ent.setLeashHolder(entity);
