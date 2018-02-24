@@ -19,6 +19,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.PolarBear;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.entity.Villager;
@@ -90,6 +91,8 @@ public class Teleporter {
 			entity = teleport((Cow) entity, destination);
 		} else if (entity instanceof Sheep) {
 			entity = teleport((Sheep) entity, destination);
+		} else if (entity instanceof PolarBear) {
+			entity = teleport((PolarBear) entity, destination);
 		} else if (entity instanceof Chicken) {
 			entity = teleport((Chicken) entity, destination);
 		} else if (entity instanceof Villager) {
@@ -251,6 +254,22 @@ public class Teleporter {
 			return null;
 		} 
 		return destSheep;
+	}
+	
+	public PolarBear teleport(PolarBear polarbear, Location destination) {
+		PolarBear destPolarBear = destination.getWorld().spawn(destination, polarbear.getClass());
+		try {
+			destPolarBear.setAge(polarbear.getAge());
+			destPolarBear.setCustomName(polarbear.getCustomName());
+			destPolarBear.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(destPolarBear.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+			destPolarBear.setHealth(polarbear.getHealth());
+			destPolarBear.setGlowing(polarbear.isGlowing());
+			polarbear.remove();
+		} catch (Exception exc){
+			destPolarBear.remove();
+			return null;
+		} 
+		return destPolarBear;
 	}
 
 
