@@ -163,8 +163,7 @@ public class Teleporter {
 		destVehicle.setCustomName(vehicle.getCustomName());
 		destVehicle.setGlowing(vehicle.isGlowing());
 		vehicle.remove();
-		Thread.sleep(3000);
-		return destVehicle;
+//		return destVehicle;
 	}
 
 	public Player teleport(Player player, Location destination) {
