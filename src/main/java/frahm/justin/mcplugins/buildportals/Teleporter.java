@@ -161,9 +161,8 @@ public class Teleporter {
 		destVehicle.setVelocity(destVec);
 		destVehicle.setCustomName(vehicle.getCustomName());
 		destVehicle.setGlowing(vehicle.isGlowing());
-		
-		
 		vehicle.remove();
+		Thread.sleep(3000);
 		return destVehicle;
 	}
 
