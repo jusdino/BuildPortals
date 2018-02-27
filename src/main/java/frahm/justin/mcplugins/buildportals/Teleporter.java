@@ -160,7 +160,7 @@ public class Teleporter {
 		destVehicle.setVelocity(destVec);
 		*/
 		destVehicle.setCustomName(vehicle.getCustomName());
-		destVehicle.setDamage(vehicle.getDamage());
+		// destVehicle.setDamage(vehicle.getDamage());
 		destVehicle.setGlowing(vehicle.isGlowing());
 		
 /*		if (vehicle instanceof InventoryHolder) {
