@@ -47,7 +47,6 @@ public class BPListener implements Listener{
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
 		Location loc = event.getFrom();
-		int cooldown = vehicle.getPortalCooldown();
 		loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
@@ -56,9 +55,6 @@ public class BPListener implements Listener{
 			return;
 		}
 		if (alreadyOnPortal.contains(vehicle)) {
-			return;
-		}
-		if (cooldown != null) {
 			return;
 		}
 		Location destination = portals.getDestination(vehicle, loc);
