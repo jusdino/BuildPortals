@@ -159,7 +159,7 @@ public class Teleporter {
 		}
 		Vector destVec = destination.getDirection().multiply(speed);
 		destVehicle.setVelocity(destVec);
-		Location loc = destVehicle.getLocation().getBlock().getLocation();
+		Location loc = destVehicle.getLocation();
 		loc.add(0,1,0);
 		destVehicle.teleport(Location loc);
 		destVehicle.setCustomName(vehicle.getCustomName());
