@@ -147,7 +147,7 @@ public class Teleporter {
 		vehicle.remove();
 		return destVehicle;
 	}
-
+/*
 	public Boat teleport(Boat vehicle, Location destination) {
 		Boat destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
@@ -185,7 +185,7 @@ public class Teleporter {
 		vehicle.remove();
 		return destVehicle;
 	}
-	
+	*/
 	public Player teleport(Player player, Location destination) {
 		player.teleport(destination);
 		return player;
