@@ -161,6 +161,7 @@ public class Teleporter {
 		destVehicle.setVelocity(destVec); */
 		Location loc = destVehicle.getLocation().getBlock().getLocation();
 		loc.add(0,1,0);
+		destVehicle.setLocation(loc);
 		destVehicle.setCustomName(vehicle.getCustomName());
 		destVehicle.setGlowing(vehicle.isGlowing());
 		
