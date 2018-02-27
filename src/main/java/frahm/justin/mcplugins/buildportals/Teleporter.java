@@ -157,7 +157,9 @@ public class Teleporter {
 		Vector speedVec = vehicle.getVelocity();
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		// Spit the boat out on the other side of the portal
-		speed = 2.5;
+		if (speed == 0) {
+			speed = 1.0;
+		}
 		Vector destVec = destination.getDirection().multiply(speed);
 		destVehicle.setVelocity(destVec);
 		destVehicle.setCustomName(vehicle.getCustomName());
