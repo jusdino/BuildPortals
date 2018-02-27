@@ -54,6 +54,7 @@ public class Teleporter {
 			} else if (entity instanceof Minecart){
 				entity = teleport((Minecart)entity, destination);
 			} else if (entity instanceof Boat){
+				destination.add(0,1,0);
 				entity = teleport((Boat)entity, destination);
 			} else if (entity instanceof Pig) {
 				entity = teleport((Pig) entity, destination);
@@ -150,7 +151,7 @@ public class Teleporter {
 	}
 
 	public Boat teleport(Boat vehicle, Location destination) {
-
+		
 		Boat destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
