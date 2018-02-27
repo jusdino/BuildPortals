@@ -57,9 +57,9 @@ public class BPListener implements Listener{
 		if (alreadyOnPortal.contains(vehicle)) {
 			return;
 		}
-		if (vehicle.GetPortalCooldown() != null) {
+	/*	if (vehicle.GetPortalCooldown() != null) {
 			return;
-		}
+		} */
 		Location destination = portals.getDestination(vehicle, loc);
 		if (null == destination){
 			return;
