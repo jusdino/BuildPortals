@@ -147,10 +147,10 @@ public class Teleporter {
 		vehicle.remove();
 		return destVehicle;
 	}
-/*
+
 	public Boat teleport(Boat vehicle, Location destination) {
 		Boat destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
-		Vector speedVec = vehicle.getVelocity();
+/*		Vector speedVec = vehicle.getVelocity();
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		//Set minimum exit velocity
 		if (speed == 0) {
@@ -158,11 +158,12 @@ public class Teleporter {
 		}
 		Vector destVec = destination.getDirection().multiply(speed);
 		destVehicle.setVelocity(destVec);
+		*/
 		destVehicle.setCustomName(vehicle.getCustomName());
 		destVehicle.setDamage(vehicle.getDamage());
 		destVehicle.setGlowing(vehicle.isGlowing());
 		
-		if (vehicle instanceof InventoryHolder) {
+/*		if (vehicle instanceof InventoryHolder) {
 			try {
 				int size;
 				switch (((InventoryHolder) vehicle).getInventory().getType()) {
@@ -180,12 +181,12 @@ public class Teleporter {
 				destVehicle.remove();
 				return null;
 			}
-		}
+		} */
 		
 		vehicle.remove();
 		return destVehicle;
 	}
-	*/
+
 	public Player teleport(Player player, Location destination) {
 		player.teleport(destination);
 		return player;
