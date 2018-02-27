@@ -53,6 +53,8 @@ public class Teleporter {
 				entity = teleport((AbstractHorse)entity, destination);
 			} else if (entity instanceof Minecart){
 				entity = teleport((Minecart)entity, destination);
+			} else if (entity instanceof Boat){
+				entity = teleport((Boat)entity, destination);
 			} else if (entity instanceof Pig) {
 				entity = teleport((Pig) entity, destination);
 			}
@@ -140,6 +142,44 @@ public class Teleporter {
 			}
 		} else if (vehicle instanceof CommandMinecart) {
 			((CommandMinecart)vehicle).setCommand(((CommandMinecart)vehicle).getCommand());
+		}
+		
+		vehicle.remove();
+		return destVehicle;
+	}
+
+	public Boat teleport(Boat vehicle, Location destination) {
+		Boat destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
+		Vector speedVec = vehicle.getVelocity();
+		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
+		//Set minimum exit velocity
+		if (speed == 0) {
+			speed = 0.1;
+		}
+		Vector destVec = destination.getDirection().multiply(speed);
+		destVehicle.setVelocity(destVec);
+		destVehicle.setCustomName(vehicle.getCustomName());
+		destVehicle.setDamage(vehicle.getDamage());
+		destVehicle.setGlowing(vehicle.isGlowing());
+		
+		if (vehicle instanceof InventoryHolder) {
+			try {
+				int size;
+				switch (((InventoryHolder) vehicle).getInventory().getType()) {
+					case CHEST:	size = 27;
+									break;
+					case HOPPER:	size = 5;
+									break;
+					default:		size = 1;
+									break;
+				}
+				ItemStack[] items = Arrays.copyOf(((InventoryHolder)vehicle).getInventory().getContents(), Math.min(((InventoryHolder)vehicle).getInventory().getContents().length, size));
+				((InventoryHolder)destVehicle).getInventory().setContents(items);
+				((InventoryHolder)vehicle).getInventory().clear();
+			} catch (Exception exc) {
+				destVehicle.remove();
+				return null;
+			}
 		}
 		
 		vehicle.remove();

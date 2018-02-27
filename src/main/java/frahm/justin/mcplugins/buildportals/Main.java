@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Minecart;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -63,6 +64,9 @@ public class Main extends JavaPlugin {
 					Player player = (Player) sender;
 					Location loc = player.getLocation().getBlock().getLocation();
 					if (player.getVehicle() instanceof Minecart) {
+						loc.add(0,1,0);
+					}
+					if (player.getVehicle() instanceof Boat) {
 						loc.add(0,1,0);
 					}
 					sender.sendMessage("Your location is: " + loc.toVector().toString());
