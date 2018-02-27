@@ -165,7 +165,6 @@ public class Teleporter {
 		destVehicle.setCustomName(vehicle.getCustomName());
 		destVehicle.setGlowing(vehicle.isGlowing());
 		vehicle.remove();
-		alreadyOnPortal.add(destVehicle);
 		return destVehicle;
 	}
 
