@@ -165,7 +165,7 @@ public class Teleporter {
 		destVehicle.setCustomName(vehicle.getCustomName());
 		destVehicle.setGlowing(vehicle.isGlowing());
 		int cooldown;
-		cooldown = 20;
+		cooldown = 200;
 		destVehicle.setPortalCooldown(cooldown);
 		vehicle.remove();
 		return destVehicle;
