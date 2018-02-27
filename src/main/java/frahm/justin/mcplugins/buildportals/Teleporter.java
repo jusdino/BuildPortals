@@ -55,7 +55,7 @@ public class Teleporter {
 			} else if (entity instanceof Minecart){
 				entity = teleport((Minecart)entity, destination);
 			} else if (entity instanceof Boat){
-				destination.add(0,1,0);
+				destination.add(3,1,3);
 				entity = teleport((Boat)entity, destination);
 			} else if (entity instanceof Pig) {
 				entity = teleport((Pig) entity, destination);
@@ -163,7 +163,7 @@ public class Teleporter {
 		destVehicle.setCustomName(vehicle.getCustomName());
 		destVehicle.setGlowing(vehicle.isGlowing());
 		vehicle.remove();
-//		return destVehicle;
+		return destVehicle;
 	}
 
 	public Player teleport(Player player, Location destination) {

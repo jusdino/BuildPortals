@@ -67,7 +67,7 @@ public class Main extends JavaPlugin {
 						loc.add(0,1,0);
 					}
 					if (player.getVehicle() instanceof Boat) {
-						loc.add(0,2,0);
+						loc.add(3,2,3);
 					} 
 					sender.sendMessage("Your location is: " + loc.toVector().toString());
 					Boolean inPortal = portals.isInAPortal(loc);
