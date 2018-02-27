@@ -50,7 +50,7 @@ public class BPListener implements Listener{
 		loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
-				//alreadyOnPortal.remove(vehicle);
+				alreadyOnPortal.remove(vehicle);
 			}
 			return;
 		}
