@@ -153,14 +153,14 @@ public class Teleporter {
 	public Boat teleport(Boat vehicle, Location destination) {
 		
 		Boat destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
-		Vector speedVec = vehicle.getVelocity();
+		/* Vector speedVec = vehicle.getVelocity();
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		//Set minimum exit velocity
 		if (speed == 0) {
 			speed = 0.1;
 		}
 		Vector destVec = destination.getDirection().multiply(speed);
-		destVehicle.setVelocity(destVec);
+		destVehicle.setVelocity(destVec); */
 		destVehicle.setCustomName(vehicle.getCustomName());
 		destVehicle.setGlowing(vehicle.isGlowing());
 		
