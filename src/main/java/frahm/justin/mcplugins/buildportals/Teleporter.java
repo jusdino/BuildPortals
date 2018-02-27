@@ -153,12 +153,12 @@ public class Teleporter {
 	public Boat teleport(Boat vehicle, Location destination) {
 		
 		Boat destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
-		// Vector speedVec = vehicle.getVelocity();
-		// Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
-		// Set exit velocity to get the boat clear of the portal.
-		speed = 1;
-		// Vector destVec = destination.getDirection().multiply(speed);
-		// destVehicle.setVelocity(destVec); */
+		Vector speedVec = vehicle.getVelocity();
+		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
+		// Spit the boat out on the other side of the portal
+		speed = 1.0;
+		Vector destVec = destination.getDirection().multiply(speed);
+		destVehicle.setVelocity(destVec);
 		destVehicle.setCustomName(vehicle.getCustomName());
 		destVehicle.setGlowing(vehicle.isGlowing());
 		
