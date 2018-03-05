@@ -51,6 +51,7 @@ public class BPListener implements Listener{
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
 				alreadyOnPortal.remove(vehicle);
+				alreadyOnPortal.remove(player);
 			}
 			return;
 		}
@@ -64,6 +65,7 @@ public class BPListener implements Listener{
 		Entity entity = teleporter.teleport((Entity)vehicle, destination);
 		if (entity != null) {
 			alreadyOnPortal.add(entity);
+			alreadyOnPortal.add(player);
 		}
 		return;
 	}
