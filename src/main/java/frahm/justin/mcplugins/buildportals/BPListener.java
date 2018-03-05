@@ -100,6 +100,7 @@ public class BPListener implements Listener{
 			}
 		} else {
 			Location destination = portals.getDestination(vehicle, loc);
+			alreadyOnPortal.add(vehicle);
 			if (null == destination){
 				logger.info("Can't get a destination for " + player.getName() + "!");
 				return;
