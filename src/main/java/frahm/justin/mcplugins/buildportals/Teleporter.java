@@ -167,6 +167,7 @@ public class Teleporter {
 		int cooldown;
 		cooldown = 200;
 		destVehicle.setPortalCooldown(cooldown);
+		alreadyOnPortal.add(destVehicle);
 		vehicle.remove();
 		return destVehicle;
 	}
