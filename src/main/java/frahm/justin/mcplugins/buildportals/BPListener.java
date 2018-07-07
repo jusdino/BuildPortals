@@ -116,7 +116,7 @@ public class BPListener implements Listener{
 			}
 		}
 		alreadyOnPortal.add(player);
-				logger.info("Adding alreadyOnPortal for " + player.getName() + ".");
+		logger.info("Adding alreadyOnPortal for " + player.getName() + ".");
 		return;
 	}
 	
