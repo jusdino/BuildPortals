@@ -47,6 +47,7 @@ public class BPListener implements Listener{
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
 		Entity player = vehicle.getPassenger();
+		logger.info("onVehicleMove event triggered for " + player.getName() + ".");
 		Location loc = event.getFrom();
 		loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 		if (!portals.isInAPortal(loc)) {
@@ -77,7 +78,7 @@ public class BPListener implements Listener{
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		Entity vehicle = player.getVehicle();
-		
+		logger.info("onPlayerMove event triggered for " + player.getName() + ".");		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player)) {
