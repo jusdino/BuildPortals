@@ -53,6 +53,7 @@ public class BPListener implements Listener{
 			if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
 				alreadyOnPortal.remove(vehicle);
 				alreadyOnPortal.remove(player);
+				logger.info("Removing alreadyOnPortal for " + player.getName() + " and their vehicle.");
 			}
 			return;
 		}
@@ -67,6 +68,7 @@ public class BPListener implements Listener{
 		if (entity != null) {
 			alreadyOnPortal.add(entity);
 			alreadyOnPortal.add(player);
+			logger.info("Adding alreadyOnPortal for " + player.getName() + " and their vehicle.");
 		}
 		return;
 	}
@@ -104,6 +106,7 @@ public class BPListener implements Listener{
 		} else {
 			Location destination = portals.getDestination(vehicle, loc);
 			alreadyOnPortal.add(vehicle);
+			logger.info("Adding alreadyOnPortal for " + player.getName() + "'s vehicle.");
 			if (null == destination){
 				logger.info("Can't get a destination for " + player.getName() + "!");
 				return;
@@ -113,6 +116,7 @@ public class BPListener implements Listener{
 			}
 		}
 		alreadyOnPortal.add(player);
+				logger.info("Adding alreadyOnPortal for " + player.getName() + ".");
 		return;
 	}
 	
