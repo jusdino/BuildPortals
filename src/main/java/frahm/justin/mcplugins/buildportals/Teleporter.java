@@ -32,6 +32,7 @@ import org.bukkit.util.Vector;
 
 
 public class Teleporter {
+	Logger logger;
 	
 	public Teleporter() {
 		
