@@ -78,6 +78,11 @@ public class BPListener implements Listener{
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		Entity vehicle = player.getVehicle();
+		if (vehicle != null)
+		{
+		return;
+		}
+		
 		logger.info("onPlayerMove event triggered for " + player.getName() + ".");		
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		if (!portals.isInAPortal(loc)) {
