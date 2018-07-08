@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.List;
 import java.lang.Math;
 import java.lang.Thread;
-import java.util.logging.Logger;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,7 +31,6 @@ import org.bukkit.util.Vector;
 
 
 public class Teleporter {
-	Logger logger;
 	
 	public Teleporter() {
 		
@@ -118,9 +116,7 @@ public class Teleporter {
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		//Set minimum exit velocity
 		if (speed < 0.1) {
-			speed = 0.1;
-			logger.info("Cart speed set to 0.1!");
-			
+			speed = 0.1;			
 		}
 
 		Vector destVec = destination.getDirection().multiply(speed);
@@ -163,7 +159,6 @@ public class Teleporter {
 		// Spit the boat out on the other side of the portal
 		if (speed < 1.0) {
 			speed = 1.0;
-			logger.info("Boat speed set to 1.0!");
 		}
 		Vector destVec = destination.getDirection().multiply(speed);
 		destVehicle.setVelocity(destVec);
