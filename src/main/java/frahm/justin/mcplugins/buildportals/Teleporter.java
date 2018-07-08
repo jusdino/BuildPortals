@@ -155,6 +155,7 @@ public class Teleporter {
 		
 		Boat destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
+		vehicle.remove();
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		// Spit the boat out on the other side of the portal
 		if (speed < 1.0) {
@@ -167,7 +168,7 @@ public class Teleporter {
 /*		int cooldown;
 		cooldown = 200;
 		destVehicle.setPortalCooldown(cooldown); */
-		vehicle.remove();
+
 		return destVehicle;
 	}
 
