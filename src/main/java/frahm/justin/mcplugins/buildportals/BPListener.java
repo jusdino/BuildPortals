@@ -47,14 +47,12 @@ public class BPListener implements Listener{
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
 		Entity player = vehicle.getPassenger();
-		logger.info("onVehicleMove event triggered for " + player.getName() + ".");
 		Location loc = event.getFrom();
 		loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
 				alreadyOnPortal.remove(vehicle);
 				alreadyOnPortal.remove(player);
-				logger.info("Removing alreadyOnPortal for " + player.getName() + " and their vehicle.");
 			}
 			return;
 		}
@@ -69,7 +67,6 @@ public class BPListener implements Listener{
 		if (entity != null) {
 			alreadyOnPortal.add(entity);
 			alreadyOnPortal.add(player);
-			logger.info("Adding alreadyOnPortal for " + player.getName() + " and their vehicle.");
 		}
 		return;
 	}
@@ -81,9 +78,7 @@ public class BPListener implements Listener{
 		if (vehicle != null)
 		{
 		return;
-		}
-		
-		logger.info("onPlayerMove event triggered for " + player.getName() + ".");		
+		}	
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player)) {
@@ -112,7 +107,6 @@ public class BPListener implements Listener{
 		} else {
 			Location destination = portals.getDestination(vehicle, loc);
 			alreadyOnPortal.add(vehicle);
-			logger.info("Adding alreadyOnPortal for " + player.getName() + "'s vehicle.");
 			if (null == destination){
 				logger.info("Can't get a destination for " + player.getName() + "!");
 				return;
@@ -122,7 +116,6 @@ public class BPListener implements Listener{
 			}
 		}
 		alreadyOnPortal.add(player);
-		logger.info("Adding alreadyOnPortal for " + player.getName() + ".");
 		return;
 	}
 	
