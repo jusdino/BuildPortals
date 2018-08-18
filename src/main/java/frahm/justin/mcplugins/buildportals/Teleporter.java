@@ -55,7 +55,7 @@ public class Teleporter {
 			} else if (entity instanceof Minecart){
 				entity = teleport((Minecart)entity, destination);
 			} else if (entity instanceof Boat){
-				destination.add(0,1,0);
+				//destination.add(0,1,0);
 				entity = teleport((Boat)entity, destination);
 			} else if (entity instanceof Pig) {
 				entity = teleport((Pig) entity, destination);
@@ -158,7 +158,7 @@ public class Teleporter {
 		vehicle.remove();
 		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		// Spit the boat out on the other side of the portal
-		if (speed == null || speed < 1.0) {
+		if (speed < 1.0) {
 			speed = 1.0;
 		}
 		Vector destVec = destination.getDirection().multiply(speed);
