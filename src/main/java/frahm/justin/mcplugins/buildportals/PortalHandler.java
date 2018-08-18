@@ -18,6 +18,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
@@ -288,7 +289,7 @@ public class PortalHandler {
 			Double yMargin = 2D;
 			Double zMargin = 0.3;
 			Double xMargin = 0.3;
-			if (entity instanceof AbstractHorse) {
+			if (entity instanceof AbstractHorse) or (entity instanceof Boat){
 				xMargin = 1D;
 				zMargin = 1D;
 			}
