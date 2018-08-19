@@ -643,7 +643,7 @@ class PortalHandler {
 			logger.log(DEBUG_LEVEL, "Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 		}
 
-		//East/West oriented portal		
+		//East/West oriented portal
 		//West of activatorNW
 		testLoc = new Location(activatorNW.getWorld(), activatorNW.getX()-1, activatorNW.getY(), activatorNW.getZ());
 		logger.log(DEBUG_LEVEL, "NW activator at: " + activatorNW.toVector().toString());
@@ -655,7 +655,7 @@ class PortalHandler {
 			testLoc = new Location(activatorSE.getWorld(), activatorSE.getX()+1, activatorSE.getY(), activatorSE.getZ());
 			logger.log(DEBUG_LEVEL, "SE activator at: " + activatorSE.toVector().toString());
 			logger.log(DEBUG_LEVEL, "Look for portal: " + testLoc.toVector().toString());
-			if (testLoc.getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
+			if ( ! testLoc.getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
 				logger.log(DEBUG_LEVEL, "Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 				logger.log(DEBUG_LEVEL, "Portal is missing an East wall.");
 				return null;

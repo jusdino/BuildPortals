@@ -182,11 +182,11 @@ public class BPListener implements Listener{
 			player.sendMessage("You do not have permission to activate portals!");
 			return;
 		}
-		logger.log(DEBUG_LEVEL,"Player " + player.getDisplayName() + "has appropriate permissions");
+		logger.log(DEBUG_LEVEL,"Player " + player.getDisplayName() + " has appropriate permissions");
 		
 		Boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<String, Object>();
-		logger.log(DEBUG_LEVEL,"There is an unlinked portal");
+		logger.log(DEBUG_LEVEL,"This is an unlinked portal");
 		
 		if (unlinkedPortal == true) {
 			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".vec");
