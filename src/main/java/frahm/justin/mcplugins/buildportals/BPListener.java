@@ -156,7 +156,7 @@ public class BPListener implements Listener{
 		 */
 		logger.fine("Block place event registered");
 		logger.info("info log test");
-		logger.log("log log test");
+		logger.severe("severe log test");
 
 		//Get relevant info about event
 		Block block = event.getBlockPlaced();
