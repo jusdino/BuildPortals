@@ -130,8 +130,8 @@ public class BPListener implements Listener{
 		}
 		
 		//Check all portals for broken frames
-		Location loc = event.getBlock().getLocation();
-		String brokenPortal = portals.integrityCheck(loc);
+//		Location loc = event.getBlock().getLocation();
+		String brokenPortal = portals.integrityCheck(); // loc);
 		if (null == brokenPortal || null == loc) {
 			return;
 		}
