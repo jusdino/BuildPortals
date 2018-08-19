@@ -1,6 +1,7 @@
 package frahm.justin.mcplugins.buildportals;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
@@ -17,12 +18,16 @@ public class Main extends JavaPlugin {
 	PortalHandler portals;
 	FileConfiguration config;
 	Logger logger;
+	// Work-around configurable log level since logger.setLevel()
+	// doesn't seem to work.
+	Level DEBUG_LEVEL;
 
 	@Override
 	public void onEnable() {
 		config = this.getConfig();
 		portals = new PortalHandler(this);
 		logger = this.getLogger();
+		this.DEBUG_LEVEL = Level.INFO;
 		getServer().getPluginManager().registerEvents(new BPListener(this, portals), this);
 		//Set default portal building material to emerald blocks
 		config.addDefault("PortalMaterial", Material.EMERALD_BLOCK.name());
