@@ -154,14 +154,17 @@ public class BPListener implements Listener{
 		 *This is just warming up for the best type of configuration
 		 *management necessary for the plugin
 		 */
-		plugin.logger.fine("Block place event registered");
+		logger.fine("Block place event registered");
+		logger.info("info log test");
+		logger.log("log log test");
+
 		//Get relevant info about event
 		Block block = event.getBlockPlaced();
 		if (!config.getStringList("PortalActivators").contains(block.getType().name())) {
 			return;
 		}
 
-		plugin.logger.fine("Block is a portal activator");
+		logger.fine("Block is a portal activator");
 		World world = block.getWorld();
 		//Get vectors to actual portal blocks from handler
 		ArrayList<String> frameVecs = new ArrayList<String>();
@@ -172,7 +175,7 @@ public class BPListener implements Listener{
 		if (null == yaw) {
 			return;
 		}
-		plugin.logger.fine("Block completes a portal");
+		logger.fine("Block completes a portal");
 		
 		Player player;
 		player = event.getPlayer();
@@ -180,11 +183,11 @@ public class BPListener implements Listener{
 			player.sendMessage("You do not have permission to activate portals!");
 			return;
 		}
-		plugin.logger.fine("Player " + player.getDisplayName() + "has appropriate permissions");
+		ogger.fine("Player " + player.getDisplayName() + "has appropriate permissions");
 		
 		Boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<String, Object>();
-		plugin.logger.fine("There is an unlinked portal");
+		logger.fine("There is an unlinked portal");
 		
 		if (unlinkedPortal == true) {
 			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".vec");
