@@ -404,7 +404,7 @@ class PortalHandler {
 	PortalHandler(Main plugin) {
 		this.plugin = plugin;
 		this.logger = plugin.getLogger();
-		this.DEBUG_LEVEL = plugin.DEBUG_LEVEL;
+		this.DEBUG_LEVEL = Level.INFO;
 		this.config = plugin.getConfig();
 
 	}
