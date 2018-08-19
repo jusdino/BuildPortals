@@ -30,6 +30,9 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 
 public class BPListener implements Listener{
 	Logger logger;
+	// Work-around configurable log level since logger.setLevel()
+	// doesn't seem to work.
+	Level DEBUG_LEVEL;
 	Main plugin;
 	PortalHandler portals;
 	Teleporter teleporter;
@@ -40,7 +43,7 @@ public class BPListener implements Listener{
 		this.plugin = plugin;
 		this.portals = portals;
 		this.logger = this.plugin.getLogger();
-		this.logger.setLevel(Level.FINEST);
+		this.DEBUG_LEVEL = Level.INFO;
 		teleporter = new Teleporter();
 		config = plugin.getConfig();
 	}
@@ -154,9 +157,7 @@ public class BPListener implements Listener{
 		 *This is just warming up for the best type of configuration
 		 *management necessary for the plugin
 		 */
-		logger.fine("Block place event registered");
-		logger.info("info log test");
-		logger.severe("severe log test");
+		logger.log(DEBUG_LEVEL, "Block place event registered");
 
 		//Get relevant info about event
 		Block block = event.getBlockPlaced();
@@ -164,7 +165,7 @@ public class BPListener implements Listener{
 			return;
 		}
 
-		logger.fine("Block is a portal activator");
+		logger.log(DEBUG_LEVEL,"Block is a portal activator");
 		World world = block.getWorld();
 		//Get vectors to actual portal blocks from handler
 		ArrayList<String> frameVecs = new ArrayList<String>();
@@ -175,7 +176,7 @@ public class BPListener implements Listener{
 		if (null == yaw) {
 			return;
 		}
-		logger.fine("Block completes a portal");
+		logger.log(DEBUG_LEVEL,"Block completes a portal");
 		
 		Player player;
 		player = event.getPlayer();
@@ -183,11 +184,11 @@ public class BPListener implements Listener{
 			player.sendMessage("You do not have permission to activate portals!");
 			return;
 		}
-		logger.fine("Player " + player.getDisplayName() + "has appropriate permissions");
+		logger.log(DEBUG_LEVEL,"Player " + player.getDisplayName() + "has appropriate permissions");
 		
 		Boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<String, Object>();
-		logger.fine("There is an unlinked portal");
+		logger.log(DEBUG_LEVEL,"There is an unlinked portal");
 		
 		if (unlinkedPortal == true) {
 			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".vec");
