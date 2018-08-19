@@ -673,10 +673,11 @@ class PortalHandler {
 		logger.log(DEBUG_LEVEL, "Portal walls adjacent to activation blocks found. Continuing.");
 		//Find top of North/West wall
 		Block nextBlock = wallNW.get(0).getLocation().add(new Vector(0,1,0)).getBlock();
-		while ( ! nextBlock.getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
+		while (nextBlock.getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
 			wallNW.add(nextBlock);
 			nextBlock = nextBlock.getLocation().add(new Vector(0,1,0)).getBlock();
 		}
+		logger.log(DEBUG_LEVEL, "North/West wall height: " + wallNW.size());
 
 		//Find top of South/East wall
 		nextBlock = wallSE.get(0).getLocation().add(new Vector(0,1,0)).getBlock();
@@ -684,6 +685,7 @@ class PortalHandler {
 			wallSE.add(nextBlock);
 			nextBlock = nextBlock.getLocation().add(new Vector(0,1,0)).getBlock();
 		}
+		logger.log(DEBUG_LEVEL, "South/East wall height: " + wallSE.size());
 		
 		int portalHeight = java.lang.Math.min(wallNW.size(), wallSE.size());
 		logger.log(DEBUG_LEVEL, "Initial portal height: " + portalHeight);
@@ -705,7 +707,7 @@ class PortalHandler {
 
 		//Portal must be at least 2m tall
 		if (portalHeight < 2) {
-//			logger.info("Portal walls are not tall enough.");
+			logger.log(DEBUG_LEVEL, "Portal walls are not tall enough.");
 			return null;
 		}
 		logger.log(DEBUG_LEVEL, "Portal walls found and are tall enough. Continuing.");
