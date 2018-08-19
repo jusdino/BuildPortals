@@ -40,7 +40,7 @@ public class BPListener implements Listener{
 		this.plugin = plugin;
 		this.portals = portals;
 		this.logger = this.plugin.getLogger();
-		this.logger.setLevel(Level.ALL);
+		this.logger.setLevel(Level.FINEST);
 		teleporter = new Teleporter();
 		config = plugin.getConfig();
 	}
