@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -121,9 +122,15 @@ public class BPListener implements Listener{
 		alreadyOnPortal.add(player);
 		return;
 	}
-	
+
+	@EventHandler (ignoreCancelled = true)
+	public void onBlockDamage(BlockDamageEvent event) {
+		logger.log(DEBUG_LEVEL, "Block damage event");
+	}
+
 	@EventHandler (ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
+		logger.log(DEBUG_LEVEL, "Block physics event");
 		String frameMaterialName = config.getString("PortalMaterial");
 		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
 		if (event.getChangedType().name() != Material.getMaterial(frameMaterialName).name()) {
