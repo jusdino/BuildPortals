@@ -126,17 +126,22 @@ public class BPListener implements Listener{
 	@EventHandler (ignoreCancelled = true)
 	public void onBlockDamage(BlockDamageEvent event) {
 		logger.log(DEBUG_LEVEL, "Block damage event");
+		String frameMaterialName = config.getString("PortalMaterial");
+		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
+		String eventMaterial = event.getBlock().getType().name();
+		if (! (eventMaterial.equals(frameMaterialName) || activatorMaterialNames.contains(eventMaterial))) {
+			return;
+		}
+		logger.log(DEBUG_LEVEL, "Block damage event affects a portal material");
 	}
 
 	@EventHandler (ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
-		logger.log(DEBUG_LEVEL, "Block physics event");
 		String frameMaterialName = config.getString("PortalMaterial");
 		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
-		if (event.getChangedType().name() != Material.getMaterial(frameMaterialName).name()) {
-			if (! activatorMaterialNames.contains(event.getChangedType().name())) {
-				return;
-			}
+		String eventMaterial = event.getChangedType().name();
+		if (! (eventMaterial.equals(frameMaterialName) || activatorMaterialNames.contains(eventMaterial))) {
+			return;
 		}
 
 		logger.log(DEBUG_LEVEL, "onBlockPhysics event affecting portal / activator materials");
