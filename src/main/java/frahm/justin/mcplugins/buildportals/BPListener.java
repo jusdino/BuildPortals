@@ -127,11 +127,12 @@ public class BPListener implements Listener{
 		String frameMaterialName = config.getString("PortalMaterial");
 		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
 		if (event.getChangedType().name() != Material.getMaterial(frameMaterialName).name()) {
-			if (!activatorMaterialNames.contains(event.getChangedType().name())) {
+			if (! activatorMaterialNames.contains(event.getChangedType().name())) {
 				return;
 			}
 		}
-		
+
+		logger.log(DEBUG_LEVEL, "onBlockPhysics event affecting portal / activator materials");
 		//Check all portals for broken frames
 		Location loc = event.getBlock().getLocation();
 		String brokenPortal = portals.integrityCheck(); // loc);

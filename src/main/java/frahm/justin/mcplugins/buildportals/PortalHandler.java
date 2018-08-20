@@ -418,7 +418,7 @@ class PortalHandler {
 		String frameMaterialName = config.getString("PortalMaterial");
 		Iterator<Vector> frameVecs;
 		Location loc;
-		//logger.info("Checking frames...");
+		logger.log(DEBUG_LEVEL, "Checking portal frames");
 		for (Map.Entry<String, HashSet<Vector>> frameEntries : frameBlocks.entrySet()) {
 			String worldName = frameEntries.getKey();
 			World world = Bukkit.getWorld(worldName);
@@ -427,11 +427,12 @@ class PortalHandler {
 				Vector vec = frameVecs.next();
 				loc = new Location(world, vec.getX(), vec.getY(), vec.getZ());
 				if ( ! loc.getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
+					logger.log(DEBUG_LEVEL, "Block is not frame material at " + loc.toString());
 					return getPortalFromFrame(loc);
 				}
 			}
 		}
-		//logger.info("Checking activators...");
+		logger.log(DEBUG_LEVEL, "Checking activators...");
 		Iterator<Vector> activatorVecs;
 		ArrayList<String> activators = (ArrayList<String>) config.getStringList("PortalActivators");
 		for (Map.Entry<String, HashSet<Vector>> activatorEntries : activatorBlocks.entrySet()) {
@@ -443,7 +444,7 @@ class PortalHandler {
 				Vector vec = activatorVecs.next();
 				loc = new Location(world, vec.getX(), vec.getY(), vec.getZ());
 				if (!activators.contains(loc.getBlock().getType().name())) {
-					//logger.info("Bad activator found at " + loc.toVector().toString() + "!");
+					logger.log(DEBUG_LEVEL, "Bad activator found at " + loc.toVector().toString() + "!");
 					return getPortalFromActivator(loc);
 				}
 			}
@@ -558,7 +559,7 @@ class PortalHandler {
 			northMost = activatorBlock.getLocation().getBlockZ();
 			westMost = activatorBlock.getLocation().getBlockX();
 			//Check for portal base under activator block
-			if (!activatorBlock.getLocation().add(new Vector(0, -1, 0)).getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
+			if (! activatorBlock.getLocation().add(new Vector(0, -1, 0)).getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
 				logger.log(DEBUG_LEVEL, "Missing portal base under an activator block.");
 				return null;
 			}
@@ -1043,7 +1044,7 @@ class PortalHandler {
 //		while (portalsIterator.hasNext()) {
 //			Portal portal = portalsIterator.next();
 			if (portal.isInPortal(loc)) {
-//				logger.info(player.getName() + " is in portal number " + portal.getID());
+				logger.log(DEBUG_LEVEL, entity.getName() + " is in portal number " + portal.getID());
 				return portal.getDestination(entity, loc);
 			}
 		}
@@ -1054,6 +1055,7 @@ class PortalHandler {
 //		logger.info("Checking location: " + loc.toVector().toString());
 		for (Portal portal : portals) {
 			if (portal.isInFrame(loc)) {
+				logger.log(DEBUG_LEVEL, "Frame location belongs to portal " + portal.getID());
 				return portal.getID();
 			}
 		}
@@ -1064,6 +1066,7 @@ class PortalHandler {
 //		logger.info("Checking location: " + loc.toVector().toString());
 		for (Portal portal : portals) {
 			if (portal.isInActivators(loc)) {
+				logger.log(DEBUG_LEVEL, "Activator location belongs to portal " + portal.getID());
 				return portal.getID();
 			}
 		}
