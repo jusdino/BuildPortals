@@ -122,43 +122,27 @@ public class BPListener implements Listener{
 	}
 
 	@EventHandler (ignoreCancelled = true)
-	public void onBlockBurn(BlockBurnEvent event) {
-		logger.log(DEBUG_LEVEL, "Block Burn event");
-	}
-
-	@EventHandler (ignoreCancelled = true)
-	public void onBlockExplode(BlockExplodeEvent event) {
-		logger.log(DEBUG_LEVEL, "Block Explode event");
-	}
-
-	@EventHandler (ignoreCancelled = true)
-	public void onBlockDamage(BlockDamageEvent event) {
-		logger.log(DEBUG_LEVEL, "Block Damage event");
-	}
-
-	@EventHandler (ignoreCancelled = true)
 	public void onBlockDamage(BlockBreakEvent event) {
 		logger.log(DEBUG_LEVEL, "Block Break event");
+		Location loc = event.getBlock().getLocation();
+		onBlockEvent(event.getBlock().getType().name(), loc);
 	}
-
-//	@EventHandler (ignoreCancelled = true)
-//	public void onBlockPiston(BlockPistonEvent event) {
-//		logger.log(DEBUG_LEVEL, "Block Piston event");
-//	}
 
 	@EventHandler (ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
+		Location loc = event.getBlock().getLocation();
+		onBlockEvent(event.getChangedType().name(), loc);
+	}
+
+	private void onBlockEvent(String name, Location loc) {
 		String frameMaterialName = config.getString("PortalMaterial");
 		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
-		String eventMaterial = event.getChangedType().name();
-		if (! (eventMaterial.equals(frameMaterialName) || activatorMaterialNames.contains(eventMaterial))) {
+		if (! (name.equals(frameMaterialName) || activatorMaterialNames.contains(name))) {
 			return;
 		}
 
 		logger.log(DEBUG_LEVEL, "onBlockPhysics event affecting portal / activator materials");
-		//Check all portals for broken frames
-		Location loc = event.getBlock().getLocation();
-		String brokenPortal = portals.integrityCheck(); // loc);
+		String brokenPortal = portals.integrityCheck();
 		if (null == brokenPortal || null == loc) {
 			return;
 		}
