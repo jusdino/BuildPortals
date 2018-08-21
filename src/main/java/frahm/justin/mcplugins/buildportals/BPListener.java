@@ -22,6 +22,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -121,14 +122,14 @@ public class BPListener implements Listener{
 		return;
 	}
 
-	@EventHandler (ignoreCancelled = true)
+	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockDamage(BlockBreakEvent event) {
 		logger.log(DEBUG_LEVEL, "Block Break event");
 		Location loc = event.getBlock().getLocation();
 		onBlockEvent(event.getBlock().getType().name(), loc);
 	}
 
-	@EventHandler (ignoreCancelled = true)
+	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		Location loc = event.getBlock().getLocation();
 		onBlockEvent(event.getChangedType().name(), loc);
