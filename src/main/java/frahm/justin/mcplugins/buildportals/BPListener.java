@@ -138,7 +138,7 @@ public class BPListener implements Listener{
 
 	@EventHandler (ignoreCancelled = true)
 	public void onBlockDamage(BlockBreakEvent event) {
-		logger.log(DEBUG_LEVEL, "Block Damage event");
+		logger.log(DEBUG_LEVEL, "Block Break event");
 	}
 
 //	@EventHandler (ignoreCancelled = true)
