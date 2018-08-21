@@ -82,7 +82,6 @@ public class BPListener implements Listener{
 		return;
 		}	
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-		logger.log(DEBUG_LEVEL, "Location: " + loc.toString());
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(player)) {
 				alreadyOnPortal.remove(player);
