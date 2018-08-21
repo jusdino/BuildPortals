@@ -122,21 +122,21 @@ public class BPListener implements Listener{
 		return;
 	}
 
-//	@EventHandler (ignoreCancelled = true)
-//	public void onBlockBurn(BlockBurnEvent event) {
-//		logger.log(DEBUG_LEVEL, "Block Burn event");
-//	}
-//
-//	@EventHandler (ignoreCancelled = true)
-//	public void onBlockExplode(BlockExplodeEvent event) {
-//		logger.log(DEBUG_LEVEL, "Block Explode event");
-//	}
-//
-//	@EventHandler (ignoreCancelled = true)
-//	public void onBlockDamage(BlockDamageEvent event) {
-//		logger.log(DEBUG_LEVEL, "Block Damage event");
-//	}
-//
+	@EventHandler (ignoreCancelled = true)
+	public void onBlockBurn(BlockBurnEvent event) {
+		logger.log(DEBUG_LEVEL, "Block Burn event");
+	}
+
+	@EventHandler (ignoreCancelled = true)
+	public void onBlockExplode(BlockExplodeEvent event) {
+		logger.log(DEBUG_LEVEL, "Block Explode event");
+	}
+
+	@EventHandler (ignoreCancelled = true)
+	public void onBlockDamage(BlockDamageEvent event) {
+		logger.log(DEBUG_LEVEL, "Block Damage event");
+	}
+
 //	@EventHandler (ignoreCancelled = true)
 //	public void onBlockPiston(BlockPistonEvent event) {
 //		logger.log(DEBUG_LEVEL, "Block Piston event");
