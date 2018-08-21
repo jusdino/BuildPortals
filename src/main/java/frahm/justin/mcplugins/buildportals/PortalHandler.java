@@ -430,6 +430,7 @@ class PortalHandler {
 					logger.log(DEBUG_LEVEL, "Block is not frame material at " + loc.toString());
 					return getPortalFromFrame(loc);
 				}
+				logger.log(DEBUG_LEVEL, loc.getBlock().getType().name() + " at " + loc.toString());
 			}
 		}
 		logger.log(DEBUG_LEVEL, "Checking activators...");
