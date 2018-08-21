@@ -23,10 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 
@@ -125,15 +122,23 @@ public class BPListener implements Listener{
 	}
 
 	@EventHandler (ignoreCancelled = true)
-	public void onBlockEvent(BlockEvent event) {
-		logger.log(DEBUG_LEVEL, "Block event");
-		String frameMaterialName = config.getString("PortalMaterial");
-		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
-		String eventMaterial = event.getBlock().getType().name();
-		if (! (eventMaterial.equals(frameMaterialName) || activatorMaterialNames.contains(eventMaterial))) {
-			return;
-		}
-		logger.log(DEBUG_LEVEL, "Block damage event affects a portal material");
+	public void onBlockEvent(BlockBurnEvent event) {
+		logger.log(DEBUG_LEVEL, "Block Burn event");
+	}
+
+	@EventHandler (ignoreCancelled = true)
+	public void onBlockEvent(BlockExplodeEvent event) {
+		logger.log(DEBUG_LEVEL, "Block Explode event");
+	}
+	
+	@EventHandler (ignoreCancelled = true)
+	public void onBlockEvent(BlockDamageEvent event) {
+		logger.log(DEBUG_LEVEL, "Block Damage event");
+	}
+
+	@EventHandler (ignoreCancelled = true)
+	public void onBlockEvent(BlockPistonEvent event) {
+		logger.log(DEBUG_LEVEL, "Block Piston event");
 	}
 
 	@EventHandler (ignoreCancelled = true)
