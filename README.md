@@ -5,7 +5,7 @@ Bukkit/Spigot server plugin to allow players to build their own inter-world port
 * Boat teleporting in progress!
 * Update for 1.13 in progress!
 
-Status:
+## Status:
 
 This project is at bukkit.org / curse at:
 https://mods.curse.com/bukkit-plugins/minecraft/buildportals
@@ -43,17 +43,30 @@ Once two complete and like-activated portals are built, the plugin converts the 
 
 The plugin does support in-game configuration changes now:
 
- * '/BP SetMaterial \<MaterialName\>' - You can change the portal frame material. This will convert all existing portals to the new material and also allow building new portals from the new named material.
+#### /BP version
+Check the version of the plugin you are using.
  
- * '/BP AddActivator \<MaterialName\>' - You can add a new activator material. This allows activating portals with a new block.
+ #### /BP check
+ Check whether you are currently standing in a portal.
+
+ #### /BP SetMaterial \<MaterialName\>
+ You can change the portal frame material. This will convert all existing portals to the new material and also allow building new portals from the new named material.
  
- * '/BP RemoveActivator \<MaterialName\>' - You can remove an activator material. This will disallow activating portals with the named material.
+ #### /BP ListMaterial
+ List the configured portal material.
  
- * '/BP ListActivators \<MaterialName\>' - This will list all currently configured activator materials. 
+ #### /BP AddActivator \<MaterialName\>
+ You can add a new activator material. This allows activating portals with a new block.
+ 
+ #### /BP RemoveActivator \<MaterialName\>
+ You can remove an activator material. This will disallow activating portals with the named material.
+ 
+ #### /BP ListActivators \<MaterialName\>
+ This will list all currently configured activator materials. 
 
 ## Permissions:
 ####  buildportals.*:
-    description: Gives access to editing portal and activator materials.
+    description: Gives access to editing portal and activator materials (and misc. commands).
     default: op
 ####  buildportals.listmaterial:
     description: Gives access to view the portal material.
