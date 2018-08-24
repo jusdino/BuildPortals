@@ -1,16 +1,9 @@
 # BuildPortals
 Bukkit/Spigot server plugin to allow players to build their own inter-world portals without the use of commands. These portals support teleporting players on horses as well as minecarts.
 
-May 7, 2017: Expanded Minecart support!
-
-Expanded minecart support:
-* empty minecarts
-* command minecarts
-* minecarts with chests
-* minecarts with hoppers
-* minecarts with TNT
-    
--Jusdino
+## August 23, 2018: Updates in progress!
+* Boat teleporting in progress!
+* Update for 1.13 in progress!
 
 Status:
 
@@ -20,7 +13,26 @@ https://mods.curse.com/bukkit-plugins/minecraft/buildportals
 and at spigotmc.org:
 https://www.spigotmc.org/resources/buildportals.21922/
 
-Use:
+## Features:
+### Livestock teleporting:
+* Horses
+* Cows
+* Pigs
+* Sheep
+* All of the above while attached to player via lead
+* All of the above whilst in a minecart (if they fit)
+* Horses/Pigs whilst riding them as well
+
+### Minecart teleporting:
+* minecarts with players
+* empty minecarts
+* command minecarts
+* minecarts with chests
+* minecarts with hoppers
+* minecarts with TNT
+* minecarts with Villagers or animals
+
+## Use:
 
 Once installed, any player can build a teleportation portal by doing:
  1) Using a designated portal building material (Emerald Blocks by default) to make a nether-portal-like rectangle, with interior at least large enough for a player to walk through and;
@@ -39,9 +51,22 @@ The plugin does support in-game configuration changes now:
  
  * '/BP ListActivators \<MaterialName\>' - This will list all currently configured activator materials. 
 
-Planned updates:
-* More Minecart Support - carrying villagers and livestock.
-* Feudal Kingdom Limits - Limits on how many portals can be created in each kingom (From the Feudal plugin)
-* Entities on Leashes - Be able to drag your stubborn sheep through the portal on a lead.
+## Permissions:
+####  buildportals.*:
+    description: Gives access to editing portal and activator materials.
+    default: op
+####  buildportals.listmaterial:
+    description: Gives access to view the portal material.
+    default: true
+####  buildportals.listactivators:
+    description: Give access to view the activator material list.
+    default: true
+####  buildportals.activate:
+    description: Allows activating a new portal.
+    default: true
+####  buildportals.teleport:
+    description: Allows using a portal.
+    default: true
+
 
 If someone happens across this project, feel free to critique. I welcome tips/criticism/suggestions!
