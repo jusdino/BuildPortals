@@ -17,6 +17,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -67,7 +68,7 @@ public class BPListener implements Listener{
 		if (null == destination){
 			return;
 		}
-		Entity entity = teleporter.teleport((Entity)vehicle, destination);
+		Entity entity = teleporter.teleport(vehicle, destination);
 		if (entity != null) {
 			alreadyOnPortal.add(entity);
 			alreadyOnPortal.add(player);
@@ -133,7 +134,7 @@ public class BPListener implements Listener{
 	}
 	
 	@EventHandler (ignoreCancelled = true)
-	public void onBlockPlace(BlockPlaceEvent event) {
+	public void onBlockPlace(BlockPlaceEvent event) throws InvalidConfigurationException {
 		/*With every BlockPlaceEvent, register the location, if there is
 		 * an 'unlinked' location stored already, pair that location with
 		 *the new location as a portal-pair.
@@ -151,9 +152,9 @@ public class BPListener implements Listener{
 		logger.log(DEBUG_LEVEL,"Block is a portal activator");
 		World world = block.getWorld();
 		//Get vectors to actual portal blocks from handler
-		ArrayList<String> frameVecs = new ArrayList<String>();
-		ArrayList<String> activatorVecs = new ArrayList<String>();
-		ArrayList<String> vectors = new ArrayList<String>();
+		ArrayList<String> frameVecs = new ArrayList<>();
+		ArrayList<String> activatorVecs = new ArrayList<>();
+		ArrayList<String> vectors = new ArrayList<>();
 		Float yaw = portals.getCompletePortalVectors(block, frameVecs, activatorVecs, vectors);
 		
 		if (null == yaw) {
@@ -170,7 +171,7 @@ public class BPListener implements Listener{
 		logger.log(DEBUG_LEVEL,"Player " + player.getDisplayName() + " has appropriate permissions");
 		
 		boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
-		Map<String, Object> newPortal = new HashMap<String, Object>();
+		Map<String, Object> newPortal = new HashMap<>();
 		logger.log(DEBUG_LEVEL,"This is an unlinked portal");
 		
 		if (unlinkedPortal) {
@@ -236,17 +237,15 @@ public class BPListener implements Listener{
 			int spread;
 			int count;
 			Random rand = new Random();
-			if (null != block) {
-				spread = vectors.size();
-				count = vectors.size()*100;
-				if (count > 500) {
-					count = 500;
-				}
-				
-				for (int j=0; j<count; j++) {
-					particleLoc = new Location(block.getWorld(), block.getX() + (rand.nextDouble() * spread), block.getY() + (rand.nextDouble() * spread), block.getZ() + (rand.nextDouble() * spread));
-					block.getWorld().spawnParticle(Particle.CRIT_MAGIC, particleLoc, 1);
-				}
+			spread = vectors.size();
+			count = vectors.size()*100;
+			if (count > 500) {
+				count = 500;
+			}
+
+			for (int j=0; j<count; j++) {
+				particleLoc = new Location(block.getWorld(), block.getX() + (rand.nextDouble() * spread), block.getY() + (rand.nextDouble() * spread), block.getZ() + (rand.nextDouble() * spread));
+				block.getWorld().spawnParticle(Particle.CRIT_MAGIC, particleLoc, 1);
 			}
 		}
 		logger.info("Saving changes...");

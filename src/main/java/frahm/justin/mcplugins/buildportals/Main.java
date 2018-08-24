@@ -1,7 +1,6 @@
 package frahm.justin.mcplugins.buildportals;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
@@ -15,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
-	static PortalHandler portals;
+	private static PortalHandler portals;
 	private static FileConfiguration config;
 	private static Logger logger;
 

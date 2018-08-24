@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Boat;
@@ -132,7 +133,7 @@ class PortalHandler {
 //		return frameBlocks.get(loc.getWorld().getName()).contains(loc.toVector());
 //	}
 
-	Float getCompletePortalVectors(Block block, ArrayList<String> frameVecs, ArrayList<String> activatorVecs, ArrayList<String> vectors) {
+	Float getCompletePortalVectors(Block block, ArrayList<String> frameVecs, ArrayList<String> activatorVecs, ArrayList<String> vectors) throws InvalidConfigurationException {
 		/*
 		 * Tests whether a given block is part of a COMPLETE portal. This includes
 		 * the frame blocks as well as the 'activating' blocks placed along the
@@ -204,22 +205,22 @@ class PortalHandler {
 		Block baseBlock;
 		ArrayList<String> baseVecs = new ArrayList<>();
 		//Eclipse doesn't like enclosing this in an if (.hasNext()) block
-		try {
-//		if (actIter.hasNext()) {
-			activatorBlock = actIter.next();
-			//Check for portal base under activator block
-			baseBlock = new Location(activatorBlock.getWorld(), activatorBlock.getX(), activatorBlock.getY() - 1, activatorBlock.getZ()).getBlock();
-			northMost = activatorBlock.getLocation().getBlockZ();
-			westMost = activatorBlock.getLocation().getBlockX();
-			//Check for portal base under activator block
-			if (! activatorBlock.getLocation().add(new Vector(0, -1, 0)).getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
-				logger.log(DEBUG_LEVEL, "Missing portal base under an activator block.");
-				return null;
-			}
-			logger.log(DEBUG_LEVEL, "Adding base block at: " + baseBlock.getLocation().toVector().toString());
-			baseVecs.add(baseBlock.getLocation().toVector().toString());
-//		}
-		} finally {}
+		if ( ! actIter.hasNext()) {
+			throw new InvalidConfigurationException("Invalid portal data!");
+		}
+
+		activatorBlock = actIter.next();
+		//Check for portal base under activator block
+		baseBlock = new Location(activatorBlock.getWorld(), activatorBlock.getX(), activatorBlock.getY() - 1, activatorBlock.getZ()).getBlock();
+		northMost = activatorBlock.getLocation().getBlockZ();
+		westMost = activatorBlock.getLocation().getBlockX();
+		//Check for portal base under activator block
+		if (! activatorBlock.getLocation().add(new Vector(0, -1, 0)).getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
+			logger.log(DEBUG_LEVEL, "Missing portal base under an activator block.");
+			return null;
+		}
+		logger.log(DEBUG_LEVEL, "Adding base block at: " + baseBlock.getLocation().toVector().toString());
+		baseVecs.add(baseBlock.getLocation().toVector().toString());
 		
 		while (actIter.hasNext()) {
 			activatorBlock = actIter.next();
@@ -246,13 +247,15 @@ class PortalHandler {
 		int eastMost;
 		
 		//Eclipse doesn't like enclosing this in an if (.hasNext()) {} block
-		try {
+		if ( ! actIter.hasNext()) {
+			throw new InvalidConfigurationException("Invalid portal data!");
+		}
 //		if (actIter.hasNext()) {
-			activatorBlock = actIter.next();
-			southMost = activatorBlock.getLocation().getBlockZ();
-			eastMost = activatorBlock.getLocation().getBlockX();
+		activatorBlock = actIter.next();
+		southMost = activatorBlock.getLocation().getBlockZ();
+		eastMost = activatorBlock.getLocation().getBlockX();
 //		}
-		} finally {}
+//		} finally {}
 		
 		while (actIter.hasNext()) {
 			activatorBlock = actIter.next();

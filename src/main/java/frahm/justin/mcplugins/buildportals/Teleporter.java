@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.lang.Math;
-import java.lang.Thread;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,24 +29,23 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 
-public class Teleporter {
+class Teleporter {
 	
-	public Teleporter() {
+	Teleporter() {
 		
 	}
 	
-	public Entity teleport(Entity entity, Location destination) {
+	Entity teleport(Entity entity, Location destination) {
 		destination.getChunk().load();
 		if (entity instanceof Vehicle) {
-			List<Entity> passengers = ((Vehicle)entity).getPassengers();
-			List<Entity> destPassengers = new ArrayList<Entity>();
+			List<Entity> passengers = (entity).getPassengers();
+			List<Entity> destPassengers = new ArrayList<>();
 			for (Entity passenger: passengers) {
-				if (((Vehicle)entity).removePassenger(passenger)) {
+				if ((entity).removePassenger(passenger)) {
 					Entity destPassenger = teleport(passenger, destination);
 					if ( destPassenger != null) {
 						destPassengers.add(destPassenger);
 					}
-				} else {
 				}
 			}
 			if (entity instanceof AbstractHorse) {
@@ -62,19 +60,19 @@ public class Teleporter {
 			}
 			if (entity != null) {
 				for (Entity passenger: destPassengers) {
-					((Vehicle)entity).addPassenger(passenger);
+					(entity).addPassenger(passenger);
 				}
 			}
 			return entity;
 		} else if (entity instanceof Player) {
 			Player player;
 			player = (Player)entity;
-/*			if (!player.hasPermission("buildportals.teleport")) {
+			if (!player.hasPermission("buildportals.teleport")) {
 				player.sendMessage("You do not have permission to use portals!");
 				return null;
-			} */
+			}
 			Location source = player.getLocation();
-			ArrayList<LivingEntity> leadees = new ArrayList<LivingEntity>();
+			ArrayList<LivingEntity> leadees = new ArrayList<>();
 			// There doesn't seem to be an easy way to get a collection of leashed entities
 			// from the player directly...
 			Collection<Entity> entities = source.getWorld().getNearbyEntities(source, 11, 11, 11);
@@ -110,10 +108,10 @@ public class Teleporter {
 	}
 	
 	
-	public Minecart teleport(Minecart vehicle, Location destination) {
+	private Minecart teleport(Minecart vehicle, Location destination) {
 		Minecart destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
-		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
+		double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		//Set minimum exit velocity
 		if (speed < 0.1) {
 			speed = 0.1;			
@@ -151,12 +149,12 @@ public class Teleporter {
 		return destVehicle;
 	}
 
-	public Boat teleport(Boat vehicle, Location destination) {
+	private Boat teleport(Boat vehicle, Location destination) {
 		
 		Boat destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
 		vehicle.remove();
-		Double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
+		double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		// Spit the boat out on the other side of the portal
 		if (speed < 0.1) {
 			speed = 0.1;
@@ -172,12 +170,12 @@ public class Teleporter {
 		return destVehicle;
 	}
 
-	public Player teleport(Player player, Location destination) {
+	private Player teleport(Player player, Location destination) {
 		player.teleport(destination);
 		return player;
 	}
 	
-	public AbstractHorse teleport(AbstractHorse horse, Location destination) {
+	private AbstractHorse teleport(AbstractHorse horse, Location destination) {
 		AbstractHorse destHorse = destination.getWorld().spawn(destination, horse.getClass());
 		try {
 			destHorse.setAge(horse.getAge());
@@ -185,7 +183,7 @@ public class Teleporter {
 			destHorse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(horse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getBaseValue());
 			destHorse.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(horse.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
 			destHorse.getAttribute(Attribute.HORSE_JUMP_STRENGTH).setBaseValue(horse.getAttribute(Attribute.HORSE_JUMP_STRENGTH).getBaseValue());
-			destHorse.setJumpStrength(horse.getJumpStrength());;
+			destHorse.setJumpStrength(horse.getJumpStrength());
 			destHorse.setHealth(horse.getHealth());
 			destHorse.setMaximumAir(horse.getMaximumAir());
 			destHorse.setDomestication(horse.getDomestication());
@@ -212,7 +210,7 @@ public class Teleporter {
 	}
 	
 	
-	public Chicken teleport(Chicken chicken, Location destination) {
+	private Chicken teleport(Chicken chicken, Location destination) {
 		Chicken destChicken = destination.getWorld().spawn(destination, chicken.getClass());
 		try {
 			destChicken.setAge(chicken.getAge());
@@ -229,7 +227,7 @@ public class Teleporter {
 	}
 	
 	
-	public Cow teleport(Cow cow, Location destination) {
+	private Cow teleport(Cow cow, Location destination) {
 		Cow destCow = destination.getWorld().spawn(destination, cow.getClass());
 		try {
 			destCow.setAge(cow.getAge());
@@ -246,7 +244,7 @@ public class Teleporter {
 	}
 	
 	
-	public Pig teleport(Pig pig, Location destination) {
+	private Pig teleport(Pig pig, Location destination) {
 		Pig destPig = destination.getWorld().spawn(destination, pig.getClass());
 		try {
 			destPig.setAge(pig.getAge());
@@ -264,7 +262,7 @@ public class Teleporter {
 	}
 	
 	
-	public Sheep teleport(Sheep sheep, Location destination) {
+	private Sheep teleport(Sheep sheep, Location destination) {
 		Sheep destSheep = destination.getWorld().spawn(destination, sheep.getClass());
 		try {
 			destSheep.setAge(sheep.getAge());
@@ -282,7 +280,7 @@ public class Teleporter {
 		return destSheep;
 	}
 	
-	public PolarBear teleport(PolarBear polarbear, Location destination) {
+	private PolarBear teleport(PolarBear polarbear, Location destination) {
 		PolarBear destPolarBear = destination.getWorld().spawn(destination, polarbear.getClass());
 		try {
 			destPolarBear.setAge(polarbear.getAge());
@@ -299,7 +297,7 @@ public class Teleporter {
 	}
 
 
-	public Villager teleport(Villager villager, Location destination) {
+	private Villager teleport(Villager villager, Location destination) {
 		Villager destVillager = destination.getWorld().spawn(destination, villager.getClass());
 		
 		try {
