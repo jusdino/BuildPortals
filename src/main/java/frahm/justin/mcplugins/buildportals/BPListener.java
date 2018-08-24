@@ -27,23 +27,24 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class BPListener implements Listener{
-	Logger logger;
-	Level DEBUG_LEVEL;
-	Main plugin;
-	PortalHandler portals;
-	Teleporter teleporter;
-	FileConfiguration config;
-	HashSet<Entity> alreadyOnPortal = new HashSet<Entity>();
+	private static Logger logger;
+	private static Level DEBUG_LEVEL;
+	private static Main plugin;
+	private static PortalHandler portals;
+	private static Teleporter teleporter;
+	private static FileConfiguration config;
+	private static HashSet<Entity> alreadyOnPortal = new HashSet<>();
 	
 	public BPListener(Main plugin, PortalHandler portals) {
-		this.plugin = plugin;
-		this.portals = portals;
-		this.logger = this.plugin.getLogger();
-		this.DEBUG_LEVEL = this.plugin.DEBUG_LEVEL;
-		teleporter = new Teleporter();
-		config = plugin.getConfig();
+		BPListener.plugin = plugin;
+		BPListener.portals = portals;
+		BPListener.logger = plugin.getLogger();
+		BPListener.DEBUG_LEVEL = Level.INFO;
+		BPListener.teleporter = new Teleporter();
+		BPListener.config = plugin.getConfig();
 	}
 
 	@EventHandler (ignoreCancelled = true)
@@ -71,22 +72,18 @@ public class BPListener implements Listener{
 			alreadyOnPortal.add(entity);
 			alreadyOnPortal.add(player);
 		}
-		return;
 	}
 	
 	@EventHandler (ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		Entity vehicle = player.getVehicle();
-		if (vehicle != null)
-		{
-		return;
+		if (vehicle != null) {
+			return;
 		}	
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		if (!portals.isInAPortal(loc)) {
-			if (alreadyOnPortal.contains(player)) {
-				alreadyOnPortal.remove(player);
-			}
+			alreadyOnPortal.remove(player);
 			return;
 		}
 		if (alreadyOnPortal.contains(player)) {
@@ -98,62 +95,41 @@ public class BPListener implements Listener{
 			}
 			return;
 		}
-		if (vehicle == null) {
-			Location destination = portals.getDestination(player, loc);
-			if (null == destination){
-				logger.info("Can't get a destination for " + player.getName() + "!");
-				return;
-			}
-			if (teleporter.teleport((Entity)player, destination) == null) {
-				return;
-			}
-		} else {
-			Location destination = portals.getDestination(vehicle, loc);
-			alreadyOnPortal.add(vehicle);
-			if (null == destination){
-				logger.info("Can't get a destination for " + player.getName() + "!");
-				return;
-			}
-			if (teleporter.teleport(vehicle, destination) == null) {
-				return;
-			}
+		Location destination = portals.getDestination(player, loc);
+		if (null == destination){
+			logger.info("Can't get a destination for " + player.getName() + "!");
+			return;
+		}
+		if (teleporter.teleport((Entity)player, destination) == null) {
+			return;
 		}
 		alreadyOnPortal.add(player);
-		return;
 	}
 
 	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onBlockDamage(BlockBreakEvent event) {
-		logger.log(DEBUG_LEVEL, "Block Break event");
-		Location loc = event.getBlock().getLocation();
-		onBlockEvent(event.getBlock().getType().name(), loc);
+	public void onBlockBreak(BlockBreakEvent event) {
+		onBlockEvent(event.getBlock().getType().name());
 	}
 
 	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
-		Location loc = event.getBlock().getLocation();
-		onBlockEvent(event.getChangedType().name(), loc);
+		onBlockEvent(event.getChangedType().name());
 	}
 
-	private void onBlockEvent(String name, Location loc) {
+	private void onBlockEvent(String name) {
 		String frameMaterialName = config.getString("PortalMaterial");
 		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
 		if (! (name.equals(frameMaterialName) || activatorMaterialNames.contains(name))) {
 			return;
 		}
 
-		logger.log(DEBUG_LEVEL, "onBlockPhysics event affecting portal / activator materials");
-		String brokenPortal = portals.integrityCheck();
-		if (null == brokenPortal || null == loc) {
-			return;
-		}
-		
-		loc.getWorld().strikeLightningEffect(loc);
-		loc.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, loc, 1);
-		logger.info("Clearing portal number " + brokenPortal);
-		config.set("portals." + brokenPortal, null);
-		plugin.saveConfig();
-		portals.updatePortals();
+		logger.log(DEBUG_LEVEL, "onBlockEvent event affecting portal / activator materials");
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				PortalHandler.checkAndUpdate();
+			}
+		}.runTaskLater(BPListener.plugin, 1);
 	}
 	
 	@EventHandler (ignoreCancelled = true)
@@ -193,11 +169,11 @@ public class BPListener implements Listener{
 		}
 		logger.log(DEBUG_LEVEL,"Player " + player.getDisplayName() + " has appropriate permissions");
 		
-		Boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
+		boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<String, Object>();
 		logger.log(DEBUG_LEVEL,"This is an unlinked portal");
 		
-		if (unlinkedPortal == true) {
+		if (unlinkedPortal) {
 			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".vec");
 			ArrayList<String> frameVecsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".frame");
 			Set<String> portalKeys = config.getConfigurationSection("portals").getKeys(false);
