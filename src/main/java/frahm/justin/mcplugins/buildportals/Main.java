@@ -109,6 +109,15 @@ public class Main extends JavaPlugin {
 					logger.info("Converting existing portals to " + mat.name());
 					PortalHandler.updatePortals();
 					return true;
+				case "listmaterial":
+					if (sender.hasPermission("buildportals.listmaterial")) {
+						String matName = config.getString("PortalMaterial");
+						sender.sendMessage("Portal material is: " + matName);
+						return true;
+					} else {
+						sender.sendMessage("You do not have permission to use this command.");
+						return true;
+					}
 				case "addactivator":
 					if ( ! sender.hasPermission("buildportals.*")) {
 						sender.sendMessage("You do not have permission to use this command.");

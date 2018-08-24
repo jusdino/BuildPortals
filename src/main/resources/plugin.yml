@@ -11,16 +11,17 @@ commands:
     description: All commands for the BuildPortals plugin.
 permissions:
   buildportals.*:
-    description: Gives access to all BuildPortals commands
+    description: Gives access to editing portal and activator materials.
     default: op
-    children:
-      buildportals.listmaterials: true
+  buildportals.listmaterial:
+    description: Gives access to view the portal material.
+    default: true
   buildportals.listactivators:
-    description: Give access to the activator material list.
+    description: Give access to view the activator material list.
     default: true
   buildportals.activate:
-    description: Can activate a new portal
+    description: Allows activating a new portal.
     default: true
   buildportals.teleport:
-    description: Can use a portal
+    description: Allows using a portal.
     default: true
