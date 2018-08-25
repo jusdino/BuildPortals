@@ -46,7 +46,7 @@ class PortalHandler {
 		/* Constructor, pass a handle to the plugin for configuration reading. */
 		PortalHandler.plugin = plugin;
 		logger = plugin.getLogger();
-		DEBUG_LEVEL = Level.INFO;
+		DEBUG_LEVEL = Level.FINER;
 		config = plugin.getConfig();
 
 	}
