@@ -86,6 +86,7 @@ public class BPListener implements Listener{
 		Player player = event.getPlayer();
 		Entity vehicle = player.getVehicle();
 		if (vehicle != null) {
+            logger.log(DEBUG_LEVEL, "Player move on vehicle: " + player.getDisplayName());
 			return;
 		}
 		logger.log(DEBUG_LEVEL, "Player move: " + player.getDisplayName());
