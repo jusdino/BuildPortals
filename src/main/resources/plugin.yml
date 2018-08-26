@@ -1,0 +1,27 @@
+name: BuildPortals
+main: frahm.justin.mcplugins.buildportals.Main
+version: ___
+softdepend:
+  - Multiverse-Core
+  - Multiworld
+commands:
+  buildportals:
+    description: All commands for the BuildPortals plugin.
+  bp:
+    description: All commands for the BuildPortals plugin.
+permissions:
+  buildportals.*:
+    description: Gives access to editing portal and activator materials.
+    default: op
+  buildportals.listmaterial:
+    description: Gives access to view the portal material.
+    default: true
+  buildportals.listactivators:
+    description: Give access to view the activator material list.
+    default: true
+  buildportals.activate:
+    description: Allows activating a new portal.
+    default: true
+  buildportals.teleport:
+    description: Allows using a portal.
+    default: true

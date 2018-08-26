@@ -9,13 +9,14 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Minecart;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
-	PortalHandler portals;
-	FileConfiguration config;
-	Logger logger;
+	private static PortalHandler portals;
+	private static FileConfiguration config;
+	private static Logger logger;
 
 	@Override
 	public void onEnable() {
@@ -30,14 +31,14 @@ public class Main extends JavaPlugin {
 		 * Gold Blocks
 		 * Diamond Blocks
 		 */
-		ArrayList<String> activators = new ArrayList<String>();
+		ArrayList<String> activators = new ArrayList<>();
 		activators.add(Material.REDSTONE_BLOCK.name());
 		activators.add(Material.GOLD_BLOCK.name());
 		activators.add(Material.DIAMOND_BLOCK.name());
 		config.addDefault("PortalActivators", activators);
 		config.options().copyDefaults(true);
 		this.saveConfig();
-		portals.updatePortals();
+		PortalHandler.updatePortals();
 	}
 
 	@Override
@@ -65,8 +66,11 @@ public class Main extends JavaPlugin {
 					if (player.getVehicle() instanceof Minecart) {
 						loc.add(0,1,0);
 					}
+					if (player.getVehicle() instanceof Boat) {
+						loc.add(0,2,0);
+					} 
 					sender.sendMessage("Your location is: " + loc.toVector().toString());
-					Boolean inPortal = portals.isInAPortal(loc);
+					boolean inPortal = portals.isInAPortal(loc);
 					if (inPortal) {
 						player.sendMessage("You ARE in a portal!");
 					} else {
@@ -74,17 +78,14 @@ public class Main extends JavaPlugin {
 					}
 					return true;
 				case "setmaterial":
-					if (sender.hasPermission("buildportals.*")) {
-					} else {
+					if ( ! sender.hasPermission("buildportals.*") ) {
 						sender.sendMessage("You do not have permission to use this command.");
 						return true;
 					}
 					Material mat = null;
 					try {
 						mat = Material.getMaterial(args[1].toUpperCase());
-					} catch (NullPointerException exc) {
-						sender.sendMessage("You must specify a material.");
-					} catch (ArrayIndexOutOfBoundsException exc) {
+					} catch (NullPointerException | ArrayIndexOutOfBoundsException exc) {
 						sender.sendMessage("You must specify a material.");
 					} finally {
 						if (mat == null) {
@@ -106,11 +107,19 @@ public class Main extends JavaPlugin {
 					this.saveConfig();
 					sender.sendMessage("Converting existing portals to " + mat.name());
 					logger.info("Converting existing portals to " + mat.name());
-					portals.updatePortals();
+					PortalHandler.updatePortals();
 					return true;
-				case "addactivator":
-					if (sender.hasPermission("buildportals.*")) {
+				case "listmaterial":
+					if (sender.hasPermission("buildportals.listmaterial")) {
+						String matName = config.getString("PortalMaterial");
+						sender.sendMessage("Portal material is: " + matName);
+						return true;
 					} else {
+						sender.sendMessage("You do not have permission to use this command.");
+						return true;
+					}
+				case "addactivator":
+					if ( ! sender.hasPermission("buildportals.*")) {
 						sender.sendMessage("You do not have permission to use this command.");
 						return true;
 					}
@@ -119,9 +128,7 @@ public class Main extends JavaPlugin {
 					activators = (ArrayList<String>) config.getStringList("PortalActivators");
 					try {
 						mat = Material.getMaterial(args[1].toUpperCase());
-					} catch (NullPointerException exc) {
-						sender.sendMessage("You must specify a material.");
-					} catch (ArrayIndexOutOfBoundsException exc) {
+					} catch (NullPointerException | ArrayIndexOutOfBoundsException exc) {
 						sender.sendMessage("You must specify a material.");
 					} finally {
 						if (mat == null) {
@@ -149,8 +156,7 @@ public class Main extends JavaPlugin {
 					this.saveConfig();
 					return true;
 				case "removeactivator":
-					if (sender.hasPermission("buildportals.*")) {
-					} else {
+					if ( ! sender.hasPermission("buildportals.*")) {
 						sender.sendMessage("You do not have permission to use this command.");
 						return true;
 					}
@@ -158,9 +164,7 @@ public class Main extends JavaPlugin {
 					activators = (ArrayList<String>) config.getStringList("PortalActivators");
 					try {
 						matName = args[1].toUpperCase();
-					} catch (NullPointerException exc) {
-						sender.sendMessage("You must specify a material.");
-					} catch (ArrayIndexOutOfBoundsException exc) {
+					} catch (NullPointerException | ArrayIndexOutOfBoundsException exc) {
 						sender.sendMessage("You must specify a material.");
 					} finally {
 						if (matName == null) {
@@ -201,6 +205,8 @@ public class Main extends JavaPlugin {
 					sender.sendMessage("    Adds to the list of activator materials.");
 					sender.sendMessage("  /BP RemoveActivator <Material_Name>");
 					sender.sendMessage("    Removes an activator material.");
+					sender.sendMessage("  /BP ListMaterial");
+					sender.sendMessage("    Lists the configured portal material.");
 					sender.sendMessage("  /BP ListActivators");
 					sender.sendMessage("    Lists all configured activator materials.");
 					return false;

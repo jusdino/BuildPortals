@@ -1,18 +1,11 @@
 # BuildPortals
 Bukkit/Spigot server plugin to allow players to build their own inter-world portals without the use of commands. These portals support teleporting players on horses as well as minecarts.
 
-May 7, 2017: Expanded Minecart support!
+## August 23, 2018: Updates in progress!
+* Boat teleporting in progress!
+* Update for 1.13 in progress!
 
-Expanded minecart support:
-* empty minecarts
-* command minecarts
-* minecarts with chests
-* minecarts with hoppers
-* minecarts with TNT
-    
--Jusdino
-
-Status:
+## Status:
 
 This project is at bukkit.org / curse at:
 https://mods.curse.com/bukkit-plugins/minecraft/buildportals
@@ -20,7 +13,26 @@ https://mods.curse.com/bukkit-plugins/minecraft/buildportals
 and at spigotmc.org:
 https://www.spigotmc.org/resources/buildportals.21922/
 
-Use:
+## Features:
+### Livestock teleporting:
+* Horses
+* Cows
+* Pigs
+* Sheep
+* All of the above while attached to player via lead
+* All of the above whilst in a minecart (if they fit)
+* Horses/Pigs whilst riding them as well
+
+### Minecart teleporting:
+* minecarts with players
+* empty minecarts
+* command minecarts
+* minecarts with chests
+* minecarts with hoppers
+* minecarts with TNT
+* minecarts with Villagers or animals
+
+## Use:
 
 Once installed, any player can build a teleportation portal by doing:
  1) Using a designated portal building material (Emerald Blocks by default) to make a nether-portal-like rectangle, with interior at least large enough for a player to walk through and;
@@ -31,17 +43,43 @@ Once two complete and like-activated portals are built, the plugin converts the 
 
 The plugin does support in-game configuration changes now:
 
- * '/BP SetMaterial \<MaterialName\>' - You can change the portal frame material. This will convert all existing portals to the new material and also allow building new portals from the new named material.
+#### /BP version
+Check the version of the plugin you are using.
  
- * '/BP AddActivator \<MaterialName\>' - You can add a new activator material. This allows activating portals with a new block.
- 
- * '/BP RemoveActivator \<MaterialName\>' - You can remove an activator material. This will disallow activating portals with the named material.
- 
- * '/BP ListActivators \<MaterialName\>' - This will list all currently configured activator materials. 
+ #### /BP check
+ Check whether you are currently standing in a portal.
 
-Planned updates:
-* More Minecart Support - carrying villagers and livestock.
-* Feudal Kingdom Limits - Limits on how many portals can be created in each kingom (From the Feudal plugin)
-* Entities on Leashes - Be able to drag your stubborn sheep through the portal on a lead.
+ #### /BP SetMaterial \<MaterialName\>
+ You can change the portal frame material. This will convert all existing portals to the new material and also allow building new portals from the new named material.
+ 
+ #### /BP ListMaterial
+ List the configured portal material.
+ 
+ #### /BP AddActivator \<MaterialName\>
+ You can add a new activator material. This allows activating portals with a new block.
+ 
+ #### /BP RemoveActivator \<MaterialName\>
+ You can remove an activator material. This will disallow activating portals with the named material.
+ 
+ #### /BP ListActivators \<MaterialName\>
+ This will list all currently configured activator materials. 
+
+## Permissions:
+####  buildportals.*:
+    description: Gives access to editing portal and activator materials (and misc. commands).
+    default: op
+####  buildportals.listmaterial:
+    description: Gives access to view the portal material.
+    default: true
+####  buildportals.listactivators:
+    description: Give access to view the activator material list.
+    default: true
+####  buildportals.activate:
+    description: Allows activating a new portal.
+    default: true
+####  buildportals.teleport:
+    description: Allows using a portal.
+    default: true
+
 
 If someone happens across this project, feel free to critique. I welcome tips/criticism/suggestions!
