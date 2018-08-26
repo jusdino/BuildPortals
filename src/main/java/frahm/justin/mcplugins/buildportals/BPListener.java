@@ -21,6 +21,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
@@ -52,33 +53,7 @@ public class BPListener implements Listener{
 	@EventHandler (ignoreCancelled = true)
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
-		List<Entity> passengers = vehicle.getPassengers();
-		logger.log(DEBUG_LEVEL, "Vehicle move: " + vehicle.toString());
-		Location loc = event.getFrom();
-		loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-		if (!portals.isInAPortal(loc)) {
-			if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
-				alreadyOnPortal.remove(vehicle);
-				for (Entity passenger : passengers) {
-					alreadyOnPortal.remove(passenger);
-				}
-			}
-			return;
-		}
-		if (alreadyOnPortal.contains(vehicle)) {
-			return;
-		}
-		Location destination = portals.getDestination(vehicle, loc);
-		if (null == destination){
-			return;
-		}
-		Entity entity = teleporter.teleport(vehicle, destination);
-		if (entity != null) {
-			alreadyOnPortal.add(entity);
-			for (Entity passenger : passengers) {
-				alreadyOnPortal.add(passenger);
-			}
-		}
+		vehicleMove(vehicle);
 	}
 	
 	@EventHandler (ignoreCancelled = true)
@@ -86,7 +61,10 @@ public class BPListener implements Listener{
 		Player player = event.getPlayer();
 		Entity vehicle = player.getVehicle();
 		if (vehicle != null) {
-            logger.log(DEBUG_LEVEL, "Player move on vehicle: " + player.getDisplayName());
+		    if (vehicle instanceof Horse) {
+                logger.log(DEBUG_LEVEL, "Player move on horse: " + player.getDisplayName());
+                vehicleMove((Vehicle)vehicle);
+            }
 			return;
 		}
 		logger.log(DEBUG_LEVEL, "Player move: " + player.getDisplayName());
@@ -109,11 +87,37 @@ public class BPListener implements Listener{
 			logger.info("Can't get a destination for " + player.getName() + "!");
 			return;
 		}
-		if (teleporter.teleport((Entity)player, destination) == null) {
+		if (teleporter.teleport(player, destination) == null) {
 			return;
 		}
 		alreadyOnPortal.add(player);
 	}
+
+	private void vehicleMove(Vehicle vehicle) {
+        List<Entity> passengers = vehicle.getPassengers();
+        logger.log(DEBUG_LEVEL, "Vehicle move: " + vehicle.toString());
+        Location loc = vehicle.getLocation();
+        loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        if (!portals.isInAPortal(loc)) {
+            if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
+                alreadyOnPortal.remove(vehicle);
+                alreadyOnPortal.removeAll(passengers);
+            }
+            return;
+        }
+        if (alreadyOnPortal.contains(vehicle)) {
+            return;
+        }
+        Location destination = portals.getDestination(vehicle, loc);
+        if (null == destination){
+            return;
+        }
+        Entity entity = teleporter.teleport(vehicle, destination);
+        if (entity != null) {
+            alreadyOnPortal.add(entity);
+            alreadyOnPortal.addAll(passengers);
+        }
+    }
 
 	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event) {
