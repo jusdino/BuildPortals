@@ -53,6 +53,7 @@ public class BPListener implements Listener{
 	@EventHandler (ignoreCancelled = true)
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
+        logger.log(DEBUG_LEVEL, "Vehicle move: " + vehicle.toString());
 		vehicleMove(vehicle);
 	}
 	
@@ -60,14 +61,14 @@ public class BPListener implements Listener{
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		Entity vehicle = player.getVehicle();
+        logger.log(DEBUG_LEVEL, "Player move: " + player.getDisplayName());
 		if (vehicle != null) {
 		    if (vehicle instanceof Horse) {
-                logger.log(DEBUG_LEVEL, "Player move on horse: " + player.getDisplayName());
+                logger.log(DEBUG_LEVEL, "On horse: " + player.getDisplayName());
                 vehicleMove((Vehicle)vehicle);
             }
 			return;
 		}
-		logger.log(DEBUG_LEVEL, "Player move: " + player.getDisplayName());
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		if (!portals.isInAPortal(loc)) {
 			alreadyOnPortal.remove(player);
@@ -95,7 +96,6 @@ public class BPListener implements Listener{
 
 	private void vehicleMove(Vehicle vehicle) {
         List<Entity> passengers = vehicle.getPassengers();
-        logger.log(DEBUG_LEVEL, "Vehicle move: " + vehicle.toString());
         Location loc = vehicle.getLocation();
         loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
         if (!portals.isInAPortal(loc)) {
