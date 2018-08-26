@@ -1,6 +1,7 @@
 package frahm.justin.mcplugins.buildportals;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,7 +44,7 @@ public class BPListener implements Listener{
 		BPListener.plugin = plugin;
 		BPListener.portals = portals;
 		BPListener.logger = plugin.getLogger();
-		BPListener.DEBUG_LEVEL = Level.FINER;
+		BPListener.DEBUG_LEVEL = Level.INFO;
 		BPListener.teleporter = new Teleporter();
 		BPListener.config = plugin.getConfig();
 	}
@@ -51,13 +52,16 @@ public class BPListener implements Listener{
 	@EventHandler (ignoreCancelled = true)
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
-		Entity player = vehicle.getPassenger();
+		List<Entity> passengers = vehicle.getPassengers();
+		logger.log(DEBUG_LEVEL, "Vehicle move: " + vehicle.toString());
 		Location loc = event.getFrom();
 		loc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 		if (!portals.isInAPortal(loc)) {
 			if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
 				alreadyOnPortal.remove(vehicle);
-				alreadyOnPortal.remove(player);
+				for (Entity passenger : passengers) {
+					alreadyOnPortal.remove(passenger);
+				}
 			}
 			return;
 		}
@@ -71,7 +75,9 @@ public class BPListener implements Listener{
 		Entity entity = teleporter.teleport(vehicle, destination);
 		if (entity != null) {
 			alreadyOnPortal.add(entity);
-			alreadyOnPortal.add(player);
+			for (Entity passenger : passengers) {
+				alreadyOnPortal.add(passenger);
+			}
 		}
 	}
 	
@@ -81,7 +87,8 @@ public class BPListener implements Listener{
 		Entity vehicle = player.getVehicle();
 		if (vehicle != null) {
 			return;
-		}	
+		}
+		logger.log(DEBUG_LEVEL, "Player move: " + player.getDisplayName());
 		Location loc = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 		if (!portals.isInAPortal(loc)) {
 			alreadyOnPortal.remove(player);
