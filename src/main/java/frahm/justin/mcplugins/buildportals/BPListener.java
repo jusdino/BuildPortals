@@ -45,7 +45,7 @@ public class BPListener implements Listener{
 		BPListener.plugin = plugin;
 		BPListener.portals = portals;
 		BPListener.logger = plugin.getLogger();
-		BPListener.DEBUG_LEVEL = Level.INFO;
+		BPListener.DEBUG_LEVEL = Level.FINER;
 		BPListener.teleporter = new Teleporter();
 		BPListener.config = plugin.getConfig();
 	}
