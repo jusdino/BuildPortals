@@ -20,10 +20,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -63,7 +60,7 @@ public class BPListener implements Listener{
 		Entity vehicle = player.getVehicle();
         logger.log(DEBUG_LEVEL, "Player move: " + player.getDisplayName());
 		if (vehicle != null) {
-		    if (vehicle instanceof Horse) {
+		    if (vehicle instanceof AbstractHorse || vehicle instanceof Pig) {
                 logger.log(DEBUG_LEVEL, "On horse: " + player.getDisplayName());
                 vehicleMove((Vehicle)vehicle);
             }
