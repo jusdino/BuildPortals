@@ -1,6 +1,6 @@
 name: BuildPortals
 main: frahm.justin.mcplugins.buildportals.Main
-version: 1.18.8
+version: 1.18.9
 softdepend:
   - Multiverse-Core
   - Multiworld
