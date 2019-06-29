@@ -42,7 +42,6 @@ public class BPListener implements Listener{
 		BPListener.plugin = plugin;
 		BPListener.portals = portals;
 		BPListener.logger = plugin.getLogger();
-		BPListener.DEBUG_LEVEL = Level.FINER;
 		BPListener.teleporter = new Teleporter();
 		BPListener.config = plugin.getConfig();
 	}
@@ -50,7 +49,7 @@ public class BPListener implements Listener{
 	@EventHandler (ignoreCancelled = true)
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
-        logger.log(DEBUG_LEVEL, "Vehicle move: " + vehicle.toString());
+        logger.fine("Vehicle move: " + vehicle.toString());
 		vehicleMove(vehicle);
 	}
 	
@@ -58,10 +57,10 @@ public class BPListener implements Listener{
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		Entity vehicle = player.getVehicle();
-        logger.log(DEBUG_LEVEL, "Player move: " + player.getDisplayName());
+        logger.fine("Player move: " + player.getDisplayName());
 		if (vehicle != null) {
 		    if (vehicle instanceof AbstractHorse || vehicle instanceof Pig) {
-                logger.log(DEBUG_LEVEL, "On horse: " + player.getDisplayName());
+                logger.fine("On horse: " + player.getDisplayName());
                 vehicleMove((Vehicle)vehicle);
             }
 			return;
@@ -133,7 +132,7 @@ public class BPListener implements Listener{
 			return;
 		}
 
-		logger.log(DEBUG_LEVEL, "onBlockEvent event affecting portal / activator materials");
+		logger.fine("onBlockEvent event affecting portal / activator materials");
 		new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -150,7 +149,7 @@ public class BPListener implements Listener{
 		 *This is just warming up for the best type of configuration
 		 *management necessary for the plugin
 		 */
-		logger.log(DEBUG_LEVEL, "Block place event registered");
+		logger.fine("Block place event registered");
 
 		//Get relevant info about event
 		Block block = event.getBlockPlaced();
@@ -158,7 +157,7 @@ public class BPListener implements Listener{
 			return;
 		}
 
-		logger.log(DEBUG_LEVEL,"Block is a portal activator");
+		logger.fine("Block is a portal activator");
 		World world = block.getWorld();
 		//Get vectors to actual portal blocks from handler
 		ArrayList<String> frameVecs = new ArrayList<>();
@@ -169,7 +168,7 @@ public class BPListener implements Listener{
 		if (null == yaw) {
 			return;
 		}
-		logger.log(DEBUG_LEVEL,"Block completes a portal");
+		logger.fine("Block completes a portal");
 		
 		Player player;
 		player = event.getPlayer();
@@ -177,11 +176,11 @@ public class BPListener implements Listener{
 			player.sendMessage("You do not have permission to activate portals!");
 			return;
 		}
-		logger.log(DEBUG_LEVEL,"Player " + player.getDisplayName() + " has appropriate permissions");
+		logger.fine("Player " + player.getDisplayName() + " has appropriate permissions");
 		
 		boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<>();
-		logger.log(DEBUG_LEVEL,"This is an unlinked portal");
+		logger.fine("This is an unlinked portal");
 		
 		if (unlinkedPortal) {
 			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".vec");
@@ -259,6 +258,6 @@ public class BPListener implements Listener{
 		}
 		logger.info("Saving changes...");
 		plugin.saveConfig();
-		portals.updatePortals();
+		PortalHandler.updatePortals();
 	}
 }
