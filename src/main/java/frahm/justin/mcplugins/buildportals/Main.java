@@ -40,8 +40,11 @@ public class Main extends JavaPlugin {
 		config.addDefault("Debug", false);
 		config.options().copyDefaults(true);
 		this.saveConfig();
-
-		logger.setLevel((boolean)config.get("Debug") ? Level.ALL : Level.INFO);
+		boolean debug = config.getBoolean("Debug");
+		if (debug) {
+			logger.setLevel(Level.ALL);
+			logger.info("Setting logger to Level.ALL");
+		}
 		PortalHandler.updatePortals();
 	}
 
