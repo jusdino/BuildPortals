@@ -305,10 +305,13 @@ class Teleporter {
 			destVillager.setCustomName(villager.getCustomName());
 			destVillager.setHealth(villager.getHealth());
 			destVillager.setGlowing(villager.isGlowing());
-			destVillager.setRiches(villager.getRiches());
 			destVillager.setProfession(villager.getProfession());
 			destVillager.getInventory().setContents(villager.getInventory().getContents());
 			destVillager.setRecipes(villager.getRecipes());
+			destVillager.setVillagerExperience(villager.getVillagerExperience());
+			destVillager.setVillagerLevel(villager.getVillagerLevel());
+			destVillager.setVillagerType(villager.getVillagerType());
+
 			villager.remove();
 		} catch (Exception exc) {
 			destVillager.remove();

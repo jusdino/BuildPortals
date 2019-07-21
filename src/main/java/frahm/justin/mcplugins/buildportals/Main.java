@@ -1,6 +1,7 @@
 package frahm.justin.mcplugins.buildportals;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
@@ -36,8 +37,14 @@ public class Main extends JavaPlugin {
 		activators.add(Material.GOLD_BLOCK.name());
 		activators.add(Material.DIAMOND_BLOCK.name());
 		config.addDefault("PortalActivators", activators);
+		config.addDefault("Debug", false);
 		config.options().copyDefaults(true);
 		this.saveConfig();
+		boolean debug = config.getBoolean("Debug");
+		if (debug) {
+			logger.setLevel(Level.ALL);
+			logger.info("Setting logger to Level.ALL");
+		}
 		PortalHandler.updatePortals();
 	}
 
