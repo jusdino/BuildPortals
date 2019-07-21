@@ -1053,6 +1053,10 @@ class PortalFactory {
 				String yawAString = config.getString("portals." + portalNumber + "." + activator + ".yaw");
 				if (worldAName != null) {
 					worldA = Bukkit.getWorld(worldAName);
+					if (worldA == null) {
+						logger.warning("Failed to locate world: " + worldAName + " skipping portal number " + portalNumber);
+						return null;
+					}
 					if (yawAString == null) {
 						logger.severe("Error reading yawA from configuration!");
 						return null;
