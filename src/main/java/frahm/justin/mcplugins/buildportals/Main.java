@@ -25,7 +25,6 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		config = this.getConfig();
-		portals = new PortalHandler(this);
 		logger = this.getLogger();
 		logLevel = Level.OFF;
 		//Set default portal building material to emerald blocks
@@ -49,6 +48,7 @@ public class Main extends JavaPlugin {
 			logLevel = Level.INFO;
 			logger.log(logLevel, "Debug logs on");
 		}
+        portals = new PortalHandler(this);
         getServer().getPluginManager().registerEvents(new BPListener(this, portals), this);
 		PortalHandler.updatePortals();
 	}
