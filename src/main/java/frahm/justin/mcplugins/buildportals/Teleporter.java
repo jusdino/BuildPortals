@@ -5,9 +5,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.lang.Math;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Boat;
@@ -30,12 +33,16 @@ import org.bukkit.util.Vector;
 
 
 class Teleporter {
-	
-	Teleporter() {
-		
+	private static Logger logger;
+	private static Level logLevel;
+
+	Teleporter(Main plugin) {
+		logger = plugin.getLogger();
+		logLevel = Main.logLevel;
 	}
 	
 	Entity teleport(Entity entity, Location destination) {
+		logger.log(logLevel, "Entering teleport(Entity, ...) method");
 		destination.getChunk().load();
 		if (entity instanceof Vehicle) {
 			List<Entity> passengers = (entity).getPassengers();
@@ -75,7 +82,11 @@ class Teleporter {
 			ArrayList<LivingEntity> leadees = new ArrayList<>();
 			// There doesn't seem to be an easy way to get a collection of leashed entities
 			// from the player directly...
-			Collection<Entity> entities = source.getWorld().getNearbyEntities(source, 11, 11, 11);
+			World world = source.getWorld();
+			if ( world == null ) {
+				return null;
+			}
+			Collection<Entity> entities = world.getNearbyEntities(source, 11, 11, 11);
 			for (Entity ent: entities) {
 				if (ent instanceof LivingEntity) {
 					if (((LivingEntity)ent).isLeashed() && ((LivingEntity)ent).getLeashHolder() == entity) {
@@ -109,7 +120,12 @@ class Teleporter {
 	
 	
 	private Minecart teleport(Minecart vehicle, Location destination) {
-		Minecart destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
+		logger.log(logLevel, "Entering teleport(Minecart, ...) method");
+		World world = destination.getWorld();
+		if ( world == null ) {
+			return null;
+		}
+		Minecart destVehicle = world.spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
 		double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
 		//Set minimum exit velocity
@@ -150,8 +166,13 @@ class Teleporter {
 	}
 
 	private Boat teleport(Boat vehicle, Location destination) {
-		
-		Boat destVehicle = destination.getWorld().spawn(destination, vehicle.getClass());
+		logger.log(logLevel, "Entering teleport(Boat, ...) method");
+
+		World world = destination.getWorld();
+		if ( world == null ) {
+			return null;
+		}
+		Boat destVehicle = world.spawn(destination, vehicle.getClass());
 		Vector speedVec = vehicle.getVelocity();
 		vehicle.remove();
 		double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
@@ -176,7 +197,12 @@ class Teleporter {
 	}
 	
 	private AbstractHorse teleport(AbstractHorse horse, Location destination) {
-		AbstractHorse destHorse = destination.getWorld().spawn(destination, horse.getClass());
+		logger.log(logLevel, "Entering teleport(AbstractHorse, ...) method");
+		World world = destination.getWorld();
+		if ( world == null ) {
+			return null;
+		}
+		AbstractHorse destHorse = world.spawn(destination, horse.getClass());
 		try {
 			destHorse.setAge(horse.getAge());
 			destHorse.setCustomName(horse.getCustomName());
@@ -211,7 +237,12 @@ class Teleporter {
 	
 	
 	private Chicken teleport(Chicken chicken, Location destination) {
-		Chicken destChicken = destination.getWorld().spawn(destination, chicken.getClass());
+		logger.log(logLevel, "Entering teleport(Chicken, ...) method");
+		World world = destination.getWorld();
+		if ( world == null ) {
+			return null;
+		}
+		Chicken destChicken = world.spawn(destination, chicken.getClass());
 		try {
 			destChicken.setAge(chicken.getAge());
 			destChicken.setCustomName(chicken.getCustomName());
@@ -228,7 +259,12 @@ class Teleporter {
 	
 	
 	private Cow teleport(Cow cow, Location destination) {
-		Cow destCow = destination.getWorld().spawn(destination, cow.getClass());
+		logger.log(logLevel, "Entering teleport(Cow, ...) method");
+		World world = destination.getWorld();
+		if ( world == null ) {
+			return null;
+		}
+		Cow destCow = world.spawn(destination, cow.getClass());
 		try {
 			destCow.setAge(cow.getAge());
 			destCow.setCustomName(cow.getCustomName());
@@ -245,7 +281,12 @@ class Teleporter {
 	
 	
 	private Pig teleport(Pig pig, Location destination) {
-		Pig destPig = destination.getWorld().spawn(destination, pig.getClass());
+		logger.log(logLevel, "Entering teleport(Pig, ...) method");
+		World world = destination.getWorld();
+		if ( world == null ) {
+			return null;
+		}
+		Pig destPig = world.spawn(destination, pig.getClass());
 		try {
 			destPig.setAge(pig.getAge());
 			destPig.setCustomName(pig.getCustomName());
@@ -263,7 +304,12 @@ class Teleporter {
 	
 	
 	private Sheep teleport(Sheep sheep, Location destination) {
-		Sheep destSheep = destination.getWorld().spawn(destination, sheep.getClass());
+		logger.log(logLevel, "Entering teleport(Sheep, ...) method");
+		World world = destination.getWorld();
+		if ( world == null ) {
+			return null;
+		}
+		Sheep destSheep = world.spawn(destination, sheep.getClass());
 		try {
 			destSheep.setAge(sheep.getAge());
 			destSheep.setCustomName(sheep.getCustomName());
@@ -281,7 +327,12 @@ class Teleporter {
 	}
 	
 	private PolarBear teleport(PolarBear polarbear, Location destination) {
-		PolarBear destPolarBear = destination.getWorld().spawn(destination, polarbear.getClass());
+		logger.log(logLevel, "Entering teleport(PolarBear, ...) method");
+		World world = destination.getWorld();
+		if ( world == null ) {
+			return null;
+		}
+		PolarBear destPolarBear = world.spawn(destination, polarbear.getClass());
 		try {
 			destPolarBear.setAge(polarbear.getAge());
 			destPolarBear.setCustomName(polarbear.getCustomName());
@@ -296,9 +347,13 @@ class Teleporter {
 		return destPolarBear;
 	}
 
-
 	private Villager teleport(Villager villager, Location destination) {
-		Villager destVillager = destination.getWorld().spawn(destination, villager.getClass());
+		logger.log(logLevel, "Entering teleport(Villager, ...) method");
+		World world = destination.getWorld();
+		if ( world == null ) {
+			return null;
+		}
+		Villager destVillager = world.spawn(destination, villager.getClass());
 		
 		try {
 			destVillager.setAge(villager.getAge());

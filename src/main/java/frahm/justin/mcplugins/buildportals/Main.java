@@ -15,6 +15,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
+    // Hacky way to turn on DEBUG for plugin only
+    static Level logLevel;
+
 	private static PortalHandler portals;
 	private static FileConfiguration config;
 	private static Logger logger;
@@ -24,6 +27,7 @@ public class Main extends JavaPlugin {
 		config = this.getConfig();
 		portals = new PortalHandler(this);
 		logger = this.getLogger();
+		logLevel = Level.OFF;
 		getServer().getPluginManager().registerEvents(new BPListener(this, portals), this);
 		//Set default portal building material to emerald blocks
 		config.addDefault("PortalMaterial", Material.EMERALD_BLOCK.name());
@@ -40,10 +44,11 @@ public class Main extends JavaPlugin {
 		config.addDefault("Debug", false);
 		config.options().copyDefaults(true);
 		this.saveConfig();
+
 		boolean debug = config.getBoolean("Debug");
 		if (debug) {
-			logger.setLevel(Level.ALL);
-			logger.info("Setting logger to Level.ALL");
+			logLevel = Level.INFO;
+			logger.log(logLevel, "Debug logs on");
 		}
 		PortalHandler.updatePortals();
 	}

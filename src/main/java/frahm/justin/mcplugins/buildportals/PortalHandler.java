@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.*;
@@ -24,6 +25,7 @@ class PortalHandler {
 
 	private static Main plugin;
 	private static Logger logger;
+	private static Level logLevel;
 	private static FileConfiguration config;
 
 	/*
@@ -44,6 +46,7 @@ class PortalHandler {
 		/* Constructor, pass a handle to the plugin for configuration reading. */
 		PortalHandler.plugin = plugin;
 		logger = plugin.getLogger();
+		logLevel = Main.logLevel;
 		config = plugin.getConfig();
 
 	}
@@ -56,20 +59,20 @@ class PortalHandler {
 		 */
 		String frameMaterialName = config.getString("PortalMaterial");
 		Location loc;
-		logger.fine("Checking portal frames");
+		logger.log(logLevel, "Checking portal frames");
 		for (Map.Entry<String, HashSet<Vector>> frameEntries : frameBlocks.entrySet()) {
 			String worldName = frameEntries.getKey();
 			World world = Bukkit.getWorld(worldName);
 			for (Vector vec : frameEntries.getValue()) {
 				loc = new Location(world, vec.getX(), vec.getY(), vec.getZ());
 				if ( ! loc.getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
-					logger.fine("Block is not frame material at " + loc.toString());
+					logger.log(logLevel, "Block is not frame material at " + loc.toString());
 					return getPortalFromFrame(loc);
 				}
-				logger.fine(loc.getBlock().getType().name() + " at " + loc.toString());
+				logger.log(logLevel, loc.getBlock().getType().name() + " at " + loc.toString());
 			}
 		}
-		logger.fine("Checking activators...");
+		logger.log(logLevel, "Checking activators...");
 		Iterator<Vector> activatorVecs;
 		ArrayList<String> activators = (ArrayList<String>) config.getStringList("PortalActivators");
 		for (Map.Entry<String, HashSet<Vector>> activatorEntries : activatorBlocks.entrySet()) {
@@ -81,7 +84,7 @@ class PortalHandler {
 				Vector vec = activatorVecs.next();
 				loc = new Location(world, vec.getX(), vec.getY(), vec.getZ());
 				if (!activators.contains(loc.getBlock().getType().name())) {
-					logger.fine("Bad activator found at " + loc.toVector().toString() + "!");
+					logger.log(logLevel, "Bad activator found at " + loc.toVector().toString() + "!");
 					return getPortalFromActivator(loc);
 				}
 			}
@@ -140,17 +143,17 @@ class PortalHandler {
 		Float yaw = null;
 
 		if (isInAPortal(block.getLocation())) {
-			logger.fine("Activation block set in already active portal. Doing nothing.");
+			logger.log(logLevel, "Activation block set in already active portal. Doing nothing.");
 			return null;
 		}
-		logger.fine("Portal is not in an active portal. Continuing.");
+		logger.log(logLevel, "Portal is not in an active portal. Continuing.");
 		ArrayList<String> activators;
 		activators = (ArrayList<String>) config.getStringList("PortalActivators");
 		if (!activators.contains(block.getType().name())) {
-			logger.fine("Placed block is not an activator.");
+			logger.log(logLevel, "Placed block is not an activator.");
 			return null;
 		}
-		logger.fine("Placed block is an activator block. Continuing.");
+		logger.log(logLevel, "Placed block is an activator block. Continuing.");
 		String currentActivatorName = block.getType().name();
 		String frameMaterialName = config.getString("PortalMaterial");
 		Block firstFrameBaseBlock = block.getLocation().add(new Vector(0, -1 ,0)).getBlock();
@@ -160,11 +163,11 @@ class PortalHandler {
 		//z = Southing
 		//Check if activator block was placed on a frame block
 		if ( ! firstFrameBaseBlock.getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
-			logger.fine("Placed activator block is on " + firstFrameBaseBlock.getType().name() + ", not " + Material.getMaterial(frameMaterialName).name());
+			logger.log(logLevel, "Placed activator block is on " + firstFrameBaseBlock.getType().name() + ", not " + Material.getMaterial(frameMaterialName).name());
 			return null;
 		}
 
-		logger.fine("Placed block is over a portal frame block. Continuing.");
+		logger.log(logLevel, "Placed block is over a portal frame block. Continuing.");
 		
 		Block activatorBlock;
 		HashMap<String, Vector> unitVectors = new HashMap<>();
@@ -213,10 +216,10 @@ class PortalHandler {
 		westMost = activatorBlock.getLocation().getBlockX();
 		//Check for portal base under activator block
 		if (! activatorBlock.getLocation().add(new Vector(0, -1, 0)).getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
-			logger.fine("Missing portal base under an activator block.");
+			logger.log(logLevel, "Missing portal base under an activator block.");
 			return null;
 		}
-		logger.fine("Adding base block at: " + baseBlock.getLocation().toVector().toString());
+		logger.log(logLevel, "Adding base block at: " + baseBlock.getLocation().toVector().toString());
 		baseVecs.add(baseBlock.getLocation().toVector().toString());
 		
 		while (actIter.hasNext()) {
@@ -224,10 +227,10 @@ class PortalHandler {
 			//Check for portal base under activator block
 			baseBlock = new Location(activatorBlock.getWorld(), activatorBlock.getX(), activatorBlock.getY()-1, activatorBlock.getZ()).getBlock();
 			if ( ! baseBlock.getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
-				logger.fine("Missing portal base under an activator block.");
+				logger.log(logLevel, "Missing portal base under an activator block.");
 				return null;
 			}
-			logger.fine("Adding base block at: " + baseBlock.getLocation().toVector().toString());
+			logger.log(logLevel, "Adding base block at: " + baseBlock.getLocation().toVector().toString());
 			baseVecs.add(baseBlock.getLocation().toVector().toString());
 			if (activatorBlock.getLocation().getBlockZ() < northMost) {
 				northMost = activatorBlock.getLocation().getBlockZ();
@@ -236,7 +239,7 @@ class PortalHandler {
 				westMost = activatorBlock.getLocation().getBlockX();
 			}
 		}
-		logger.fine("Northwest activator found at: X=" + westMost + ", Z=" + northMost);
+		logger.log(logLevel, "Northwest activator found at: X=" + westMost + ", Z=" + northMost);
 		
 		//Find the most southeast coordinate of activator block
 		actIter = activatorBlocks.iterator();
@@ -263,7 +266,7 @@ class PortalHandler {
 				eastMost = activatorBlock.getLocation().getBlockX();
 			}
 		}
-		logger.fine("Southeast activator found at: X=" + eastMost + ", Z=" + southMost);
+		logger.log(logLevel, "Southeast activator found at: X=" + eastMost + ", Z=" + southMost);
 		
 		ArrayList<Block> wallNW = new ArrayList<>();
 		ArrayList<Block> wallSE = new ArrayList<>();
@@ -272,66 +275,66 @@ class PortalHandler {
 		Location activatorNW = new Location(block.getWorld(), westMost, block.getLocation().getBlockY(), northMost);
 		Location activatorSE = new Location(block.getWorld(), eastMost, block.getLocation().getBlockY(), southMost);
 
-		logger.fine("NW activator at: " + activatorNW.toVector().toString());
+		logger.log(logLevel, "NW activator at: " + activatorNW.toVector().toString());
 
 		//North/South oriented portal
 		//North of activatorNW
 		Location testLoc = new Location(activatorNW.getWorld(), activatorNW.getX(), activatorNW.getY(), activatorNW.getZ()-1);
-		logger.fine("NW activator at: " + activatorNW.toVector().toString());
-		logger.fine("Look for portal: " + testLoc.toVector().toString());
+		logger.log(logLevel, "NW activator at: " + activatorNW.toVector().toString());
+		logger.log(logLevel, "Look for portal: " + testLoc.toVector().toString());
 
 		if (testLoc.getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
 			wallNW.add(testLoc.getBlock());
 			//South of activatorSE
-			logger.fine("SE activator at: " + activatorSE.toVector().toString());
-			logger.fine("Look for portal: " + testLoc.toVector().toString());
+			logger.log(logLevel, "SE activator at: " + activatorSE.toVector().toString());
+			logger.log(logLevel, "Look for portal: " + testLoc.toVector().toString());
 			testLoc = new Location(activatorSE.getWorld(), activatorSE.getX(), activatorSE.getY(), activatorSE.getZ()+1);
 			if ( ! testLoc.getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
-				logger.fine("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
-				logger.fine("Portal is missing a South wall.");
+				logger.log(logLevel, "Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
+				logger.log(logLevel, "Portal is missing a South wall.");
 				return null;
 			}
 			wallSE.add(testLoc.getBlock());
 			yaw = 90F; //West
 		} else {
-			logger.fine("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
+			logger.log(logLevel, "Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 		}
 
 		//East/West oriented portal
 		//West of activatorNW
 		testLoc = new Location(activatorNW.getWorld(), activatorNW.getX()-1, activatorNW.getY(), activatorNW.getZ());
-		logger.fine("NW activator at: " + activatorNW.toVector().toString());
-		logger.fine("Look for portal: " + testLoc.toVector().toString());
+		logger.log(logLevel, "NW activator at: " + activatorNW.toVector().toString());
+		logger.log(logLevel, "Look for portal: " + testLoc.toVector().toString());
 
 		if (testLoc.getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
 			wallNW.add(testLoc.getBlock());
 			//East of activatorSE
 			testLoc = new Location(activatorSE.getWorld(), activatorSE.getX()+1, activatorSE.getY(), activatorSE.getZ());
-			logger.fine("SE activator at: " + activatorSE.toVector().toString());
-			logger.fine("Look for portal: " + testLoc.toVector().toString());
+			logger.log(logLevel, "SE activator at: " + activatorSE.toVector().toString());
+			logger.log(logLevel, "Look for portal: " + testLoc.toVector().toString());
 			if ( ! testLoc.getBlock().getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
-				logger.fine("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
-				logger.fine("Portal is missing an East wall.");
+				logger.log(logLevel, "Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
+				logger.log(logLevel, "Portal is missing an East wall.");
 				return null;
 			}
 			wallSE.add(testLoc.getBlock());
 			yaw = 180F; //North
 		} else {
-			logger.fine("Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
+			logger.log(logLevel, "Block at " + testLoc.toVector().toString() + ": " + testLoc.getBlock().getType().name());
 		}
 		if (wallSE.size() + wallNW.size() < 2) {
-			logger.fine("Portal is missing a North/West wall.");
+			logger.log(logLevel, "Portal is missing a North/West wall.");
 			return null;
 		}
 
-		logger.fine("Portal walls adjacent to activation blocks found. Continuing.");
+		logger.log(logLevel, "Portal walls adjacent to activation blocks found. Continuing.");
 		//Find top of North/West wall
 		Block nextBlock = wallNW.get(0).getLocation().add(new Vector(0,1,0)).getBlock();
 		while (nextBlock.getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
 			wallNW.add(nextBlock);
 			nextBlock = nextBlock.getLocation().add(new Vector(0,1,0)).getBlock();
 		}
-		logger.fine("North/West wall height: " + wallNW.size());
+		logger.log(logLevel, "North/West wall height: " + wallNW.size());
 
 		//Find top of South/East wall
 		nextBlock = wallSE.get(0).getLocation().add(new Vector(0,1,0)).getBlock();
@@ -339,10 +342,10 @@ class PortalHandler {
 			wallSE.add(nextBlock);
 			nextBlock = nextBlock.getLocation().add(new Vector(0,1,0)).getBlock();
 		}
-		logger.fine("South/East wall height: " + wallSE.size());
+		logger.log(logLevel, "South/East wall height: " + wallSE.size());
 		
 		int portalHeight = java.lang.Math.min(wallNW.size(), wallSE.size());
-		logger.fine("Initial portal height: " + portalHeight);
+		logger.log(logLevel, "Initial portal height: " + portalHeight);
 		Block portalTopBlock;
 		Block currentActivatorBlock;
 		actIter = activatorBlocks.iterator();
@@ -351,20 +354,20 @@ class PortalHandler {
 		currentActivatorBlock = activatorBlocks.get(0);
 		for (int i=portalHeight; i>=2; i--) {
 			portalTopBlock = new Location(currentActivatorBlock.getWorld(), currentActivatorBlock.getX(), currentActivatorBlock.getY() + i, currentActivatorBlock.getZ()).getBlock();
-			logger.fine("Height test: " + i + " Material: " + portalTopBlock.getType().name());
-			logger.fine("Test at: " + portalTopBlock.getLocation().toVector().toString());
+			logger.log(logLevel, "Height test: " + i + " Material: " + portalTopBlock.getType().name());
+			logger.log(logLevel, "Test at: " + portalTopBlock.getLocation().toVector().toString());
 			if (portalTopBlock.getType().name().equals(Material.getMaterial(frameMaterialName).name())) {
 				portalHeight = i;
-				logger.fine("Portal height adjusted to: " + portalHeight);
+				logger.log(logLevel, "Portal height adjusted to: " + portalHeight);
 			}
 		}
 
 		//Portal must be at least 2m tall
 		if (portalHeight < 2) {
-			logger.fine("Portal walls are not tall enough.");
+			logger.log(logLevel, "Portal walls are not tall enough.");
 			return null;
 		}
-		logger.fine("Portal walls found and are tall enough. Continuing.");
+		logger.log(logLevel, "Portal walls found and are tall enough. Continuing.");
 		
 		//Store portal walls now that portal height is confirmed
 		Iterator<Block> NWIter = wallNW.iterator();
@@ -478,7 +481,7 @@ class PortalHandler {
 //		while (portalsIterator.hasNext()) {
 //			Portal portal = portalsIterator.next();
 			if (portal.isInPortal(loc)) {
-				logger.fine(entity.getName() + " is in portal number " + portal.getID());
+				logger.log(logLevel, entity.getName() + " is in portal number " + portal.getID());
 				return portal.getDestination(entity, loc);
 			}
 		}
@@ -489,7 +492,7 @@ class PortalHandler {
 //		logger.info("Checking location: " + loc.toVector().toString());
 		for (Portal portal : portals) {
 			if (portal.isInFrame(loc)) {
-				logger.fine("Frame location belongs to portal " + portal.getID());
+				logger.log(logLevel, "Frame location belongs to portal " + portal.getID());
 				return portal;
 			}
 		}
@@ -500,7 +503,7 @@ class PortalHandler {
 //		logger.info("Checking location: " + loc.toVector().toString());
 		for (Portal portal : portals) {
 			if (portal.isInActivators(loc)) {
-				logger.fine("Activator location belongs to portal " + portal.getID());
+				logger.log(logLevel, "Activator location belongs to portal " + portal.getID());
 				return portal;
 			}
 		}
