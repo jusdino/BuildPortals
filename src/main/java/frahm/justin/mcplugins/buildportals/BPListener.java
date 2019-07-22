@@ -59,7 +59,7 @@ public class BPListener implements Listener{
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		Entity vehicle = player.getVehicle();
-        logger.log(Level.SEVERE, "Player move: " + player.getDisplayName());
+        logger.log(logLevel, "Player move: " + player.getDisplayName());
 		System.out.println("Player move event (System.out)");
 		if (vehicle != null) {
 		    if (vehicle instanceof AbstractHorse || vehicle instanceof Pig) {
