@@ -128,7 +128,6 @@ public class BPListener implements Listener{
 	}
 
 	private void onBlockEvent(String name) {
-		logger.log(logLevel, "BlockEvent " + name);
 		// TODO: Load this config into memory once, then look up there.
 		String frameMaterialName = BuildPortals.frameMaterialName;
 		ArrayList<String> activatorMaterialNames = BuildPortals.activatorMaterialNames;
