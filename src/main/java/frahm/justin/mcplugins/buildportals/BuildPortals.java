@@ -218,6 +218,10 @@ public class BuildPortals extends JavaPlugin {
 					if (sender.hasPermission("buildportals.*")) {
 						config.set("debug", config.getBoolean("debug"));
 						sender.sendMessage("Debug: " + config.getBoolean("debug"));
+						return true;
+					} else {
+						sender.sendMessage("You do not have permission to use this command.");
+						return true;
 					}
 				default:
 					sender.sendMessage("BuildPortals command usage:");
