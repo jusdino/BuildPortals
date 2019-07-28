@@ -216,7 +216,12 @@ public class BuildPortals extends JavaPlugin {
 					}
 				case "debug":
 					if (sender.hasPermission("buildportals.*")) {
-						config.set("debug", config.getBoolean("debug"));
+						boolean debug = false;
+						try {
+							debug = args[1].toUpperCase().equals("TRUE");
+						} catch (NullPointerException | ArrayIndexOutOfBoundsException ignored) {}
+						config.set("debug", debug);
+						this.saveConfig();
 						sender.sendMessage("Debug: " + config.getBoolean("debug"));
 						return true;
 					} else {
