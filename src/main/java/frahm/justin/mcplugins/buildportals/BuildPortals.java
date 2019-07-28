@@ -14,9 +14,12 @@ import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin {
+public class BuildPortals extends JavaPlugin {
     // Hacky way to turn on DEBUG for plugin only
     static Level logLevel;
+
+    static String frameMaterialName;
+    static ArrayList<String> activatorMaterialNames;
 
 	private static PortalHandler portals;
 	private static FileConfiguration config;
@@ -48,6 +51,12 @@ public class Main extends JavaPlugin {
 			logLevel = Level.INFO;
 			logger.log(logLevel, "Debug logs on");
 		}
+
+		frameMaterialName = config.getString("PortalMaterial");
+		logger.log(logLevel, "Portal frame material set to " + frameMaterialName);
+		activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
+		logger.log(logLevel, "Portal activators set to " + activatorMaterialNames);
+
         portals = new PortalHandler(this);
         getServer().getPluginManager().registerEvents(new BPListener(this, portals), this);
 		PortalHandler.updatePortals();

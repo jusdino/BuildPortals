@@ -23,7 +23,7 @@ import org.bukkit.util.Vector;
 
 class PortalHandler {
 
-	private static Main plugin;
+	private static BuildPortals plugin;
 	private static Logger logger;
 	private static Level logLevel;
 	private static FileConfiguration config;
@@ -42,11 +42,11 @@ class PortalHandler {
 	 */
 	private static HashSet<Portal> portals;
 
-	PortalHandler(Main plugin) {
+	PortalHandler(BuildPortals plugin) {
 		/* Constructor, pass a handle to the plugin for configuration reading. */
 		PortalHandler.plugin = plugin;
 		logger = plugin.getLogger();
-		logLevel = Main.logLevel;
+		logLevel = BuildPortals.logLevel;
 		config = plugin.getConfig();
 
 	}
@@ -535,7 +535,7 @@ class Portal {
 	private String identifier;
 	private static final Vector blockCenterOffset = new Vector(0.5, 0, 0.5);
 
-	Portal (Main plugin, String identifier, World aWorld, ArrayList<Vector> vectorsA, ArrayList<Vector> frameVecsA, ArrayList<Vector> activatorVecsA, Float yawA, World bWorld, ArrayList<Vector> vectorsB, ArrayList<Vector> frameVecsB, Float yawB) {
+	Portal (BuildPortals plugin, String identifier, World aWorld, ArrayList<Vector> vectorsA, ArrayList<Vector> frameVecsA, ArrayList<Vector> activatorVecsA, Float yawA, World bWorld, ArrayList<Vector> vectorsB, ArrayList<Vector> frameVecsB, Float yawB) {
 		/*
 		 * Constructor for a portal object, which includes a collection of
 		 * vectors representing sides A and B of the portals as well as which
@@ -893,11 +893,11 @@ class Portal {
 }
 
 class PortalFactory {
-	static Portal loadFromConfig(Main plugin, String portalNumber) {
+	static Portal loadFromConfig(BuildPortals plugin, String portalNumber) {
 		Logger logger = plugin.getLogger();
 		FileConfiguration config = plugin.getConfig();
 
-		ArrayList<String> activators = (ArrayList<String>) config.getStringList("PortalActivators");
+		ArrayList<String> activators = BuildPortals.activatorMaterialNames;
 		World worldA;
 		ArrayList<String> vectorStringsA;
 		ArrayList<String> frameStringsA;

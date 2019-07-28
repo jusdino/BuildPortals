@@ -36,9 +36,9 @@ class Teleporter {
 	private static Logger logger;
 	private static Level logLevel;
 
-	Teleporter(Main plugin) {
+	Teleporter(BuildPortals plugin) {
 		logger = plugin.getLogger();
-		logLevel = Main.logLevel;
+		logLevel = BuildPortals.logLevel;
 	}
 	
 	Entity teleport(Entity entity, Location destination) {
@@ -184,14 +184,12 @@ class Teleporter {
 		destVehicle.setVelocity(destVec);
 		destVehicle.setCustomName(vehicle.getCustomName());
 		destVehicle.setGlowing(vehicle.isGlowing());
-/*		int cooldown;
-		cooldown = 200;
-		destVehicle.setPortalCooldown(cooldown); */
 
 		return destVehicle;
 	}
 
 	private Player teleport(Player player, Location destination) {
+		logger.log(logLevel, "Entering teleport(Player, ...) method");
 		player.teleport(destination);
 		return player;
 	}

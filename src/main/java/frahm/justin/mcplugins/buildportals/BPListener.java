@@ -31,7 +31,7 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class BPListener implements Listener{
-	private static Main plugin;
+	private static BuildPortals plugin;
 	private static Logger logger;
 	private static Level logLevel;
 	private static PortalHandler portals;
@@ -39,11 +39,11 @@ public class BPListener implements Listener{
 	private static FileConfiguration config;
 	private static HashSet<Entity> alreadyOnPortal = new HashSet<>();
 	
-	BPListener(Main plugin, PortalHandler portals) {
+	BPListener(BuildPortals plugin, PortalHandler portals) {
 		BPListener.plugin = plugin;
 		BPListener.portals = portals;
 		logger = plugin.getLogger();
-		logLevel = Main.logLevel;
+		logLevel = BuildPortals.logLevel;
 		teleporter = new Teleporter(plugin);
 		config = plugin.getConfig();
 	}
@@ -128,8 +128,10 @@ public class BPListener implements Listener{
 	}
 
 	private void onBlockEvent(String name) {
-		String frameMaterialName = config.getString("PortalMaterial");
-		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
+		logger.log(logLevel, "BlockEvent " + name);
+		// TODO: Load this config into memory once, then look up there.
+		String frameMaterialName = BuildPortals.frameMaterialName;
+		ArrayList<String> activatorMaterialNames = BuildPortals.activatorMaterialNames;
 		if (! (name.equals(frameMaterialName) || activatorMaterialNames.contains(name))) {
 			return;
 		}
@@ -155,7 +157,7 @@ public class BPListener implements Listener{
 
 		//Get relevant info about event
 		Block block = event.getBlockPlaced();
-		if (!config.getStringList("PortalActivators").contains(block.getType().name())) {
+		if (!BuildPortals.activatorMaterialNames.contains(block.getType().name())) {
 			return;
 		}
 
