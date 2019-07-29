@@ -63,10 +63,8 @@ public class BuildPortals extends JavaPlugin {
 	}
 
 	@Override
-	public void onDisable() {
-		
-	}
-	
+	public void onDisable() {}
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("buildportals") || cmd.getName().equalsIgnoreCase("bp")) {

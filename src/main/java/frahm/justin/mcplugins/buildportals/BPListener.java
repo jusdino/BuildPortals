@@ -38,7 +38,7 @@ public class BPListener implements Listener{
 	private static Teleporter teleporter;
 	private static FileConfiguration config;
 	private static HashSet<Entity> alreadyOnPortal = new HashSet<>();
-	
+
 	BPListener(BuildPortals plugin, PortalHandler portals) {
 		BPListener.plugin = plugin;
 		BPListener.portals = portals;
@@ -54,7 +54,7 @@ public class BPListener implements Listener{
         logger.log(logLevel, "Vehicle move: " + vehicle.toString());
 		vehicleMove(vehicle);
 	}
-	
+
 	@EventHandler (ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
@@ -110,11 +110,17 @@ public class BPListener implements Listener{
         if (null == destination){
             return;
         }
-        Entity entity = teleporter.teleport(vehicle, destination);
-        if (entity != null) {
-            alreadyOnPortal.add(entity);
-            alreadyOnPortal.addAll(passengers);
-        }
+
+        new BukkitRunnable() {
+        	@Override
+			public void run() {
+				Entity entity = teleporter.teleport(vehicle, destination);
+				if (entity != null) {
+					alreadyOnPortal.add(entity);
+					alreadyOnPortal.addAll(passengers);
+				}
+			}
+		}.runTaskLater(BPListener.plugin, 1);
     }
 
 	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -143,7 +149,7 @@ public class BPListener implements Listener{
 			}
 		}.runTaskLater(BPListener.plugin, 1);
 	}
-	
+
 	@EventHandler (ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) throws InvalidConfigurationException {
 		/*With every BlockPlaceEvent, register the location, if there is
@@ -167,12 +173,12 @@ public class BPListener implements Listener{
 		ArrayList<String> activatorVecs = new ArrayList<>();
 		ArrayList<String> vectors = new ArrayList<>();
 		Float yaw = portals.getCompletePortalVectors(block, frameVecs, activatorVecs, vectors);
-		
+
 		if (null == yaw) {
 			return;
 		}
 		logger.log(logLevel, "Block completes a portal");
-		
+
 		Player player;
 		player = event.getPlayer();
 		if (!player.hasPermission("buildportals.activate")) {
@@ -180,11 +186,11 @@ public class BPListener implements Listener{
 			return;
 		}
 		logger.log(logLevel, "Player " + player.getDisplayName() + " has appropriate permissions");
-		
+
 		boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<>();
 		logger.log(logLevel, "This is an unlinked portal");
-		
+
 		if (unlinkedPortal) {
 			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".vec");
 			ArrayList<String> frameVecsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".frame");
@@ -214,7 +220,7 @@ public class BPListener implements Listener{
 			config.set("portals.0." + block.getType().name() + ".yaw", null);
 			config.createSection("portals." + Integer.toString(i), newPortal);
 			config.set("portals." + Integer.toString(i) + ".active", true);
-			
+
 			// Convert portal interiors to air
 			Location portalLoc = null;
 			Iterator<String> locIter = vectors.iterator();
@@ -246,7 +252,7 @@ public class BPListener implements Listener{
 			newPortal.put("yaw", yaw.toString());
 			config.createSection("portals.0." + block.getType().name(), newPortal);
 			config.set("portals.0." + block.getType().name() + ".active", true);
-			
+
 			//Make a visible particle effect
 			Location particleLoc;
 			int spread;
