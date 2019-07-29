@@ -18,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
@@ -30,37 +31,38 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class BPListener implements Listener{
+	private static BuildPortals plugin;
 	private static Logger logger;
-	private static Level DEBUG_LEVEL;
-	private static Main plugin;
+	private static Level logLevel;
 	private static PortalHandler portals;
 	private static Teleporter teleporter;
 	private static FileConfiguration config;
 	private static HashSet<Entity> alreadyOnPortal = new HashSet<>();
-	
-	public BPListener(Main plugin, PortalHandler portals) {
+
+	BPListener(BuildPortals plugin, PortalHandler portals) {
 		BPListener.plugin = plugin;
 		BPListener.portals = portals;
-		BPListener.logger = plugin.getLogger();
-		BPListener.teleporter = new Teleporter();
-		BPListener.config = plugin.getConfig();
+		logger = plugin.getLogger();
+		logLevel = BuildPortals.logLevel;
+		teleporter = new Teleporter(plugin);
+		config = plugin.getConfig();
 	}
 
 	@EventHandler (ignoreCancelled = true)
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
-        logger.fine("Vehicle move: " + vehicle.toString());
+        logger.log(logLevel, "Vehicle move: " + vehicle.toString());
 		vehicleMove(vehicle);
 	}
-	
+
 	@EventHandler (ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		Entity vehicle = player.getVehicle();
-        logger.fine("Player move: " + player.getDisplayName());
+        logger.log(logLevel, "Player move: " + player.getDisplayName());
 		if (vehicle != null) {
 		    if (vehicle instanceof AbstractHorse || vehicle instanceof Pig) {
-                logger.fine("On horse: " + player.getDisplayName());
+                logger.log(logLevel, "On horse: " + player.getDisplayName());
                 vehicleMove((Vehicle)vehicle);
             }
 			return;
@@ -108,11 +110,17 @@ public class BPListener implements Listener{
         if (null == destination){
             return;
         }
-        Entity entity = teleporter.teleport(vehicle, destination);
-        if (entity != null) {
-            alreadyOnPortal.add(entity);
-            alreadyOnPortal.addAll(passengers);
-        }
+
+        new BukkitRunnable() {
+        	@Override
+			public void run() {
+				Entity entity = teleporter.teleport(vehicle, destination);
+				if (entity != null) {
+					alreadyOnPortal.add(entity);
+					alreadyOnPortal.addAll(passengers);
+				}
+			}
+		}.runTaskLater(BPListener.plugin, 1);
     }
 
 	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -126,13 +134,14 @@ public class BPListener implements Listener{
 	}
 
 	private void onBlockEvent(String name) {
-		String frameMaterialName = config.getString("PortalMaterial");
-		ArrayList<String> activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
+		// TODO: Load this config into memory once, then look up there.
+		String frameMaterialName = BuildPortals.frameMaterialName;
+		ArrayList<String> activatorMaterialNames = BuildPortals.activatorMaterialNames;
 		if (! (name.equals(frameMaterialName) || activatorMaterialNames.contains(name))) {
 			return;
 		}
 
-		logger.fine("onBlockEvent event affecting portal / activator materials");
+		logger.log(logLevel, "onBlockEvent event affecting portal / activator materials");
 		new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -140,7 +149,7 @@ public class BPListener implements Listener{
 			}
 		}.runTaskLater(BPListener.plugin, 1);
 	}
-	
+
 	@EventHandler (ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) throws InvalidConfigurationException {
 		/*With every BlockPlaceEvent, register the location, if there is
@@ -149,43 +158,47 @@ public class BPListener implements Listener{
 		 *This is just warming up for the best type of configuration
 		 *management necessary for the plugin
 		 */
-		logger.fine("Block place event registered");
+		logger.log(logLevel, "Block place event registered");
 
 		//Get relevant info about event
 		Block block = event.getBlockPlaced();
-		if (!config.getStringList("PortalActivators").contains(block.getType().name())) {
+		if (!BuildPortals.activatorMaterialNames.contains(block.getType().name())) {
 			return;
 		}
 
-		logger.fine("Block is a portal activator");
+		logger.log(logLevel, "Block is a portal activator");
 		World world = block.getWorld();
 		//Get vectors to actual portal blocks from handler
 		ArrayList<String> frameVecs = new ArrayList<>();
 		ArrayList<String> activatorVecs = new ArrayList<>();
 		ArrayList<String> vectors = new ArrayList<>();
 		Float yaw = portals.getCompletePortalVectors(block, frameVecs, activatorVecs, vectors);
-		
+
 		if (null == yaw) {
 			return;
 		}
-		logger.fine("Block completes a portal");
-		
+		logger.log(logLevel, "Block completes a portal");
+
 		Player player;
 		player = event.getPlayer();
 		if (!player.hasPermission("buildportals.activate")) {
 			player.sendMessage("You do not have permission to activate portals!");
 			return;
 		}
-		logger.fine("Player " + player.getDisplayName() + " has appropriate permissions");
-		
+		logger.log(logLevel, "Player " + player.getDisplayName() + " has appropriate permissions");
+
 		boolean unlinkedPortal = config.getBoolean("portals.0." + block.getType().name() + ".active");
 		Map<String, Object> newPortal = new HashMap<>();
-		logger.fine("This is an unlinked portal");
-		
+		logger.log(logLevel, "This is an unlinked portal");
+
 		if (unlinkedPortal) {
 			ArrayList<String> vectorsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".vec");
 			ArrayList<String> frameVecsA = (ArrayList<String>) config.getStringList("portals.0." + block.getType().name() + ".frame");
-			Set<String> portalKeys = config.getConfigurationSection("portals").getKeys(false);
+			ConfigurationSection portalsSection = config.getConfigurationSection("portals");
+			if ( portalsSection == null ) {
+				return;
+			}
+			Set<String> portalKeys = portalsSection.getKeys(false);
 			int i = 1;
 			while (portalKeys.contains(Integer.toString(i))) {
 				i+=1;
@@ -207,8 +220,8 @@ public class BPListener implements Listener{
 			config.set("portals.0." + block.getType().name() + ".yaw", null);
 			config.createSection("portals." + Integer.toString(i), newPortal);
 			config.set("portals." + Integer.toString(i) + ".active", true);
-			
-			//Convert portal interiors to air
+
+			// Convert portal interiors to air
 			Location portalLoc = null;
 			Iterator<String> locIter = vectors.iterator();
 			while (locIter.hasNext()) {
@@ -239,7 +252,7 @@ public class BPListener implements Listener{
 			newPortal.put("yaw", yaw.toString());
 			config.createSection("portals.0." + block.getType().name(), newPortal);
 			config.set("portals.0." + block.getType().name() + ".active", true);
-			
+
 			//Make a visible particle effect
 			Location particleLoc;
 			int spread;
