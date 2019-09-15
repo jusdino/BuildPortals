@@ -1,10 +1,6 @@
 # BuildPortals
 Bukkit/Spigot server plugin to allow players to build their own inter-world portals without the use of commands. These portals support teleporting players on horses as well as minecarts.
 
-## August 23, 2018: Updates in progress!
-* Boat teleporting in progress!
-* Update for 1.13 in progress!
-
 ## Status:
 
 This project is at bukkit.org / curse at:
