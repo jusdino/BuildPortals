@@ -119,20 +119,6 @@ class PortalHandler {
 		return portalBlocks.get(loc.getWorld().getName()).contains(loc.toVector());
 	}
 
-//	public boolean isInAFrame(Location loc) {
-//	/*
-//	 * Tests a given (floored) location to see if it is in the boundaries of any
-//	 * configured portal frames.
-//	 */
-//		if (!frameBlocks.containsKey(loc.getWorld().getName())){
-////			logger.info("No portals in world: " + loc.getWorld().getName());
-////			logger.info("Worlds are: " + frameBlocks.toString());
-//			return false;
-//		}
-////		logger.info("isInAFrame: " + frameBlocks.toString());
-//		return frameBlocks.get(loc.getWorld().getName()).contains(loc.toVector());
-//	}
-
 	Float getCompletePortalVectors(Block block, ArrayList<String> frameVecs, ArrayList<String> activatorVecs, ArrayList<String> vectors) throws InvalidConfigurationException {
 		/*
 		 * Tests whether a given block is part of a COMPLETE portal. This includes
@@ -245,17 +231,13 @@ class PortalHandler {
 		actIter = activatorBlocks.iterator();
 		int southMost;
 		int eastMost;
-		
-		//Eclipse doesn't like enclosing this in an if (.hasNext()) {} block
+
 		if ( ! actIter.hasNext()) {
 			throw new InvalidConfigurationException("Invalid portal data!");
 		}
-//		if (actIter.hasNext()) {
 		activatorBlock = actIter.next();
 		southMost = activatorBlock.getLocation().getBlockZ();
 		eastMost = activatorBlock.getLocation().getBlockX();
-//		}
-//		} finally {}
 		
 		while (actIter.hasNext()) {
 			activatorBlock = actIter.next();
@@ -420,31 +402,20 @@ class PortalHandler {
 		portalBlocks = new HashMap<>();
 		frameBlocks = new HashMap<>();
 		activatorBlocks = new HashMap<>();
-		Material mat = null;
-		try {
-			mat = Material.getMaterial(config.getString("PortalMaterial"));
-		} finally {
-			if (mat == null) {
-				logger.warning("Could not read configured portal material! Aborting portal update.");
-				return;
-			}
+		Material mat;
+		mat = Material.getMaterial(config.getString("PortalMaterial"));
+		if (mat == null) {
+			logger.warning("Could not read configured portal material! Aborting portal update.");
+			return;
 		}
 		
 		FileConfiguration config = plugin.getConfig();
-		if (null == config) {
-//			logger.info("No configurations set!");
-			return;
-		}
 		ConfigurationSection portalSection = config.getConfigurationSection("portals");
 		if (null == portalSection) {
 //			logger.info("No portals data in configurations.");
 			return;
 		}
 		Set<String> portalKeys = portalSection.getKeys(false);
-		if (null == portalKeys) {
-			logger.info("No portals defined in portals data.");
-			return;
-		}
 
 //		portalKeys.remove("0");
 		// Read vector string describing each portal, ends A and B

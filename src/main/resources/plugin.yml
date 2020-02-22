@@ -4,6 +4,7 @@ version: 1.19.67
 softdepend:
   - Multiverse-Core
   - Multiworld
+  - MultiverseReloaded
 commands:
   buildportals:
     description: All commands for the BuildPortals plugin.

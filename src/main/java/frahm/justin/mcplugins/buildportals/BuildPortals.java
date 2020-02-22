@@ -106,13 +106,12 @@ public class BuildPortals extends JavaPlugin {
 						mat = Material.getMaterial(args[1].toUpperCase());
 					} catch (NullPointerException | ArrayIndexOutOfBoundsException exc) {
 						sender.sendMessage("You must specify a material.");
-					} finally {
-						if (mat == null) {
-							sender.sendMessage("Material name invalid.");
-							sender.sendMessage("Setting portal material failed.");
-							logger.warning("Setting portal material failed.");
-							return false;
-						}
+					}
+					if (mat == null) {
+						sender.sendMessage("Material name invalid.");
+						sender.sendMessage("Setting portal material failed.");
+						logger.warning("Setting portal material failed.");
+						return false;
 					}
 					if (!mat.isBlock()) {
 						sender.sendMessage("Material must be a placeable block type.");
@@ -149,13 +148,12 @@ public class BuildPortals extends JavaPlugin {
 						mat = Material.getMaterial(args[1].toUpperCase());
 					} catch (NullPointerException | ArrayIndexOutOfBoundsException exc) {
 						sender.sendMessage("You must specify a material.");
-					} finally {
-						if (mat == null) {
-							sender.sendMessage("Material name invalid.");
-							sender.sendMessage("Adding activator material failed.");
-							logger.warning("Adding activator material failed.");
-							return false;
-						}
+					}
+					if (mat == null) {
+						sender.sendMessage("Material name invalid.");
+						sender.sendMessage("Adding activator material failed.");
+						logger.warning("Adding activator material failed.");
+						return false;
 					}
 					if (!mat.isBlock()) {
 						sender.sendMessage("Material must be a placeable block type.");
@@ -185,12 +183,11 @@ public class BuildPortals extends JavaPlugin {
 						matName = args[1].toUpperCase();
 					} catch (NullPointerException | ArrayIndexOutOfBoundsException exc) {
 						sender.sendMessage("You must specify a material.");
-					} finally {
-						if (matName == null) {
-							sender.sendMessage("Removing activator material failed.");
-							logger.warning("Removing activator material failed.");
-							return false;
-						}
+					}
+					if (matName == null) {
+						sender.sendMessage("Removing activator material failed.");
+						logger.warning("Removing activator material failed.");
+						return false;
 					}
 					if (!activators.contains(matName)) {
 						sender.sendMessage("That is not an activator material.");
