@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>frahm.justin.mcplugins</groupId>
   <artifactId>BuildPortals</artifactId>
-  <version>1.20.68</version>
+  <version>1.21.69</version>
   <name>BuildPortals</name>
   <repositories>
     <repository>
@@ -16,23 +16,13 @@
   		<artifactId>spigot-api</artifactId>
   		<scope>provided</scope>
   	</dependency>
-  	<dependency>
-  		<groupId>org.bukkit</groupId>
-  		<artifactId>bukkit</artifactId>
-  		<scope>provided</scope>
-  	</dependency>
   </dependencies>
   <dependencyManagement>
   	<dependencies>
   		<dependency>
-  			<groupId>org.bukkit</groupId>
-  			<artifactId>bukkit</artifactId>
-  			<version>1.15.2-R0.1-SNAPSHOT</version>
-  		</dependency>
-  		<dependency>
   			<groupId>org.spigotmc</groupId>
   			<artifactId>spigot-api</artifactId>
-  			<version>1.15.2-R0.1-SNAPSHOT</version>
+  			<version>1.16.3-R0.1-SNAPSHOT</version>
   		</dependency>
   	</dependencies>
   </dependencyManagement>
