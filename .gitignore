@@ -4,4 +4,5 @@ bin/
 .settings
 .classpath
 .idea
+.vscode
 *.iml
