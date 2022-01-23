@@ -170,7 +170,9 @@ public class Portal {
             return;
         }
         Location destination = this.getDestination(entity, entity.getLocation());
-        Teleporter.teleport(entity, destination);
+        if (destination != null) {
+            Teleporter.teleport(entity, destination);
+        }
     }
 
     private boolean integrityCheck() {
@@ -223,7 +225,22 @@ public class Portal {
             loc.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, loc, 1);
         }
         BuildPortals.logger.info("Clearing portal number " + this.identifier);
+        // Remove this portal from the static set
+        portals.remove(this);
+
+        // Remove the frame vectors from the static set
+        HashSet<Vector> frameVecs = portalBlocks.get(aWorld.getName());
+        for (Vector destroyedVec: frameVecsA) {
+            frameVecs.remove(destroyedVec);
+        }
+        frameVecs = portalBlocks.get(bWorld.getName());
+        for (Vector destroyedVec: frameVecsB) {
+            frameVecs.remove(destroyedVec);
+        }
+
+        // Clear the config entry and save
         BuildPortals.config.set("portals." + this.identifier, null);
+        BuildPortals.plugin.saveConfig();
     }
 
     public static Portal loadFromConfig(String portalNumber) {
@@ -422,9 +439,10 @@ public class Portal {
          *
          * Returns Null if the location is not actually in the portal.
          */
+        Vector flooredSourceVec = new Vector(sourceLoc.getBlockX(), sourceLoc.getBlockY(), sourceLoc.getBlockZ());
         Vector sourceVec = new Vector(sourceLoc.getX(), sourceLoc.getY(), sourceLoc.getZ());
 
-        //Move source to center of block
+        // Move source to center of block
         sourceVec.add(blockCenterOffset);
         Iterator<Vector> sourceIter;
         Float sourceYaw;
@@ -433,17 +451,17 @@ public class Portal {
         World destWorld;
         Float destYaw;
 
-        //Define source and destination vectors
-        //If source is in portal A
-        if (sourceLoc.getWorld() == aWorld && vectorsA.contains(sourceLoc.toVector())) {
+        // Define source and destination vectors
+        // If source is in portal A
+        if (sourceLoc.getWorld() == aWorld && vectorsA.contains(flooredSourceVec)) {
             sourceIter = vectorsA.iterator();
             sourceYaw = yawA;
             destVectors = vectorsB;
             destIter = vectorsB.iterator();
             destWorld = bWorld;
             destYaw = yawB;
-            //If source is in portal B
-        } else if (sourceLoc.getWorld() == bWorld && vectorsB.contains(sourceLoc.toVector())) {
+            // If source is in portal B
+        } else if (sourceLoc.getWorld() == bWorld && vectorsB.contains(flooredSourceVec)) {
             sourceIter = vectorsB.iterator();
             sourceYaw = yawB;
             destVectors = vectorsA;
@@ -451,35 +469,36 @@ public class Portal {
             destWorld = aWorld;
             destYaw = yawA;
         } else {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Somehow, the source location is in neither portal side!");
             return null;
         }
         Vector forwardVec;
         Vector backwardVec;
-        //Define a unit vector in the destination Yaw direction
+        // Define a unit vector in the destination Yaw direction
         switch (destYaw.intValue()) {
-            //South
+            // South
             case 0:
                 forwardVec = new Vector(0, 0, 1);
                 backwardVec = new Vector(0, 0, -1);
                 break;
-            //West
+            // West
             case 90:
                 forwardVec = new Vector(-1, 0, 0);
                 backwardVec = new Vector(1, 0, 0);
                 break;
-            //North
+            // North
             case 180:
                 forwardVec = new Vector(0, 0, -1);
                 backwardVec = new Vector(0, 0, 1);
                 break;
-            //East
+            // East
             default:
                 forwardVec = new Vector(1, 0, 0);
                 backwardVec = new Vector(-1, 0, 0);
                 break;
         }
 
-        //Count non-solid blocks next to portal blocks
+        // Count non-solid blocks next to portal blocks
         Location portalLoc;
         Block forwardBlock;
         Block backwardBlock;
@@ -497,7 +516,7 @@ public class Portal {
             }
         }
         destIter = destVectors.iterator();
-        //If 'backwards' face has more non-solid blocks, turn the Yaw around.
+        // If 'backwards' face has more non-solid blocks, turn the Yaw around.
         if (backwardNonSolidCount > forwardNonSolidCount) {
             if (destYaw < 180F) {
                 destYaw += 360F;
@@ -518,7 +537,7 @@ public class Portal {
         sourceYmax = sourceYmin = vec.getBlockY();
         sourceZmax = sourceZmin = vec.getBlockZ();
 
-        //Get source portal extremes
+        // Get source portal extremes
         while (sourceIter.hasNext()) {
             vec = sourceIter.next();
 
@@ -554,7 +573,7 @@ public class Portal {
         destYmax = destYmin = vec.getBlockY();
         destZmax = destZmin = vec.getBlockZ();
 
-        //Get destination portal extremes
+        // Get destination portal extremes
         while (destIter.hasNext()) {
             vec = destIter.next();
 
@@ -657,11 +676,12 @@ public class Portal {
             sourceVec.setZ(sourceZwidth);
         }
 
-        //Bail if a portal is too small
+        // Bail if a portal is too small
         if (sourceHeight < 0 || sourceZwidth < 0 || sourceXwidth < 0 || destHeight < 0 || destZwidth < 0 || destXwidth < 0) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Portal is too small");
             return null;
         }
-        //Map location in source portal to location in dest portal
+        // Map location in source portal to location in dest portal
         Vector destVec = new Vector();
         if (sourceXwidth > 0) {
             destVec.setX(xMargin + (sourceVec.getX()/sourceXwidth) * destXwidth);

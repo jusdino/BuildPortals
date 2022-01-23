@@ -16,6 +16,7 @@ import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Pig;
@@ -93,7 +94,7 @@ public class PortalListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onBlockPlace(BlockPlaceEvent event) {
+    public void onBlockPlace(BlockPlaceEvent event) throws InvalidConfigurationException {
         /*With every BlockPlaceEvent, register the location, if there is
          * an 'unlinked' location stored already, pair that location with
          *the new location as a portal-pair.

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+
 import java.lang.Math;
 
 import org.bukkit.Location;
@@ -32,7 +35,7 @@ import org.bukkit.util.Vector;
 
 class Teleporter {
 
-    static Entity teleport(Entity entity, Location destination) {
+    static Entity teleport(Entity entity, @Nonnull Location destination) {
         // TODO: Should probably defer via BukkitRunnable here
         BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Entity, ...) method");
         destination.getChunk().load();
