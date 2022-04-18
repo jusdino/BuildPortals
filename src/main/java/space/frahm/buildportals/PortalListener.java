@@ -1,21 +1,11 @@
 package space.frahm.buildportals;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Entity;
@@ -56,7 +46,7 @@ public class PortalListener implements Listener {
             return;
         }
         Location loc = player.getLocation();
-        Portal portal = Portal.isInAPortal(player.getLocation());
+        Portal portal = Portal.getPortalFromLocation(player.getLocation());
         if (portal == null) {
             alreadyOnPortal.remove(player);
             return;
@@ -76,7 +66,7 @@ public class PortalListener implements Listener {
     private void vehicleMove(Vehicle vehicle) {
         List<Entity> passengers = vehicle.getPassengers();
         Location loc = vehicle.getLocation();
-        Portal portal = Portal.isInAPortal(loc);
+        Portal portal = Portal.getPortalFromLocation(loc);
         if (portal == null) {
             if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
                 alreadyOnPortal.remove(vehicle);
@@ -95,17 +85,13 @@ public class PortalListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) throws InvalidConfigurationException {
-        /*With every BlockPlaceEvent, register the location, if there is
+        /* TODO: Update this description
+         * With every BlockPlaceEvent, register the location, if there is
          * an 'unlinked' location stored already, pair that location with
-         *the new location as a portal-pair.
-         *This is just warming up for the best type of configuration
-         *management necessary for the plugin
+         * the new location as a portal-pair.
+         * This is just warming up for the best type of configuration
+         * management necessary for the plugin
          */
-        // TODO: Get all this portal logic out of the listener and into Portal
-        /* TODO: Don't use config as some awkward data pass-through for reinstantiating
-           portals. Instead instantiate a Portal directly, then save to config.
-         */
-        /* TODO: Clean up all the lengthy methods here, get some better code reuse in there. */
         BuildPortals.logger.log(BuildPortals.logLevel, "Block place event registered");
 
         // Get relevant info about event
@@ -114,19 +100,7 @@ public class PortalListener implements Listener {
             return;
         }
 
-        BuildPortals.logger.log(BuildPortals.logLevel, "Block is a portal activator");
-        World world = block.getWorld();
-        // Get vectors to actual portal blocks from handler
-        ArrayList<String> frameVecs = new ArrayList<>();
-        ArrayList<String> activatorVecs = new ArrayList<>();
-        ArrayList<String> vectors = new ArrayList<>();
-        Float yaw = Portal.getCompletePortalVectors(block, frameVecs, activatorVecs, vectors);
-
-        if (null == yaw) {
-            return;
-        }
-        BuildPortals.logger.log(BuildPortals.logLevel, "Block completes a portal");
-
+        BuildPortals.logger.log(BuildPortals.logLevel, "Detected placed block that is a portal activator");
         Player player;
         player = event.getPlayer();
         if (!player.hasPermission("buildportals.activate")) {
@@ -135,87 +109,18 @@ public class PortalListener implements Listener {
         }
         BuildPortals.logger.log(BuildPortals.logLevel, "Player " + player.getDisplayName() + " has appropriate permissions");
 
-        boolean unlinkedPortal = BuildPortals.config.getBoolean("portals.0." + block.getType().name() + ".active");
-        Map<String, Object> newPortal = new HashMap<>();
-        BuildPortals.logger.log(BuildPortals.logLevel, "This is an unlinked portal");
-
-        if (unlinkedPortal) {
-            ArrayList<String> vectorsA = (ArrayList<String>) BuildPortals.config.getStringList("portals.0." + block.getType().name() + ".vec");
-            ArrayList<String> frameVecsA = (ArrayList<String>) BuildPortals.config.getStringList("portals.0." + block.getType().name() + ".frame");
-            ConfigurationSection portalsSection = BuildPortals.config.getConfigurationSection("portals");
-            if ( portalsSection == null ) {
-                return;
-            }
-            Set<String> portalKeys = portalsSection.getKeys(false);
-            int i = 1;
-            while (portalKeys.contains(Integer.toString(i))) {
-                i+=1;
-            }
-            BuildPortals.logger.info("Saving new portal, number " + Integer.toString(i));
-            newPortal.put("A.world", BuildPortals.config.getString("portals.0." + block.getType().name() + ".world"));
-            newPortal.put("A.vec", vectorsA);
-            newPortal.put("A.frame", frameVecsA);
-            newPortal.put("A.yaw", BuildPortals.config.getString("portals.0." + block.getType().name() + ".yaw"));
-            newPortal.put("B.world", world.getName());
-            newPortal.put("B.vec", vectors);
-            newPortal.put("B.frame", frameVecs);
-            newPortal.put("B.yaw", yaw.toString());
-            BuildPortals.config.set("portals.0." + block.getType().name() + ".active", false);
-            BuildPortals.config.set("portals.0." + block.getType().name() + ".world", null);
-            BuildPortals.config.set("portals.0." + block.getType().name() + ".vec", null);
-            BuildPortals.config.set("portals.0." + block.getType().name() + ".frame", null);
-            BuildPortals.config.set("portals.0." + block.getType().name() + ".activators", null);
-            BuildPortals.config.set("portals.0." + block.getType().name() + ".yaw", null);
-            BuildPortals.config.createSection("portals." + Integer.toString(i), newPortal);
-            BuildPortals.config.set("portals." + Integer.toString(i) + ".active", true);
-
-            // Convert portal interiors to air
-            Location portalLoc = null;
-            for (String locs : vectors) {
-                String[] locStr = locs.split(",");
-                portalLoc = new Location(block.getWorld(), Double.parseDouble(locStr[0]), Double.parseDouble(locStr[1]), Double.parseDouble(locStr[2]));
-                portalLoc.getBlock().setType(Material.AIR);
-            }
-            if (null != portalLoc) {
-                portalLoc.getWorld().strikeLightningEffect(portalLoc);
-            }
-            for (String locs : vectorsA) {
-                String[] locStr = locs.split(",");
-                portalLoc = new Location(Bukkit.getWorld((String) newPortal.get("A.world")), Double.parseDouble(locStr[0]), Double.parseDouble(locStr[1]), Double.parseDouble(locStr[2]));
-                portalLoc.getBlock().setType(Material.AIR);
-            }
-            if (null != portalLoc) {
-                portalLoc.getWorld().strikeLightningEffect(portalLoc);
-            }
-        } else {
-            // Save unlinked portal location
-            BuildPortals.logger.info("Collecting unlinked portal data...");
-            newPortal.put("world", block.getWorld().getName());
-            newPortal.put("vec", vectors);
-            newPortal.put("frame", frameVecs);
-            newPortal.put("activators", activatorVecs);
-            newPortal.put("yaw", yaw.toString());
-            BuildPortals.config.createSection("portals.0." + block.getType().name(), newPortal);
-            BuildPortals.config.set("portals.0." + block.getType().name() + ".active", true);
-
-            // Make a visible particle effect
-            Location particleLoc;
-            int spread;
-            int count;
-            Random rand = new Random();
-            spread = vectors.size();
-            count = vectors.size()*100;
-            if (count > 500) {
-                count = 500;
-            }
-
-            for (int j=0; j<count; j++) {
-                particleLoc = new Location(block.getWorld(), block.getX() + (rand.nextDouble() * spread), block.getY() + (rand.nextDouble() * spread), block.getZ() + (rand.nextDouble() * spread));
-                block.getWorld().spawnParticle(Particle.CRIT_MAGIC, particleLoc, 1);
-            }
+        IncompletePortal newIncompletePortal = IncompletePortal.getNewPortalFromBlock(block);
+        if (newIncompletePortal == null) {
+            return;
         }
-        BuildPortals.logger.info("Saving changes...");
-        BuildPortals.plugin.saveConfig();
-        Portal.loadPortalsFromConfig();
+        BuildPortals.logger.log(BuildPortals.logLevel, "Block completes a portal");
+
+        IncompletePortal incompletePortal = IncompletePortal.getPortalFromActivatorName(block.getType().name());
+        if (incompletePortal == null) {
+            newIncompletePortal.saveConfig();
+        } else {
+            Portal newCompletePortal = new Portal(incompletePortal, newIncompletePortal);
+            newCompletePortal.saveConfig();
+        }
     }
 }

@@ -60,6 +60,7 @@ public class BuildPortals extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PortalListener(), this);
         Portal.loadPortalsFromConfig();
+        IncompletePortal.loadPortalsFromConfig();
     }
 
     @Override
@@ -91,8 +92,7 @@ public class BuildPortals extends JavaPlugin {
                         loc.add(0,2,0);
                     } 
                     sender.sendMessage("Your location is: " + loc.toVector().toString());
-                    Portal inPortal = Portal.isInAPortal(loc);
-                    if (inPortal != null) {
+                    if (Portal.isInAPortal(loc)) {
                         player.sendMessage("You ARE in a portal!");
                     } else {
                         player.sendMessage("You ARE NOT in a portal.");
