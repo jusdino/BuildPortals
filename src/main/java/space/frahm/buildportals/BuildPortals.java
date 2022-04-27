@@ -1,6 +1,7 @@
 package space.frahm.buildportals;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,12 +19,10 @@ public class BuildPortals extends JavaPlugin {
     // Hacky way to turn on DEBUG for plugin only
     public static Level logLevel;
 
-    static String frameMaterialName;
-    public static ArrayList<String> activatorMaterialNames;
-
     public static FileConfiguration config;
     public static Logger logger;
     public static BuildPortals plugin;
+    public static HashSet<Material> activatorMaterials;
 
     @Override
     public void onEnable() {
@@ -53,10 +52,12 @@ public class BuildPortals extends JavaPlugin {
             logger.log(logLevel, "Debug logs on");
         }
 
-        frameMaterialName = config.getString("PortalMaterial");
-        logger.log(logLevel, "Portal frame material set to " + frameMaterialName);
-        activatorMaterialNames = (ArrayList<String>) config.getStringList("PortalActivators");
-        logger.log(logLevel, "Portal activators set to " + activatorMaterialNames);
+        logger.log(logLevel, "Portal frame material set to " + config.getString("PortalMaterial"));
+        activatorMaterials = new HashSet<>();
+        for (String materialName : config.getStringList("PortalActivators")) {
+            activatorMaterials.add(Material.getMaterial(materialName));
+        }
+        logger.log(logLevel, "Portal activators set to " + activatorMaterials);
 
         getServer().getPluginManager().registerEvents(new PortalListener(), this);
         Portal.loadPortalsFromConfig();
@@ -74,6 +75,7 @@ public class BuildPortals extends JavaPlugin {
             if (args.length < 1) {
                 return false;
             }
+            Material mat = null;
             switch (args[0].toLowerCase()) {
                 case "version":
                     sender.sendMessage("This is BuildPortals version " + this.getDescription().getVersion());
@@ -103,7 +105,6 @@ public class BuildPortals extends JavaPlugin {
                         sender.sendMessage("You do not have permission to use this command.");
                         return true;
                     }
-                    Material mat = null;
                     try {
                         mat = Material.getMaterial(args[1].toUpperCase());
                     } catch (NullPointerException | ArrayIndexOutOfBoundsException exc) {
@@ -123,11 +124,12 @@ public class BuildPortals extends JavaPlugin {
                     }
                     sender.sendMessage("Setting portal material to " + mat.name());
                     logger.info("Setting portal material to " + mat.name());
-                    config.set("PortalMaterial",mat.name());
+                    config.set("PortalMaterial", mat.name());
                     this.saveConfig();
                     sender.sendMessage("Converting existing portals to " + mat.name());
                     logger.info("Converting existing portals to " + mat.name());
                     Portal.loadPortalsFromConfig();
+                    IncompletePortal.loadPortalsFromConfig();
                     return true;
                 case "listmaterial":
                     if (sender.hasPermission("buildportals.listmaterial")) {
@@ -143,9 +145,6 @@ public class BuildPortals extends JavaPlugin {
                         sender.sendMessage("You do not have permission to use this command.");
                         return true;
                     }
-                    ArrayList<String> activators;
-                    mat = null;
-                    activators = (ArrayList<String>) config.getStringList("PortalActivators");
                     try {
                         mat = Material.getMaterial(args[1].toUpperCase());
                     } catch (NullPointerException | ArrayIndexOutOfBoundsException exc) {
@@ -163,15 +162,15 @@ public class BuildPortals extends JavaPlugin {
                         logger.warning("Adding activator material failed.");
                         return false;
                     }
-                    if (activators.contains(mat.name())) {
+                    if (activatorMaterials.contains(mat)) {
                         sender.sendMessage("That is already an activator material.");
                         logger.warning(sender.getName() + " attempted to add an already configured activator material.");
                         return false;
                     }
-                    activators.add(mat.name());
+                    activatorMaterials.add(mat);
                     sender.sendMessage("Adding " + mat.name() + " as an activator.");
                     logger.info("Adding " + mat.name() + " as an activator.");
-                    config.set("PortalActivators", activators);
+                    config.set("PortalActivators", activatorMaterials);
                     this.saveConfig();
                     return true;
                 case "removeactivator":
@@ -179,33 +178,30 @@ public class BuildPortals extends JavaPlugin {
                         sender.sendMessage("You do not have permission to use this command.");
                         return true;
                     }
-                    String matName = null;
-                    activators = (ArrayList<String>) config.getStringList("PortalActivators");
                     try {
-                        matName = args[1].toUpperCase();
+                        mat = Material.getMaterial(args[1].toUpperCase());
                     } catch (NullPointerException | ArrayIndexOutOfBoundsException exc) {
                         sender.sendMessage("You must specify a material.");
                     }
-                    if (matName == null) {
+                    if (mat == null) {
                         sender.sendMessage("Removing activator material failed.");
                         logger.warning("Removing activator material failed.");
                         return false;
                     }
-                    if (!activators.contains(matName)) {
+                    if (!activatorMaterials.contains(mat)) {
                         sender.sendMessage("That is not an activator material.");
                         logger.warning(sender.getName() + " attempted to remove to an unconfigured activator material.");
                         return false;
                     }
-                    activators.remove(matName);
-                    sender.sendMessage("Removing " + matName + " from activators.");
-                    logger.info("Removing " + matName + " from activators.");
-                    config.set("PortalActivators", activators);
+                    activatorMaterials.remove(mat);
+                    sender.sendMessage("Removing " + mat.name() + " from activators.");
+                    logger.info("Removing " + mat.name() + " from activators.");
+                    config.set("PortalActivators", activatorMaterials);
                     this.saveConfig();
                     return true;
                 case "listactivators":
                     if (sender.hasPermission("buildportals.listactivators")) {
-                    activators = (ArrayList<String>) config.getStringList("PortalActivators");
-                    sender.sendMessage("Activators are: " + activators.toString());
+                    sender.sendMessage("Activators are: " + activatorMaterials);
                     return true;
                     } else {
                         sender.sendMessage("You do not have permission to use this command.");

@@ -19,6 +19,7 @@ import org.bukkit.entity.Boat;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 
 
 public class Portal extends AbstractPortal {
@@ -48,9 +49,13 @@ public class Portal extends AbstractPortal {
         this.frames[0] = frames[0];
         this.frames[1] = frames[1];
 
-        interiors.get(frames[0].world.getName()).addAll(frames[0].interior);
-        interiors.get(frames[1].world.getName()).addAll(frames[1].interior);
-        setExteriorsToMaterial();
+        for (PortalFrame frame: this.frames) {
+            HashSet<Vector> interiorsInWorld = interiors.getOrDefault(frame.world.getName(), new HashSet<>());
+            interiorsInWorld.addAll(frame.interior);
+            interiors.put(frame.world.getName(), interiorsInWorld);
+        }
+        Portal.portals.add(this);
+        setExteriorsToMaterial(this.frames);
     }
 
     Portal (
@@ -61,11 +66,13 @@ public class Portal extends AbstractPortal {
         this.frames[0] = (PortalFrame)incompletePortal1.frames[0];
         this.frames[1] = (PortalFrame)incompletePortal2.frames[0];
 
+        incompletePortal1.link();
+        incompletePortal2.link();
+
         interiors.get(frames[0].world.getName()).addAll(frames[0].interior);
         interiors.get(frames[1].world.getName()).addAll(frames[1].interior);
-        setExteriorsToMaterial();
-        // TODO: destroy the IncompletePortals
-        // TODO: clear activators
+        Portal.portals.add(this);
+        setExteriorsToMaterial(this.frames);
     }
 
     public static boolean isInAPortal(Location loc) {
@@ -81,7 +88,7 @@ public class Portal extends AbstractPortal {
             return null;
         }
         for (Portal portal : portals) {
-            if (portal.isInPortal(loc)) {
+            if (portal.isInPortal(loc, portal.frames)) {
                 return portal;
             }
         }
@@ -92,11 +99,11 @@ public class Portal extends AbstractPortal {
         /* Read the plugin configs to instantiate a Portal object for each listed
         * and add them to the static HashSet.
         */
-        portals = new HashSet<>();
-        interiors = new HashMap<>();
+        Portal.portals = new HashSet<>();
+        Portal.interiors = new HashMap<>();
         FileConfiguration config = BuildPortals.config;
 
-        Material mat = Material.getMaterial(config.getString("PortalMaterial"));
+        Material mat = Material.getMaterial(BuildPortals.config.getString("PortalMaterial"));
         if (mat == null) {
             BuildPortals.logger.warning("Could not read configured portal material! Aborting portal update.");
             return;
@@ -110,9 +117,13 @@ public class Portal extends AbstractPortal {
 
         Set<String> portalKeys = portalSection.getKeys(false);
         for (String portalNumber : portalKeys) {
-            Portal portal = Portal.loadFromConfig(portalNumber);
-            if (portal != null) {
-                portals.add(portal);
+            if (Integer.parseInt(portalNumber) != 0) {
+                try {
+                    Portal.loadFromConfig(portalNumber);
+                } catch (InvalidConfigurationException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -121,7 +132,7 @@ public class Portal extends AbstractPortal {
         /* Teleport the provided entity to the other side of this portal, based on their
         * current location.
         */
-        if (! this.integrityCheck()) {
+        if (! this.integrityCheck(this.frames)) {
             this.destroy();
             return;
         }
@@ -132,7 +143,7 @@ public class Portal extends AbstractPortal {
     }
 
     protected void destroy() {
-        super.destroy();
+        super.destroy(this.frames);
         // Remove this portal from the static set
         portals.remove(this);
 
@@ -149,15 +160,15 @@ public class Portal extends AbstractPortal {
         BuildPortals.plugin.saveConfig();
     }
 
-    public static Portal loadFromConfig(String portalNumber) {
+    public static Portal loadFromConfig(String portalNumber) throws InvalidConfigurationException {
         FileConfiguration config = BuildPortals.config;
         PortalFrame[] frames = {null, null};
-        HashSet<Vector> tempVecSet = new HashSet<>();
 
         if (Integer.parseInt(portalNumber) == 0) {
             BuildPortals.logger.severe("Attempted to instantiate a Portal with number 0, which is reserved for IncompletePortals");
+            throw new InvalidConfigurationException();
             // TODO: should probably throw an exception here
-            return null;
+            // return null;
         }
         Map<Integer, String> indexMap = Map.of(
             0, "A",
@@ -180,36 +191,26 @@ public class Portal extends AbstractPortal {
             }
             String yawString = config.getString("portals." + portalNumber + "." + entry.getValue() + ".yaw");
             if (yawString == null) {
-                BuildPortals.logger.info("Error reading yawA from configuration!");
+                BuildPortals.logger.info("Error reading yaw A from configuration!");
                 return null;
             }
             Float yaw = Float.parseFloat(yawString);
 
             // Convert string lists to vector lists
             interiorStrings = (ArrayList<String>) config.getStringList("portals." + portalNumber + "." + entry.getValue() + ".vec");
-            ArrayList<Vector> interiors = new ArrayList<>();
 
             // Interior vectors
-            for (String vectorString : interiorStrings) {
-                String[] parts = vectorString.split(",");
+            ArrayList<Vector> newInteriors = new ArrayList<>();
+            for (String interiorString : interiorStrings) {
+                String[] parts = interiorString.split(",");
                 if (parts.length != 3) {
                     BuildPortals.logger.severe("Error reading portal data!");
                     return null;
                 }
-                Vector vec = new Vector();
-                vec.setX(Double.parseDouble(parts[0]));
-                vec.setY(Double.parseDouble(parts[1]));
-                vec.setZ(Double.parseDouble(parts[2]));
-                interiors.add(vec);
-                // Add this vector to the interiorVectors set, keyed by world
-                if (Portal.interiors.containsKey(world.getName())) {
-                    Portal.interiors.get(world.getName()).add(vec);
-                } else {
-                    tempVecSet.add(vec);
-                    Portal.interiors.put(world.getName(), tempVecSet);
-                    tempVecSet = new HashSet<>();
-                }
+                Vector vec = new Vector(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
+                newInteriors.add(vec);
             }
+
             // Exterior vectors
             exteriorStrings = (ArrayList<String>) config.getStringList("portals." + portalNumber + "." + entry.getValue() + ".frame");
             ArrayList<Vector> exteriors = new ArrayList<>();
@@ -220,13 +221,10 @@ public class Portal extends AbstractPortal {
                     BuildPortals.logger.severe("Error reading frame data!");
                     return null;
                 }
-                Vector vec = new Vector();
-                vec.setX(Double.parseDouble(parts[0]));
-                vec.setY(Double.parseDouble(parts[1]));
-                vec.setZ(Double.parseDouble(parts[2]));
+                Vector vec = new Vector(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
                 exteriors.add(vec);
             }
-            frames[entry.getKey()] = new PortalFrame(world, interiors, exteriors, yaw);
+            frames[entry.getKey()] = new PortalFrame(world, newInteriors, exteriors, yaw);
         }
         return new Portal(portalNumber, frames);
     }

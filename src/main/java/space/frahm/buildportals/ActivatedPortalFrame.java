@@ -45,8 +45,7 @@ public class ActivatedPortalFrame extends PortalFrame {
             return null;
         }
         BuildPortals.logger.log(BuildPortals.logLevel, "Placed block is not in an active portal. Continuing.");
-        ArrayList<String> activatorMaterials = BuildPortals.activatorMaterialNames;
-        if (!activatorMaterials.contains(block.getType().name())) {
+        if (!BuildPortals.activatorMaterials.contains(block.getType())) {
             BuildPortals.logger.log(BuildPortals.logLevel, "Placed block is not an activator.");
             return null;
         }

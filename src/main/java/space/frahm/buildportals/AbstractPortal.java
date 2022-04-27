@@ -14,7 +14,6 @@ import org.bukkit.util.Vector;
 
 public abstract class AbstractPortal {
     protected static final Vector blockCenterOffset = new Vector(0.5, 0, 0.5);
-    protected PortalFrame[] frames;
     protected String identifier;
 
     /* Read the plugin configs to instantiate a Portal object for each listed
@@ -30,8 +29,8 @@ public abstract class AbstractPortal {
      * Runs through each portal frame block and activator block, checks that they are still the
      * correct material. Returns true for intact, false for not.
      */
-    protected boolean integrityCheck() {
-        for (PortalFrame frame : this.frames) {
+    protected boolean integrityCheck(PortalFrame[] frames) {
+        for (PortalFrame frame : frames) {
             String frameMaterialName = BuildPortals.config.getString("PortalMaterial");
             BuildPortals.logger.log(BuildPortals.logLevel, "Checking portal frames");
             for (Vector vec : frame.exterior) {
@@ -45,11 +44,11 @@ public abstract class AbstractPortal {
         return true;
     }
 
-    protected void destroy() {
-        /* Make a visible effect to indicate the portal has been destroyed, then
-        * update the plugin config to remove this portal.
-        */
-        for (PortalFrame frame : this.frames) {
+    /* Make a visible effect to indicate the portal has been destroyed, then
+    * update the plugin config to remove this portal.
+    */
+    protected void destroy(PortalFrame[] frames) {
+        for (PortalFrame frame : frames) {
             if (frame.interior.size() > 0) {
                 Vector vec = frame.interior.get(0);
                 Location loc = new Location(frame.world, vec.getX(), vec.getY(), vec.getZ());
@@ -63,10 +62,10 @@ public abstract class AbstractPortal {
      * Instantiate an AbstractPortal instance from a config entry
      */
     //public abstract Portal loadFromConfig(String portalNumber);
-    protected void setExteriorsToMaterial() {
+    protected void setExteriorsToMaterial(PortalFrame[] frames) {
         // Set frames to configured frame material
         Material mat = Material.getMaterial(BuildPortals.config.getString("PortalMaterial"));
-        for (PortalFrame frame: this.frames) {
+        for (PortalFrame frame: frames) {
             for (Vector frameVec: frame.exterior) {
                 Block block = new Location(frame.world, frameVec.getX(), frameVec.getY(), frameVec.getZ()).getBlock();
                 block.setType(mat);
@@ -91,11 +90,11 @@ public abstract class AbstractPortal {
         return true;
     }
 
-    public boolean isInPortal(Location loc) {
+    public boolean isInPortal(Location loc, PortalFrame[] frames) {
         /* Return true if given location is in this portal */
         World world = loc.getWorld();
         Vector vec = new Vector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        for (PortalFrame frame: this.frames) {
+        for (PortalFrame frame: frames) {
             if (world == frame.world && frame.interior.contains(vec)) {
                 return true;
             }

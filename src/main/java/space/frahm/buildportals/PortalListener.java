@@ -85,18 +85,15 @@ public class PortalListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) throws InvalidConfigurationException {
-        /* TODO: Update this description
-         * With every BlockPlaceEvent, register the location, if there is
-         * an 'unlinked' location stored already, pair that location with
-         * the new location as a portal-pair.
-         * This is just warming up for the best type of configuration
-         * management necessary for the plugin
+        /* With every BlockPlaceEvent, check if the placed block completes an IncompletePortal
+         * Then check if there is a matching IncompletePortal with the same activator.
+         * If there is, create a new Portal from the two IncompletePortals.
          */
         BuildPortals.logger.log(BuildPortals.logLevel, "Block place event registered");
 
         // Get relevant info about event
         Block block = event.getBlockPlaced();
-        if (!BuildPortals.activatorMaterialNames.contains(block.getType().name())) {
+        if (!BuildPortals.activatorMaterials.contains(block.getType())) {
             return;
         }
 
@@ -109,18 +106,29 @@ public class PortalListener implements Listener {
         }
         BuildPortals.logger.log(BuildPortals.logLevel, "Player " + player.getDisplayName() + " has appropriate permissions");
 
+        /* We have to grab a handle to the pre-existing incompletePortal before we try to create a new one
+         * because creating a new one dislodges the pre-existing one from IncompletePortal's static collection.
+         */
+        IncompletePortal incompletePortal = IncompletePortal.getPortalFromActivatorName(block.getType().name());
         IncompletePortal newIncompletePortal = IncompletePortal.getNewPortalFromBlock(block);
         if (newIncompletePortal == null) {
             return;
         }
         BuildPortals.logger.log(BuildPortals.logLevel, "Block completes a portal");
 
-        IncompletePortal incompletePortal = IncompletePortal.getPortalFromActivatorName(block.getType().name());
         if (incompletePortal == null) {
             newIncompletePortal.saveConfig();
         } else {
-            Portal newCompletePortal = new Portal(incompletePortal, newIncompletePortal);
-            newCompletePortal.saveConfig();
+            if (!incompletePortal.integrityCheck(incompletePortal.frames)) {
+                // If the pre-existing portal was broken, destroy it and save the new one
+                incompletePortal.destroy();
+                newIncompletePortal.saveConfig();
+                return;
+            } else {
+                // All is well so create a new Portal
+                Portal newPortal = new Portal(incompletePortal, newIncompletePortal);
+                newPortal.saveConfig();
+            }
         }
     }
 }
