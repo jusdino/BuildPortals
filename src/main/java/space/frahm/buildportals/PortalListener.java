@@ -1,6 +1,7 @@
 package space.frahm.buildportals;
 
 import java.util.HashSet;
+import java.util.UUID;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -16,10 +17,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 
 public class PortalListener implements Listener {
-    private static HashSet<Entity> alreadyOnPortal = new HashSet<>();
+    private static HashSet<UUID> alreadyOnPortal = new HashSet<>();
 
     PortalListener() {}
 
@@ -47,10 +49,10 @@ public class PortalListener implements Listener {
         Location loc = player.getLocation();
         Portal portal = Portal.getPortalFromLocation(player.getLocation());
         if (portal == null) {
-            alreadyOnPortal.remove(player);
+            alreadyOnPortal.remove(player.getUniqueId());
             return;
         }
-        if (alreadyOnPortal.contains(player)) {
+        if (alreadyOnPortal.contains(player.getUniqueId())) {
             // Don't let the player move if their chunk isn't loaded.
             Chunk chunk = loc.getChunk();
             if (!chunk.isLoaded()) {
@@ -58,33 +60,48 @@ public class PortalListener implements Listener {
             }
             return;
         }
-        alreadyOnPortal.add(player);
-        portal.teleport(player);
+        BuildPortals.logger.log(BuildPortals.logLevel, "Teleporting " + player);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Entity entity = (Player)portal.teleport(player);
+                if (entity != null) {
+                    alreadyOnPortal.add(entity.getUniqueId());
+                    BuildPortals.logger.log(BuildPortals.logLevel, "Added " + vehicle + " to alreadyOnPortal");
+                    BuildPortals.logger.log(BuildPortals.logLevel, "alreadyOnPortal: " + alreadyOnPortal);
+                }
+            }
+        }.runTaskLater(BuildPortals.plugin, 1);
     }
 
     private void vehicleMove(Vehicle vehicle) {
         Location loc = vehicle.getLocation();
         Portal portal = Portal.getPortalFromLocation(loc);
         if (portal == null) {
-            if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
-                alreadyOnPortal.remove(vehicle);
+            if (alreadyOnPortal.contains(vehicle.getUniqueId()) && loc.getChunk().isLoaded()) {
+                alreadyOnPortal.remove(vehicle.getUniqueId());
             }
             BuildPortals.logger.log(BuildPortals.logLevel, "Removing " + vehicle + " from alreadyOnPortal");
             return;
         }
-        if (alreadyOnPortal.contains(vehicle)) {
+        if (alreadyOnPortal.contains(vehicle.getUniqueId())) {
             BuildPortals.logger.log(BuildPortals.logLevel, vehicle + " already in a portal");
             return;
         }
 
         BuildPortals.logger.log(BuildPortals.logLevel, "Teleporting " + vehicle);
-        Entity entity = (Vehicle)portal.teleport(vehicle);
-        if (vehicle != null) {
-            alreadyOnPortal.remove(vehicle);
-            alreadyOnPortal.add(entity);
-        }
-        BuildPortals.logger.log(BuildPortals.logLevel, "Added" + vehicle + " to alreadyOnPortal");
-        BuildPortals.logger.log(BuildPortals.logLevel, "alreadyOnPortal: " + alreadyOnPortal);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Entity entity = (Vehicle)portal.teleport(vehicle);
+                if (entity != null) {
+                    alreadyOnPortal.remove(vehicle.getUniqueId());
+                    alreadyOnPortal.add(entity.getUniqueId());
+                    BuildPortals.logger.log(BuildPortals.logLevel, "Added " + vehicle + " to alreadyOnPortal");
+                    BuildPortals.logger.log(BuildPortals.logLevel, "alreadyOnPortal: " + alreadyOnPortal);
+                }
+            }
+        }.runTaskLater(BuildPortals.plugin, 1);
     }
 
     @EventHandler(ignoreCancelled = true)

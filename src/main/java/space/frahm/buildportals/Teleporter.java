@@ -36,8 +36,6 @@ import org.bukkit.util.Vector;
 class Teleporter {
 
     static Entity teleport(Entity entity, @Nonnull Location destination) {
-        // TODO: Should probably defer via BukkitRunnable here
-        // TODO: look into paperlib async teleport
         BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Entity, ...) method");
         if (entity instanceof Vehicle) {
             List<Entity> passengers = (entity).getPassengers();

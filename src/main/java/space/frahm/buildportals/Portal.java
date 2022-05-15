@@ -124,7 +124,6 @@ public class Portal extends AbstractPortal {
                 try {
                     Portal.loadFromConfig(portalNumber);
                 } catch (InvalidConfigurationException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -135,6 +134,8 @@ public class Portal extends AbstractPortal {
     public Entity teleport(Entity entity) {
         /* Teleport the provided entity to the other side of this portal, based on their
         * current location.
+        * Note: Prefer running this method ASYNCHRONOUSLY - it is too heavy to run synchronously without
+        * causing CPU spikes.
         */
         if (! this.integrityCheck(this.frames)) {
             this.destroy();
@@ -171,9 +172,7 @@ public class Portal extends AbstractPortal {
 
         if (Integer.parseInt(portalNumber) == 0) {
             BuildPortals.logger.severe("Attempted to instantiate a Portal with number 0, which is reserved for IncompletePortals");
-            throw new InvalidConfigurationException();
-            // TODO: should probably throw an exception here
-            // return null;
+            throw new InvalidConfigurationException("Invalid portal number");
         }
         Map<Integer, String> indexMap = Map.of(
             0, "A",
