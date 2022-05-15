@@ -30,14 +30,12 @@ public class IncompletePortal extends AbstractPortal {
     ) {
         this.identifier = identifier;
         this.frames[0] = frame;
-        portals.put(identifier, this);
 
         // Update the static HashSet for frame.world with new interior vectors
         HashSet<Vector> interiorsInWorld = interiors.getOrDefault(frame.world.getName(), new HashSet<>());
         interiorsInWorld.addAll(frame.interior);
         interiors.put(frame.world.getName(), interiorsInWorld);
-
-        IncompletePortal.portals.put(identifier, this);
+        portals.put(identifier, this);
     }
 
     public static IncompletePortal getNewPortalFromBlock(Block block) throws InvalidConfigurationException {
@@ -93,6 +91,13 @@ public class IncompletePortal extends AbstractPortal {
     protected void clear() {
         // Remove this portal from the static set
         portals.remove(this.identifier);
+        // Remove the frame vectors from the static set
+        for (PortalFrame frame : this.frames) {
+            HashSet<Vector> interiorVecs = interiors.get(frame.world.getName());
+            for (Vector interiorVec: frame.interior) {
+                interiorVecs.remove(interiorVec);
+            }
+        }
 
         // Clear the config entry and save
         BuildPortals.config.set("portals." + portalNumber + "." + this.identifier, null);
@@ -131,26 +136,26 @@ public class IncompletePortal extends AbstractPortal {
         ArrayList<String> exteriorStrings = (ArrayList<String>) portalSection.getStringList("frame");
         ArrayList<Vector> exteriorVecs = new ArrayList<>();
         for (String exteriorString : exteriorStrings) {
-            String[] parts = exteriorString.split(",");
-            if (parts.length != 3) {
+            try {
+                exteriorVecs.add(vecFromConfigString(exteriorString));
+                
+            } catch (InvalidConfigurationException e) {
                 BuildPortals.logger.severe("Error reading frame vectors from configuration for portal " + portalNumber);
                 return null;
             }
-            Vector vec = new Vector(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
-            exteriorVecs.add(vec);
         }
 
         // Activators
         ArrayList<String> activatorStrings = (ArrayList<String>) portalSection.getStringList("activators");
         ArrayList<Vector> activatorVecs = new ArrayList<>();
         for (String vectorString : activatorStrings) {
-            String[] parts = vectorString.split(",");
-            if (parts.length != 3) {
+            try {
+                activatorVecs.add(vecFromConfigString(vectorString));
+                
+            } catch (InvalidConfigurationException e) {
                 BuildPortals.logger.severe("Error reading activator vectors from configuration for portal " + portalNumber);
                 return null;
             }
-            Vector vec = new Vector(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
-            activatorVecs.add(vec);
         }
         ActivatedPortalFrame frame = new ActivatedPortalFrame(world, new ArrayList<>(), exteriorVecs, activatorVecs, yaw);
         return new IncompletePortal(
@@ -169,9 +174,9 @@ public class IncompletePortal extends AbstractPortal {
         Map<String, Object> portalData = new HashMap<>();
         portalData.put("active", false);
         portalData.put("world", frames[0].world.getName());
-        portalData.put("vec", frames[0].interior);
-        portalData.put("frame", frames[0].exterior);
-        portalData.put("activators", frames[0].activators);
+        portalData.put("vec", configArrayListVecs(frames[0].interior));
+        portalData.put("frame", configArrayListVecs(frames[0].exterior));
+        portalData.put("activators", configArrayListVecs(frames[0].activators));
         portalData.put("yaw", Float.toString(frames[0].yaw));
         BuildPortals.config.createSection(configKey, portalData);
         BuildPortals.plugin.saveConfig();

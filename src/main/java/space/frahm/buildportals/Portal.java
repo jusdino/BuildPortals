@@ -69,8 +69,11 @@ public class Portal extends AbstractPortal {
         incompletePortal1.link();
         incompletePortal2.link();
 
-        interiors.get(frames[0].world.getName()).addAll(frames[0].interior);
-        interiors.get(frames[1].world.getName()).addAll(frames[1].interior);
+        for (PortalFrame frame : frames) {
+            HashSet<Vector> interiorsForWorld = interiors.getOrDefault(frame.world.getName(), new HashSet<>());
+            interiorsForWorld.addAll(frame.interior);
+            interiors.put(frame.world.getName(), interiorsForWorld);
+        }
         Portal.portals.add(this);
         setExteriorsToMaterial(this.frames);
     }
@@ -128,18 +131,20 @@ public class Portal extends AbstractPortal {
         }
     }
 
-    public void teleport(Entity entity) {
+    @Nullable
+    public Entity teleport(Entity entity) {
         /* Teleport the provided entity to the other side of this portal, based on their
         * current location.
         */
         if (! this.integrityCheck(this.frames)) {
             this.destroy();
-            return;
+            return null;
         }
         Location destination = this.getDestination(entity, entity.getLocation());
         if (destination != null) {
-            Teleporter.teleport(entity, destination);
+            return Teleporter.teleport(entity, destination);
         }
+        return null;
     }
 
     protected void destroy() {
@@ -202,13 +207,13 @@ public class Portal extends AbstractPortal {
             // Interior vectors
             ArrayList<Vector> newInteriors = new ArrayList<>();
             for (String interiorString : interiorStrings) {
-                String[] parts = interiorString.split(",");
-                if (parts.length != 3) {
-                    BuildPortals.logger.severe("Error reading portal data!");
+                try {
+                    newInteriors.add(vecFromConfigString(interiorString));
+                    
+                } catch (InvalidConfigurationException e) {
+                    BuildPortals.logger.severe("Error reading interior vectors from configuration for portal " + portalNumber);
                     return null;
                 }
-                Vector vec = new Vector(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
-                newInteriors.add(vec);
             }
 
             // Exterior vectors
@@ -216,13 +221,13 @@ public class Portal extends AbstractPortal {
             ArrayList<Vector> exteriors = new ArrayList<>();
 
             for (String vectorString : exteriorStrings) {
-                String[] parts = vectorString.split(",");
-                if (parts.length != 3) {
-                    BuildPortals.logger.severe("Error reading frame data!");
+                try {
+                    exteriors.add(vecFromConfigString(vectorString));
+                    
+                } catch (InvalidConfigurationException e) {
+                    BuildPortals.logger.severe("Error reading frame vectors from configuration for portal " + portalNumber);
                     return null;
                 }
-                Vector vec = new Vector(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
-                exteriors.add(vec);
             }
             frames[entry.getKey()] = new PortalFrame(world, newInteriors, exteriors, yaw);
         }
@@ -236,17 +241,14 @@ public class Portal extends AbstractPortal {
          *
          * Returns Null if the location is not actually in the portal.
          */
-        Vector flooredSourceVec = new Vector(sourceLoc.getBlockX(), sourceLoc.getBlockY(), sourceLoc.getBlockZ());
-        Vector sourceVec = new Vector(sourceLoc.getX(), sourceLoc.getY(), sourceLoc.getZ());
-
-        // Move source to center of block
-        sourceVec.add(blockCenterOffset);
+        Vector sourceVec = new Vector(sourceLoc.getBlockX(), sourceLoc.getBlockY(), sourceLoc.getBlockZ());
+        // Vector sourceVec = new Vector(sourceLoc.getX(), sourceLoc.getY(), sourceLoc.getZ());
 
         // Define source and destination vectors
         PortalFrame sourceFrame = null;
         PortalFrame destFrame = null;
         for (PortalFrame thisOne: this.frames) {
-            if (sourceLoc.getWorld() == thisOne.world && thisOne.interior.contains(flooredSourceVec)) {
+            if (sourceLoc.getWorld() == thisOne.world && thisOne.interior.contains(sourceVec)) {
                 sourceFrame = thisOne;
             } else {
                 destFrame = thisOne;
@@ -256,6 +258,10 @@ public class Portal extends AbstractPortal {
             BuildPortals.logger.log(BuildPortals.logLevel, "Somehow, the source location is in neither portal side!");
             return null;
         }
+
+        // Move source to center of block
+        sourceVec.add(blockCenterOffset);
+
         Vector forwardVec;
         Vector backwardVec;
         // Define a unit vector in the destination Yaw direction
@@ -487,16 +493,17 @@ public class Portal extends AbstractPortal {
     }
 
     public void saveConfig() {
+        BuildPortals.logger.log(BuildPortals.logLevel, "Saving config for portal " + identifier);
         String configKey = "portals." + identifier;
         Map<String, Object> portalData = new HashMap<>();
         portalData.put("active", true);
         portalData.put("A.world", frames[0].world.getName());
-        portalData.put("A.vec", frames[0].interior);
-        portalData.put("A.frame", frames[0].exterior);
+        portalData.put("A.vec", configArrayListVecs(frames[0].interior));
+        portalData.put("A.frame", configArrayListVecs(frames[0].exterior));
         portalData.put("A.yaw", Float.toString(frames[0].yaw));
         portalData.put("B.world", frames[1].world.getName());
-        portalData.put("B.vec", frames[1].interior);
-        portalData.put("B.frame", frames[1].exterior);
+        portalData.put("B.vec", configArrayListVecs(frames[1].interior));
+        portalData.put("B.frame", configArrayListVecs(frames[1].exterior));
         portalData.put("B.yaw", Float.toString(frames[1].yaw));
         BuildPortals.config.createSection(configKey, portalData);
         BuildPortals.plugin.saveConfig();

@@ -1,5 +1,6 @@
 package space.frahm.buildportals;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -10,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.util.Vector;
 
 public abstract class AbstractPortal {
@@ -102,4 +104,21 @@ public abstract class AbstractPortal {
         return false;
     }
 
+    protected static Vector vecFromConfigString(String configString) throws InvalidConfigurationException {
+        String[] parts = configString.split(",");
+        if (parts.length != 3) {
+            throw new InvalidConfigurationException("Invalid vector string: " + configString);
+        }
+        return new Vector(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
+    }
+
+    protected static String configStringFromVec(Vector vec) {
+        return vec.getX() + "," + vec.getY() + "," + vec.getZ();
+    }
+
+    protected static ArrayList<String> configArrayListVecs(ArrayList<Vector> vecs) {
+        ArrayList<String> strings = new ArrayList<>();
+        vecs.forEach((vec) -> strings.add(configStringFromVec(vec)));
+        return strings;
+    }
 }

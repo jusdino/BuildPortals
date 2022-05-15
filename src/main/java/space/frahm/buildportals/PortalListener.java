@@ -1,7 +1,6 @@
 package space.frahm.buildportals;
 
 import java.util.HashSet;
-import java.util.List;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -64,23 +63,28 @@ public class PortalListener implements Listener {
     }
 
     private void vehicleMove(Vehicle vehicle) {
-        List<Entity> passengers = vehicle.getPassengers();
         Location loc = vehicle.getLocation();
         Portal portal = Portal.getPortalFromLocation(loc);
         if (portal == null) {
             if (alreadyOnPortal.contains(vehicle) && loc.getChunk().isLoaded()) {
                 alreadyOnPortal.remove(vehicle);
-                alreadyOnPortal.removeAll(passengers);
             }
+            BuildPortals.logger.log(BuildPortals.logLevel, "Removing " + vehicle + " from alreadyOnPortal");
             return;
         }
         if (alreadyOnPortal.contains(vehicle)) {
+            BuildPortals.logger.log(BuildPortals.logLevel, vehicle + " already in a portal");
             return;
         }
 
-        portal.teleport(vehicle);
-        alreadyOnPortal.add(vehicle);
-        alreadyOnPortal.addAll(passengers);
+        BuildPortals.logger.log(BuildPortals.logLevel, "Teleporting " + vehicle);
+        Entity entity = (Vehicle)portal.teleport(vehicle);
+        if (vehicle != null) {
+            alreadyOnPortal.remove(vehicle);
+            alreadyOnPortal.add(entity);
+        }
+        BuildPortals.logger.log(BuildPortals.logLevel, "Added" + vehicle + " to alreadyOnPortal");
+        BuildPortals.logger.log(BuildPortals.logLevel, "alreadyOnPortal: " + alreadyOnPortal);
     }
 
     @EventHandler(ignoreCancelled = true)
