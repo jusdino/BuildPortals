@@ -7,11 +7,11 @@ on:
   push:
     branches:
       - features
-      - v2
+      - master
   pull_request:
     branches:
       - features
-      - v2
+      - master
 
 jobs:
   build:
