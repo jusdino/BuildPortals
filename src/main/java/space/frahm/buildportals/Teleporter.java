@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import java.lang.Math;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -31,7 +29,6 @@ import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-
 
 class Teleporter {
 
@@ -65,34 +62,7 @@ class Teleporter {
             }
             return entity;
         } else if (entity instanceof Player) {
-            Player player;
-            player = (Player)entity;
-            if (!player.hasPermission("buildportals.teleport")) {
-                player.sendMessage("You do not have permission to use portals!");
-                return null;
-            }
-            Location source = player.getLocation();
-            ArrayList<LivingEntity> leadees = new ArrayList<>();
-            // There doesn't seem to be an easy way to get a collection of leashed entities
-            // from the player directly...
-            World world = source.getWorld();
-            if ( world == null ) {
-                return null;
-            }
-            Collection<Entity> entities = world.getNearbyEntities(source, 11, 11, 11);
-            for (Entity ent: entities) {
-                if (ent instanceof LivingEntity) {
-                    if (((LivingEntity)ent).isLeashed() && ((LivingEntity)ent).getLeashHolder() == entity) {
-                        Entity destEnt = teleport(ent, destination);
-                        leadees.add((LivingEntity)destEnt);
-                    }
-                }
-            }
-            
             entity = teleport((Player) entity, destination);
-            for (LivingEntity ent: leadees) {
-                ent.setLeashHolder(entity);
-            }
         } else if (entity instanceof Cow) {
             entity = teleport((Cow) entity, destination);
         } else if (entity instanceof Sheep) {
@@ -182,7 +152,35 @@ class Teleporter {
     }
 
     private static Player teleport(Player player, Location destination) {
-        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Player, ...) method"); player.teleport(destination);
+        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Player, ...) method");
+        if (!player.hasPermission("buildportals.teleport")) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Player " + player.getName() + " does not have permission to use a portal");
+            player.sendMessage("You do not have permission to use portals!");
+            return null;
+        }
+        Location source = player.getLocation();
+        ArrayList<LivingEntity> leadees = new ArrayList<>();
+        // There doesn't seem to be an easy way to get a collection of leashed entities
+        // from the player directly...
+        World world = source.getWorld();
+        if ( world == null ) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Player's world is " + world + "!");
+            return null;
+        }
+        Collection<Entity> entities = world.getNearbyEntities(source, 11, 11, 11);
+        for (Entity ent: entities) {
+            if (ent instanceof LivingEntity) {
+                if (((LivingEntity)ent).isLeashed() && ((LivingEntity)ent).getLeashHolder() == player) {
+                    Entity destEnt = teleport(ent, destination);
+                    leadees.add((LivingEntity)destEnt);
+                }
+            }
+        }
+
+        player.teleport(destination);
+        for (LivingEntity ent: leadees) {
+            ent.setLeashHolder(player);
+        }
         return player;
     }
     
@@ -224,8 +222,7 @@ class Teleporter {
         
         return destHorse;
     }
-    
-    
+
     private static Chicken teleport(Chicken chicken, Location destination) {
         BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Chicken, ...) method");
         World world = destination.getWorld();

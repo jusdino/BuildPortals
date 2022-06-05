@@ -34,7 +34,7 @@ public class Portal extends AbstractPortal {
     private static HashSet<Portal> portals = new HashSet<>();
     protected PortalFrame[] frames = {null, null};
 
-    Portal (
+    public Portal (
         String identifier,
         PortalFrame[] frames) {
         /*
@@ -58,7 +58,7 @@ public class Portal extends AbstractPortal {
         setExteriorsToMaterial(this.frames);
     }
 
-    Portal (
+    public Portal (
         IncompletePortal incompletePortal1,
         IncompletePortal incompletePortal2
     ) {
@@ -145,6 +145,7 @@ public class Portal extends AbstractPortal {
         if (destination != null) {
             return Teleporter.teleport(entity, destination);
         }
+        BuildPortals.logger.log(BuildPortals.logLevel, "Got null destination for " + entity);
         return null;
     }
 

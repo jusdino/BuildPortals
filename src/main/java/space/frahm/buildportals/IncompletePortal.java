@@ -24,7 +24,7 @@ public class IncompletePortal extends AbstractPortal {
     private static HashMap<String, IncompletePortal> portals = new HashMap<>();
     protected ActivatedPortalFrame[] frames = {null};
 
-    IncompletePortal(
+    public IncompletePortal(
         String identifier,
         ActivatedPortalFrame frame
     ) {

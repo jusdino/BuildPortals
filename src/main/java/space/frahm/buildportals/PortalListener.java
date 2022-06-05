@@ -23,7 +23,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class PortalListener implements Listener {
     private static HashSet<UUID> alreadyOnPortal = new HashSet<>();
 
-    PortalListener() {}
+    public PortalListener() {
+        super();
+    }
 
     @EventHandler(ignoreCancelled = true)
     public void onVehicleMove(VehicleMoveEvent event) {
