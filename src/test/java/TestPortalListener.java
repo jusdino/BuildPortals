@@ -12,7 +12,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.WorldMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import mock.BuildPortalsWorldMock;
+import space.frahm.test.bukkit.BuildPortalsWorldMock;
 import space.frahm.buildportals.BuildPortals;
 import space.frahm.buildportals.Portal;
 import space.frahm.buildportals.PortalFrame;

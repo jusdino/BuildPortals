@@ -1,4 +1,4 @@
-package mock;
+package space.frahm.test.bukkit.entity;
 
 import java.util.List;
 import java.util.Set;
@@ -26,7 +26,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
-public class BuildPortalsLightningStrikeMock implements LightningStrike {
+public class LightningStrikeMock implements LightningStrike {
 
     @Override
     public Location getLocation() {

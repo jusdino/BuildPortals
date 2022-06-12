@@ -30,9 +30,9 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-class Teleporter {
+public class Teleporter {
 
-    static Entity teleport(Entity entity, @Nonnull Location destination) {
+    public static Entity teleport(Entity entity, @Nonnull Location destination) {
         BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Entity, ...) method");
         if (entity instanceof Vehicle) {
             List<Entity> passengers = (entity).getPassengers();
