@@ -1,6 +1,6 @@
 name: BuildPortals
 main: space.frahm.buildportals.BuildPortals
-version: 2.1.0beta0
+version: 2.1.0beta1
 api-version: 1.19
 softdepend:
   - Multiverse-Core

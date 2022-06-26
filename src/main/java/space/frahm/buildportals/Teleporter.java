@@ -204,7 +204,7 @@ public class Teleporter {
             destHorse.setMaxDomestication(horse.getMaxDomestication());
             destHorse.setTamed(horse.isTamed());
             destHorse.setGlowing(horse.isGlowing());
-            
+
             if (horse instanceof Horse) {
                 ((Horse)destHorse).setColor(((Horse)horse).getColor());
                 ((Horse)destHorse).setStyle(((Horse)horse).getStyle());

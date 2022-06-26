@@ -9,7 +9,6 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LightningStrike;
-
 import be.seeseemelk.mockbukkit.WorldMock;
 
 import space.frahm.test.bukkit.entity.LightningStrikeMock;
@@ -30,4 +29,5 @@ public class BuildPortalsWorldMock extends WorldMock {
     public void spawnParticle(Particle particle, Location location, int count) {
         return;
     }
+
 }
