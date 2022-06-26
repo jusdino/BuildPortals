@@ -13,8 +13,10 @@ import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LightningStrike;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.entity.SpawnCategory;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.metadata.MetadataValue;
@@ -25,6 +27,10 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import net.kyori.adventure.text.Component;
 
 public class LightningStrikeMock implements LightningStrike {
 
@@ -457,5 +463,150 @@ public class LightningStrikeMock implements LightningStrike {
     @Override
     public Spigot spigot() {
         return null;
+    }
+
+    @Override
+    public boolean fromMobSpawner() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public @NotNull SpawnReason getEntitySpawnReason() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public @Nullable Location getOrigin() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public @NotNull Set<Player> getTrackedPlayers() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean isFreezeTickingLocked() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isInBubbleColumn() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isInLava() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isInPowderedSnow() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isInRain() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isInWaterOrBubbleColumn() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isInWaterOrRain() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isInWaterOrRainOrBubbleColumn() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isTicking() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void lockFreezeTicks(boolean arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public boolean spawnAt(@NotNull Location arg0, @NotNull SpawnReason arg1) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public @NotNull Component teamDisplayName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public @NotNull Component name() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public @Nullable Component customName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void customName(@Nullable Component arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public @Nullable Entity getCausingEntity() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int getFlashCount() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public int getLifeTicks() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void setCausingPlayer(@Nullable Player arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void setFlashCount(int arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void setLifeTicks(int arg0) {
+        // TODO Auto-generated method stub
     }
 }
