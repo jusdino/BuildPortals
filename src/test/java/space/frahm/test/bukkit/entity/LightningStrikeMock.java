@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.bukkit.EntityEffect;
-import org.bukkit.Location;
-import org.bukkit.Server;
-import org.bukkit.World;
+import io.papermc.paper.entity.TeleportFlag;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.entity.Entity;
@@ -87,6 +85,11 @@ public class LightningStrikeMock implements LightningStrike {
     public void setRotation(float yaw, float pitch) {}
 
     @Override
+    public boolean teleport(@NotNull Location location, @NotNull TeleportCause teleportCause, @NotNull TeleportFlag @NotNull ... teleportFlags) {
+        return false;
+    }
+
+    @Override
     public boolean teleport(Location location) {
         return false;
     }
@@ -105,10 +108,6 @@ public class LightningStrikeMock implements LightningStrike {
     public boolean teleport(Entity destination, TeleportCause cause) {
         return false;
     }
-
-    @Experimental
-    @Override
-    public boolean teleport(Location location, TeleportCause cause, boolean var3, boolean var4) { return false; }
 
     @Override
     public List<Entity> getNearbyEntities(double x, double y, double z) {
@@ -258,6 +257,21 @@ public class LightningStrikeMock implements LightningStrike {
     }
 
     @Override
+    public @NotNull Sound getSwimSound() {
+        return null;
+    }
+
+    @Override
+    public @NotNull Sound getSwimSplashSound() {
+        return null;
+    }
+
+    @Override
+    public @NotNull Sound getSwimHighSpeedSplashSound() {
+        return null;
+    }
+
+    @Override
     public boolean isInsideVehicle() {
         return false;
     }
@@ -277,6 +291,16 @@ public class LightningStrikeMock implements LightningStrike {
 
     @Override
     public boolean isCustomNameVisible() {
+        return false;
+    }
+
+    @Override
+    public void setVisibleByDefault(boolean b) {
+
+    }
+
+    @Override
+    public boolean isVisibleByDefault() {
         return false;
     }
 
@@ -348,6 +372,16 @@ public class LightningStrikeMock implements LightningStrike {
     @Override
     public Pose getPose() {
         return null;
+    }
+
+    @Override
+    public boolean isSneaking() {
+        return false;
+    }
+
+    @Override
+    public void setSneaking(boolean b) {
+
     }
 
     @Override
@@ -483,6 +517,11 @@ public class LightningStrikeMock implements LightningStrike {
     }
 
     @Override
+    public boolean isUnderWater() {
+        return false;
+    }
+
+    @Override
     public @Nullable Location getOrigin() {
         // TODO Auto-generated method stub
         return null;
@@ -515,6 +554,16 @@ public class LightningStrikeMock implements LightningStrike {
     @Override
     public boolean isInPowderedSnow() {
         // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean collidesAt(@NotNull Location location) {
+        return false;
+    }
+
+    @Override
+    public boolean wouldCollideUsing(@NotNull BoundingBox boundingBox) {
         return false;
     }
 
