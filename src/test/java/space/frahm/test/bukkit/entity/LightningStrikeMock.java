@@ -29,6 +29,7 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.kyori.adventure.text.Component;
 
@@ -104,6 +105,10 @@ public class LightningStrikeMock implements LightningStrike {
     public boolean teleport(Entity destination, TeleportCause cause) {
         return false;
     }
+
+    @Experimental
+    @Override
+    public boolean teleport(Location location, TeleportCause cause, boolean var3, boolean var4) { return false; }
 
     @Override
     public List<Entity> getNearbyEntities(double x, double y, double z) {

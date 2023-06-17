@@ -63,15 +63,17 @@ public class PortalListener implements Listener {
             return;
         }
         BuildPortals.logger.log(BuildPortals.logLevel, "Teleporting " + player);
+        /* We will immediately add player to alreadyOnPortal but defer teleportation. This allows the more heavy
+        task of teleporting to happen asynchronously but prevents multiple teleports from being scheduled from
+        consecutive playerMove events.
+         */
+        alreadyOnPortal.add(player.getUniqueId());
+        BuildPortals.logger.log(BuildPortals.logLevel, "Added " + player + " to alreadyOnPortal");
+        BuildPortals.logger.log(BuildPortals.logLevel, "alreadyOnPortal: " + alreadyOnPortal);
         new BukkitRunnable() {
             @Override
             public void run() {
-                Entity entity = (Player)portal.teleport(player);
-                if (entity != null) {
-                    alreadyOnPortal.add(entity.getUniqueId());
-                    BuildPortals.logger.log(BuildPortals.logLevel, "Added " + vehicle + " to alreadyOnPortal");
-                    BuildPortals.logger.log(BuildPortals.logLevel, "alreadyOnPortal: " + alreadyOnPortal);
-                }
+                portal.teleport(player);
             }
         }.runTaskLater(BuildPortals.plugin, 1);
     }
@@ -92,16 +94,17 @@ public class PortalListener implements Listener {
         }
 
         BuildPortals.logger.log(BuildPortals.logLevel, "Teleporting " + vehicle);
+        /* We will immediately add vehicle to alreadyOnPortal but defer teleportation. This allows the more heavy
+        task of teleporting to happen asynchronously but prevents multiple teleports from being scheduled from
+        consecutive vehicleMove events.
+         */
+        alreadyOnPortal.add(vehicle.getUniqueId());
+        BuildPortals.logger.log(BuildPortals.logLevel, "Added " + vehicle + " to alreadyOnPortal");
+        BuildPortals.logger.log(BuildPortals.logLevel, "alreadyOnPortal: " + alreadyOnPortal);
         new BukkitRunnable() {
             @Override
             public void run() {
-                Entity entity = (Vehicle)portal.teleport(vehicle);
-                if (entity != null) {
-                    alreadyOnPortal.remove(vehicle.getUniqueId());
-                    alreadyOnPortal.add(entity.getUniqueId());
-                    BuildPortals.logger.log(BuildPortals.logLevel, "Added " + vehicle + " to alreadyOnPortal");
-                    BuildPortals.logger.log(BuildPortals.logLevel, "alreadyOnPortal: " + alreadyOnPortal);
-                }
+                portal.teleport(vehicle);
             }
         }.runTaskLater(BuildPortals.plugin, 1);
     }
