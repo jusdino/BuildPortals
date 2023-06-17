@@ -172,7 +172,9 @@ public class Teleporter {
             if (ent instanceof LivingEntity) {
                 if (((LivingEntity)ent).isLeashed() && ((LivingEntity)ent).getLeashHolder() == player) {
                     Entity destEnt = teleport(ent, destination);
-                    leadees.add((LivingEntity)destEnt);
+                    if (destEnt != null) {
+                        leadees.add((LivingEntity) destEnt);
+                    }
                 }
             }
         }
