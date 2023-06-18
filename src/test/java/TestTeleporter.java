@@ -1,12 +1,18 @@
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.logging.Level;
 
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
+import be.seeseemelk.mockbukkit.UnimplementedOperationException;
 import be.seeseemelk.mockbukkit.WorldMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import space.frahm.test.bukkit.BuildPortalsWorldMock;
@@ -51,5 +57,25 @@ public class TestTeleporter {
         player.setLocation(startLocation);
         Teleporter.teleport(player, endLocation);
         player.assertTeleported(endLocation, 0);
+    }
+
+    @Test
+    void testHorse() {
+        Location startLocation;
+        Horse horse;
+        Location endLocation;
+        Horse destHorse;
+        try {
+            startLocation = new Location(world0, 0.5, 1, 0.5);
+            horse = (Horse)world0.spawnEntity(startLocation, EntityType.HORSE);
+            endLocation = new Location(world1, 10.5, 1, 0.5);
+            destHorse = (Horse)Teleporter.teleport(horse, endLocation);
+        } catch (UnimplementedOperationException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        assertTrue(horse.isDead());
+        assertEquals(endLocation, destHorse.getLocation());
+        assertEquals(horse, destHorse);
     }
 }

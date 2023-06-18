@@ -1,8 +1,11 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import org.bukkit.Location;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +53,8 @@ public class TestPortalListener {
     public void setUp()
     {
         server = MockBukkit.mock();
+        Permission permission = new Permission("buildportals.teleport", PermissionDefault.TRUE);
+        server.getPluginManager().addPermission(permission);
         MockBukkit.load(BuildPortals.class);
         world0 = new BuildPortalsWorldMock();
         world0.setName("world");
@@ -76,6 +81,7 @@ public class TestPortalListener {
     @Test
     void testOnPlayerMove() {
         PlayerMock player = server.addPlayer();
+
         Location startLocation = new Location(world0, 0.5, 1, 0.5);
         Location endLocation = new Location(world1, 10.5, 1, 0.5);
         player.setLocation(startLocation);
@@ -85,11 +91,15 @@ public class TestPortalListener {
                 at be.seeseemelk.mockbukkit.entity.EntityMock.getVehicle(EntityMock.java:743)
                 at space.frahm.buildportals.PortalListener.onPlayerMove(PortalListener.java:40)
              */
+            BuildPortals.logLevel = Level.INFO;
+            BuildPortals.logger.info("testOnPlayerMove");
             BuildPortals.listener.onPlayerMove(event); // UnimplementationOperationException thrown here
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
+        // Teleportation is a scheduled task, so we need to cycle the scheduler
+        server.getScheduler().performTicks(2L);
         player.assertTeleported(endLocation, 0);
     }
 }
