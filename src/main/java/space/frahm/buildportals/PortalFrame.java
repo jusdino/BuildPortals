@@ -12,7 +12,7 @@ public class PortalFrame {
     public final ArrayList<Vector> exterior;
     public final Float yaw;
 
-    PortalFrame(
+    public PortalFrame(
         World world,
         ArrayList<Vector> interior,
         ArrayList<Vector> exterior,

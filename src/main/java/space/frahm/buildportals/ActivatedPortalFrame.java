@@ -16,7 +16,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 
 public class ActivatedPortalFrame extends PortalFrame {
     public final ArrayList<Vector> activators;
-    ActivatedPortalFrame(
+    public ActivatedPortalFrame(
         World world,
         ArrayList<Vector> interior,
         ArrayList<Vector> exterior,

@@ -1,5 +1,6 @@
 package space.frahm.buildportals;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.logging.Level;
@@ -13,7 +14,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 
 public class BuildPortals extends JavaPlugin {
     // Hacky way to turn on DEBUG for plugin only
@@ -22,7 +25,16 @@ public class BuildPortals extends JavaPlugin {
     public static FileConfiguration config;
     public static Logger logger;
     public static BuildPortals plugin;
+    public static PortalListener listener;
     public static HashSet<Material> activatorMaterials;
+
+    public BuildPortals() {
+        super();
+    }
+
+    protected BuildPortals(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
+        super(loader, description, dataFolder, file);
+    }
 
     @Override
     public void onEnable() {
@@ -59,7 +71,8 @@ public class BuildPortals extends JavaPlugin {
         }
         logger.log(logLevel, "Portal activators set to " + activatorMaterials);
 
-        getServer().getPluginManager().registerEvents(new PortalListener(), this);
+        listener = new PortalListener();
+        getServer().getPluginManager().registerEvents(listener, this);
         Portal.loadPortalsFromConfig();
         IncompletePortal.loadPortalsFromConfig();
     }

@@ -2,46 +2,73 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>frahm.justin.mcplugins</groupId>
   <artifactId>BuildPortals</artifactId>
-  <version>2.0.0</version>
+  <version>2.2.0</version>
   <name>BuildPortals</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <repositories>
     <repository>
-        <id>spigot-repo</id>
-        <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+      <id>maven</id>
+      <url>https://repo1.maven.org/maven2/</url>
+    </repository>
+    <repository>
+      <id>spigot-repo</id>
+      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+    </repository>
+    <repository>
+      <id>papermc</id>
+      <url>https://repo.papermc.io/repository/maven-public/</url>
     </repository>
   </repositories>
   <dependencies>
-  	<dependency>
-  		<groupId>org.spigotmc</groupId>
-  		<artifactId>spigot-api</artifactId>
-  		<scope>provided</scope>
-  	</dependency>
+    <!-- Test deps have to be listed first to work around Paper/Bukkit api differences in MockBukkit
+    See https://github.com/MockBukkit/MockBukkit/issues/462#issuecomment-1156574495 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.8.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.seeseemelk</groupId>
+      <artifactId>MockBukkit-v1.19</artifactId>
+      <version>3.1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <dependencyManagement>
-  	<dependencies>
-  		<dependency>
-  			<groupId>org.spigotmc</groupId>
-  			<artifactId>spigot-api</artifactId>
-  			<version>1.18.2-R0.1-SNAPSHOT</version>
-  		</dependency>
-  	</dependencies>
+    <dependencies>
+      <dependency>
+        <groupId>org.spigotmc</groupId>
+        <artifactId>spigot-api</artifactId>
+        <version>1.20.1-R0.1-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
   </dependencyManagement>
   <build>
     <pluginManagement>
       <plugins>
         <plugin>
-		  <groupId>org.apache.maven.plugins</groupId>
-		  <artifactId>maven-compiler-plugin</artifactId>
-		  <version>2.1</version>
-		  <configuration>
-		    <source>17</source>
-		    <target>17</target>
-		  </configuration>
-	    </plugin>
-       </plugins>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.1</version>
+          <configuration>
+          <source>17</source>
+          <target>17</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.2</version>
+        </plugin>
+      </plugins>
     </pluginManagement>
   </build>
 </project>
