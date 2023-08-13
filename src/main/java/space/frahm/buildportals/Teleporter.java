@@ -151,7 +151,7 @@ public class Teleporter {
         return destVehicle;
     }
 
-    private static Player teleport(Player player, Location destination) {
+    private static Player teleport(Player player, @Nonnull Location destination) {
         BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Player, ...) method");
         if (!player.hasPermission("buildportals.teleport")) {
             BuildPortals.logger.log(BuildPortals.logLevel, "Player " + player.getName() + " does not have permission to use a portal");

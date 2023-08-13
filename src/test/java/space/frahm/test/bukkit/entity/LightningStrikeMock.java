@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import io.papermc.paper.entity.TeleportFlag;
+import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
+
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.PistonMoveReaction;
@@ -27,7 +29,6 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.kyori.adventure.text.Component;
 
@@ -662,5 +663,11 @@ public class LightningStrikeMock implements LightningStrike {
     @Override
     public void setLifeTicks(int arg0) {
         // TODO Auto-generated method stub
+    }
+
+    @Override
+    public @NotNull EntityScheduler getScheduler() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getScheduler'");
     }
 }
