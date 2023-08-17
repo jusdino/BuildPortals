@@ -1,34 +1,18 @@
 package space.frahm.buildportals;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Boat;
-import org.bukkit.entity.Chicken;
-import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Horse;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Minecart;
-import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.PolarBear;
-import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.minecart.CommandMinecart;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 public class Teleporter {
 
@@ -38,23 +22,18 @@ public class Teleporter {
             List<Entity> passengers = (entity).getPassengers();
             List<Entity> destPassengers = new ArrayList<>();
             for (Entity passenger: passengers) {
-                if ((entity).removePassenger(passenger)) {
+                if (entity.removePassenger(passenger)) {
                     Entity destPassenger = teleport(passenger, destination);
                     if ( destPassenger != null) {
                         destPassengers.add(destPassenger);
                     }
                 }
             }
-            if (entity instanceof AbstractHorse) {
-                entity = teleport((AbstractHorse)entity, destination);
-            } else if (entity instanceof Minecart){
-                entity = teleport((Minecart)entity, destination);
-            } else if (entity instanceof Boat){
+            if (entity instanceof Boat){
+                // Keeps the boat floating in water
                 destination.add(0,1,0);
-                entity = teleport((Boat)entity, destination);
-            } else if (entity instanceof Pig) {
-                entity = teleport((Pig) entity, destination);
             }
+            entity = cloneTeleport(entity, destination);
             if (entity != null) {
                 for (Entity passenger: destPassengers) {
                     (entity).addPassenger(passenger);
@@ -63,94 +42,12 @@ public class Teleporter {
             return entity;
         } else if (entity instanceof Player) {
             entity = teleport((Player) entity, destination);
-        } else if (entity instanceof Cow) {
-            entity = teleport((Cow) entity, destination);
-        } else if (entity instanceof Sheep) {
-            entity = teleport((Sheep) entity, destination);
-        } else if (entity instanceof PolarBear) {
-            entity = teleport((PolarBear) entity, destination);
-        } else if (entity instanceof Chicken) {
-            entity = teleport((Chicken) entity, destination);
-        } else if (entity instanceof Villager) {
-            entity = teleport((Villager) entity, destination);
-        }
-        else {
-            //Bail on the teleport for unhandled Entities
-            return null;
+        } else {
+            entity = cloneTeleport(entity, destination);
         }
         return entity;
     }
     
-    
-    private static Minecart teleport(Minecart vehicle, Location destination) {
-        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Minecart, ...) method");
-        World world = destination.getWorld();
-        if ( world == null ) {
-            return null;
-        }
-        Minecart destVehicle = world.spawn(destination, vehicle.getClass());
-        Vector speedVec = vehicle.getVelocity();
-        double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
-        //Set minimum exit velocity
-        if (speed < 0.1) {
-            speed = 0.1;            
-        }
-
-        Vector destVec = destination.getDirection().multiply(speed);
-        destVehicle.setVelocity(destVec);
-        destVehicle.setCustomName(vehicle.getCustomName());
-        destVehicle.setDamage(vehicle.getDamage());
-        destVehicle.setGlowing(vehicle.isGlowing());
-        
-        if (vehicle instanceof InventoryHolder) {
-            try {
-                int size;
-                switch (((InventoryHolder) vehicle).getInventory().getType()) {
-                    case CHEST:    size = 27;
-                                    break;
-                    case HOPPER:    size = 5;
-                                    break;
-                    default:        size = 1;
-                                    break;
-                }
-                ItemStack[] items = Arrays.copyOf(((InventoryHolder)vehicle).getInventory().getContents(), Math.min(((InventoryHolder)vehicle).getInventory().getContents().length, size));
-                ((InventoryHolder)destVehicle).getInventory().setContents(items);
-                ((InventoryHolder)vehicle).getInventory().clear();
-            } catch (Exception exc) {
-                destVehicle.remove();
-                return null;
-            }
-        } else if (vehicle instanceof CommandMinecart) {
-            ((CommandMinecart)vehicle).setCommand(((CommandMinecart)vehicle).getCommand());
-        }
-        
-        vehicle.remove();
-        return destVehicle;
-    }
-
-    private static Boat teleport(Boat vehicle, Location destination) {
-        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Boat, ...) method");
-
-        World world = destination.getWorld();
-        if ( world == null ) {
-            return null;
-        }
-        Boat destVehicle = world.spawn(destination, vehicle.getClass());
-        Vector speedVec = vehicle.getVelocity();
-        vehicle.remove();
-        double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
-        // Spit the boat out on the other side of the portal
-        if (speed < 0.1) {
-            speed = 0.1;
-        }
-        Vector destVec = destination.getDirection().multiply(speed);
-        destVehicle.setVelocity(destVec);
-        destVehicle.setCustomName(vehicle.getCustomName());
-        destVehicle.setGlowing(vehicle.isGlowing());
-
-        return destVehicle;
-    }
-
     private static Player teleport(Player player, @Nonnull Location destination) {
         BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Player, ...) method");
         if (!player.hasPermission("buildportals.teleport")) {
@@ -186,181 +83,14 @@ public class Teleporter {
         return player;
     }
     
-    private static AbstractHorse teleport(AbstractHorse horse, Location destination) {
-        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(AbstractHorse, ...) method");
-        World world = destination.getWorld();
-        if ( world == null ) {
-            return null;
+    private static Entity cloneTeleport(Entity entity, Location destination) {
+        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Entity, ...) method");
+        Cloner cloner = new Cloner();
+        Entity destEntity = cloner.clone(entity, destination);
+        if (destEntity != null) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Removing " + entity);
+            entity.remove();
         }
-        AbstractHorse destHorse = world.spawn(destination, horse.getClass());
-        try {
-            destHorse.setAge(horse.getAge());
-            destHorse.setCustomName(horse.getCustomName());
-            destHorse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(horse.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getBaseValue());
-            destHorse.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(horse.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-            destHorse.getAttribute(Attribute.HORSE_JUMP_STRENGTH).setBaseValue(horse.getAttribute(Attribute.HORSE_JUMP_STRENGTH).getBaseValue());
-            destHorse.setJumpStrength(horse.getJumpStrength());
-            destHorse.setHealth(horse.getHealth());
-            destHorse.setMaximumAir(horse.getMaximumAir());
-            destHorse.setDomestication(horse.getDomestication());
-            destHorse.setMaxDomestication(horse.getMaxDomestication());
-            destHorse.setTamed(horse.isTamed());
-            destHorse.setGlowing(horse.isGlowing());
-
-            if (horse instanceof Horse) {
-                ((Horse)destHorse).setColor(((Horse)horse).getColor());
-                ((Horse)destHorse).setStyle(((Horse)horse).getStyle());
-                ((Horse)destHorse).getInventory().setArmor(((Horse)horse).getInventory().getArmor());
-                ((Horse)destHorse).getInventory().setSaddle(((Horse)horse).getInventory().getSaddle());
-                destHorse.setOwner(horse.getOwner());
-            } else if (horse.getInventory().contains(Material.SADDLE)) {
-                destHorse.getInventory().setItem(0, new ItemStack(Material.SADDLE));
-            }
-            horse.remove();
-        } catch (Exception exc) {
-            destHorse.remove();
-            return null;
-        }
-        
-        return destHorse;
-    }
-
-    private static Chicken teleport(Chicken chicken, Location destination) {
-        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Chicken, ...) method");
-        World world = destination.getWorld();
-        if ( world == null ) {
-            return null;
-        }
-        Chicken destChicken = world.spawn(destination, chicken.getClass());
-        try {
-            destChicken.setAge(chicken.getAge());
-            destChicken.setCustomName(chicken.getCustomName());
-            destChicken.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(destChicken.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-            destChicken.setHealth(chicken.getHealth());
-            destChicken.setGlowing(chicken.isGlowing());
-            chicken.remove();
-        } catch (Exception exc){
-            destChicken.remove();
-            return null;
-        } 
-        return destChicken;
-    }
-    
-    
-    private static Cow teleport(Cow cow, Location destination) {
-        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Cow, ...) method");
-        World world = destination.getWorld();
-        if ( world == null ) {
-            return null;
-        }
-        Cow destCow = world.spawn(destination, cow.getClass());
-        try {
-            destCow.setAge(cow.getAge());
-            destCow.setCustomName(cow.getCustomName());
-            destCow.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(destCow.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-            destCow.setHealth(cow.getHealth());
-            destCow.setGlowing(cow.isGlowing());
-            cow.remove();
-        } catch (Exception exc){
-            destCow.remove();
-            return null;
-        } 
-        return destCow;
-    }
-    
-    
-    private static Pig teleport(Pig pig, Location destination) {
-        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Pig, ...) method");
-        World world = destination.getWorld();
-        if ( world == null ) {
-            return null;
-        }
-        Pig destPig = world.spawn(destination, pig.getClass());
-        try {
-            destPig.setAge(pig.getAge());
-            destPig.setCustomName(pig.getCustomName());
-            destPig.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(destPig.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-            destPig.setHealth(pig.getHealth());
-            destPig.setSaddle(pig.hasSaddle());
-            destPig.setGlowing(pig.isGlowing());
-            pig.remove();
-        } catch (Exception exc){
-            destPig.remove();
-            return null;
-        } 
-        return destPig;
-    }
-    
-    
-    private static Sheep teleport(Sheep sheep, Location destination) {
-        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Sheep, ...) method");
-        World world = destination.getWorld();
-        if ( world == null ) {
-            return null;
-        }
-        Sheep destSheep = world.spawn(destination, sheep.getClass());
-        try {
-            destSheep.setAge(sheep.getAge());
-            destSheep.setCustomName(sheep.getCustomName());
-            destSheep.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(destSheep.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-            destSheep.setHealth(sheep.getHealth());
-            destSheep.setGlowing(sheep.isGlowing());
-            destSheep.setColor(sheep.getColor());
-            destSheep.setSheared(sheep.isSheared());
-            sheep.remove();
-        } catch (Exception exc){
-            destSheep.remove();
-            return null;
-        } 
-        return destSheep;
-    }
-    
-    private static PolarBear teleport(PolarBear polarbear, Location destination) {
-        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(PolarBear, ...) method");
-        World world = destination.getWorld();
-        if ( world == null ) {
-            return null;
-        }
-        PolarBear destPolarBear = world.spawn(destination, polarbear.getClass());
-        try {
-            destPolarBear.setAge(polarbear.getAge());
-            destPolarBear.setCustomName(polarbear.getCustomName());
-            destPolarBear.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(destPolarBear.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-            destPolarBear.setHealth(polarbear.getHealth());
-            destPolarBear.setGlowing(polarbear.isGlowing());
-            polarbear.remove();
-        } catch (Exception exc){
-            destPolarBear.remove();
-            return null;
-        } 
-        return destPolarBear;
-    }
-
-    private static Villager teleport(Villager villager, Location destination) {
-        BuildPortals.logger.log(BuildPortals.logLevel, "Entering teleport(Villager, ...) method");
-        World world = destination.getWorld();
-        if ( world == null ) {
-            return null;
-        }
-        Villager destVillager = world.spawn(destination, villager.getClass());
-        
-        try {
-            destVillager.setAge(villager.getAge());
-            destVillager.setCustomName(villager.getCustomName());
-            destVillager.setHealth(villager.getHealth());
-            destVillager.setGlowing(villager.isGlowing());
-            destVillager.setProfession(villager.getProfession());
-            destVillager.getInventory().setContents(villager.getInventory().getContents());
-            destVillager.setRecipes(villager.getRecipes());
-            destVillager.setVillagerExperience(villager.getVillagerExperience());
-            destVillager.setVillagerLevel(villager.getVillagerLevel());
-            destVillager.setVillagerType(villager.getVillagerType());
-
-            villager.remove();
-        } catch (Exception exc) {
-            destVillager.remove();
-            return null;
-        }
-        return destVillager;
+        return destEntity;
     }
 }

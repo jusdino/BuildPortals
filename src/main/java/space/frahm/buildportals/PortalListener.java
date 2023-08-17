@@ -108,6 +108,7 @@ public class PortalListener implements Listener {
                 // Have to ensure that cloned entities area also captured in alreadyOnPortal
                 if (teleportedVehicle != null) {
                     alreadyOnPortal.add(teleportedVehicle.getUniqueId());
+                    alreadyOnPortal.remove(vehicle.getUniqueId());
                 }
             }
         }.runTaskLater(BuildPortals.plugin, 1);
