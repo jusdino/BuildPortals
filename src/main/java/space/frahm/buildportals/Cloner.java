@@ -4,25 +4,45 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.Allay;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.Breedable;
 import org.bukkit.entity.Camel;
+import org.bukkit.entity.Cat;
 import org.bukkit.entity.ChestedHorse;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Frog;
 import org.bukkit.entity.Horse;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Minecart;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Parrot;
 import org.bukkit.entity.Pig;
+import org.bukkit.entity.PigZombie;
+import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Shulker;
+import org.bukkit.entity.Sittable;
+import org.bukkit.entity.Sniffer;
+import org.bukkit.entity.Snowman;
+import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.entity.Villager;
+import org.bukkit.entity.Wolf;
+import org.bukkit.entity.Zombie;
+import org.bukkit.entity.ZombieVillager;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.entity.minecart.HopperMinecart;
 import org.bukkit.entity.minecart.PoweredMinecart;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.loot.Lootable;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
 
@@ -39,20 +59,52 @@ public class Cloner {
             copier = new BoatAttributeCopier();
         } else if (entity instanceof Villager) {
             copier = new VillagerAttributeCopier();
+        } else if (entity instanceof AbstractVillager) {
+            copier = new AbstractVillagerAttributeCopier();
         } else if (entity instanceof Horse) {
             copier = new HorseAttributeCopier();
         } else if (entity instanceof Llama) {
             copier = new LlamaAttributeCopier();
+        } else if (entity instanceof AbstractHorse) {
+            copier = new AbstractHorseAttributeCopier();
         } else if (entity instanceof Sheep) {
             copier = new SheepAttributeCopier();
         } else if (entity instanceof Pig) {
             copier = new PigAttributeCopier();
         } else if (entity instanceof Camel) {
             copier = new CamelAttributeCopier();
-        } else if (entity instanceof AbstractHorse) {
-            copier = new AbstractHorseAttributeCopier();
+        } else if (entity instanceof Frog) {
+            copier = new FrogAttributeCopier();
+        } else if (entity instanceof Sniffer) {
+            copier = new SnifferAttributeCopier();
+        } else if (entity instanceof Cat) {
+            copier = new CatAttributeCopier();
+        } else if (entity instanceof Parrot) {
+            copier = new ParrotAttributeCopier();
+        } else if (entity instanceof Wolf) {
+            copier = new WolfAttributeCopier();
         } else if (entity instanceof Animals) {
             copier = new AnimalAttributeCopier();
+        } else if (entity instanceof Allay) {
+            copier = new AllayAttributeCopier();
+        } else if (entity instanceof Shulker) {
+            copier = new ShulkerAttributeCopier();
+        } else if (entity instanceof Creeper) {
+            copier = new CreeperAttributeCopier();
+        } else if (entity instanceof ZombieVillager) {
+            copier = new ZombieVillagerAttributeCopier();
+        } else if (entity instanceof PigZombie) {
+            copier = new PigZombieAttributeCopier();
+        } else if (entity instanceof Zombie) {
+            copier = new ZombieAttributeCopier();
+        } else if (entity instanceof IronGolem) {
+            copier = new IronGolemAttributeCopier();
+        } else if (entity instanceof Snowman) {
+            copier = new SnowmanAttributeCopier();
+        } else if (entity instanceof Raider) {
+            copier = new RaiderAttributeCopier();
+        } else if (entity instanceof Mob) {
+            copier = new MobAttributeCopier();
         } else {
             copier = new EntityAttributeCopier();
         }
@@ -82,12 +134,14 @@ public class Cloner {
             Vehicle destVehicle = (Vehicle) destEntity;
             Vehicle vehicle = (Vehicle) entity;
 
+            // Calculate speed going into the portal
             Vector speedVec = vehicle.getVelocity();
             double speed = Math.sqrt(speedVec.getX()*speedVec.getX() + speedVec.getY()*speedVec.getY() + speedVec.getZ()*speedVec.getZ());
-            //Set minimum exit velocity
+            // Set minimum exit velocity
             if (speed < 0.1) {
                 speed = 0.1;
             }
+            // Apply speed to new unit vector for portal exit
             Vector destVec = destination.getDirection().multiply(speed);
             destVehicle.setVelocity(destVec);
         }
@@ -102,27 +156,7 @@ public class Cloner {
             }
             InventoryHolder destInventoryHolder = (InventoryHolder) destEntity;
             InventoryHolder inventoryHolder = (InventoryHolder) entity;
-            // Sometimes, Inventories don't seem to be the size expected, so we do this little dance to be
-            // sure we're only copying over the expected items
-            Inventory inventory = ((InventoryHolder)inventoryHolder).getInventory();
-            BuildPortals.logger.log(BuildPortals.logLevel, "Inventory size: " + inventory.getSize());
-            BuildPortals.logger.log(BuildPortals.logLevel, "Inventory contents length: " + inventory.getContents().length);
-            BuildPortals.logger.log(BuildPortals.logLevel, "Inventory type: " + inventory.getType().name() + ", " + inventory.getType());
-            BuildPortals.logger.log(BuildPortals.logLevel, "Inventory type default size: " + inventory.getType().getDefaultSize());
-            BuildPortals.logger.log(BuildPortals.logLevel, "Inventory contents: " + inventory.getContents());
-            for (ItemStack item: inventory.getContents()) {
-                if (item != null) {
-                    BuildPortals.logger.log(BuildPortals.logLevel, "Inventory contents type: " + item.getType());
-                    BuildPortals.logger.log(BuildPortals.logLevel, "Inventory contents count: " + item.getAmount());
-                } else {
-                    BuildPortals.logger.log(BuildPortals.logLevel, "Inventory contents type: null");
-                }
-            }
-            // ItemStack[] items = Arrays.copyOf(
-            //     inventory.getContents(),
-            //     Math.min(inventory.getContents().length, inventory.getSize())
-            // );
-            ItemStack[] items = inventory.getContents().clone();
+            ItemStack[] items = ((InventoryHolder)inventoryHolder).getInventory().getContents().clone();
             destInventoryHolder.getInventory().setContents(items);
             inventoryHolder.getInventory().clear();
         }
@@ -156,7 +190,228 @@ public class Cloner {
         }
     }
 
-    private class AnimalAttributeCopier extends EntityAttributeCopier {
+    private class MobAttributeCopier extends EntityAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering MobAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Mob) || !(entity instanceof Mob)) {
+                throw new RuntimeException("destEntity and entity must both be Mobs");
+            }
+            Mob destMob = (Mob) destEntity;
+            Mob mob = (Mob) entity;
+
+            super.copyAttributes(mob, destMob, destination);
+            // LivingEntity
+            destMob.addPotionEffects(mob.getActivePotionEffects());
+            destMob.setAI(mob.hasAI());
+            destMob.setArrowCooldown(mob.getArrowCooldown());
+            destMob.setArrowsInBody(mob.getArrowsInBody());
+            destMob.setCanPickupItems(mob.getCanPickupItems());
+            destMob.setCollidable(mob.isCollidable());
+            destMob.setGliding(mob.isGliding());
+            destMob.setInvisible(mob.isInvisible());
+            destMob.setLastDamage(mob.getLastDamage());
+            destMob.setMaximumAir(mob.getMaximumAir());
+            destMob.setMaximumNoDamageTicks(mob.getMaximumNoDamageTicks());
+            destMob.setNoActionTicks(mob.getNoActionTicks());
+            destMob.setNoDamageTicks(mob.getNoDamageTicks());
+            destMob.setRemainingAir(mob.getRemainingAir());
+            destMob.setRemoveWhenFarAway(mob.getRemoveWhenFarAway());
+            destMob.setSwimming(mob.isSwimming());
+            destMob.getEquipment().setArmorContents(mob.getEquipment().getArmorContents());
+            destMob.getEquipment().setItemInMainHand(mob.getEquipment().getItemInMainHand());
+            destMob.getEquipment().setItemInOffHand(mob.getEquipment().getItemInOffHand());
+
+            // Damageable
+            destMob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+            destMob.setHealth(mob.getHealth());
+            destMob.setAbsorptionAmount(mob.getAbsorptionAmount());
+
+            // Mob
+            destMob.setAware(mob.isAware());
+            destMob.setTarget(mob.getTarget());
+
+            if ((mob instanceof Lootable) && (destMob instanceof Lootable)) {
+                destMob.setSeed(mob.getSeed());
+                destMob.setLootTable(mob.getLootTable());
+            }
+        }
+    }
+
+    private class RaiderAttributeCopier extends MobAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering RaiderAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Raider) || !(entity instanceof Raider)) {
+                throw new RuntimeException("destEntity and entity must both be Raiders");
+            }
+            Raider destRaider = (Raider) destEntity;
+            Raider raider = (Raider) entity;
+
+            super.copyAttributes(raider, destRaider, destination);
+            destRaider.setCanJoinRaid(raider.isCanJoinRaid());
+            destRaider.setCelebrating(raider.isCelebrating());
+            destRaider.setPatrolLeader(raider.isPatrolLeader());
+            destRaider.setPatrolTarget(raider.getPatrolTarget());
+            destRaider.setRaid(raider.getRaid());
+            destRaider.setTicksOutsideRaid(raider.getTicksOutsideRaid());
+            destRaider.setWave(raider.getWave());
+        }
+    }
+
+    private class AllayAttributeCopier extends MobAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering AllayAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Allay) || !(entity instanceof Allay)) {
+                throw new RuntimeException("destEntity and entity must both be Allays");
+            }
+            Allay destAllay = (Allay) destEntity;
+            Allay allay = (Allay) entity;
+
+            super.copyAttributes(allay, destAllay, destination);
+            destAllay.setCanDuplicate(allay.canDuplicate());
+            destAllay.setDuplicationCooldown(allay.getDuplicationCooldown());
+
+        }
+    }
+
+    private class ShulkerAttributeCopier extends MobAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering ShulkerAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Shulker) || !(entity instanceof Shulker)) {
+                throw new RuntimeException("destEntity and entity must both be Shulkers");
+            }
+            Shulker destShulker = (Shulker) destEntity;
+            Shulker shulker = (Shulker) entity;
+
+            super.copyAttributes(shulker, destShulker, destination);
+            destShulker.setAttachedFace(shulker.getAttachedFace());
+            destShulker.setPeek(shulker.getPeek());
+            destShulker.setColor(shulker.getColor());
+        }
+    }
+
+    private class CreeperAttributeCopier extends MobAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering CreeperAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Creeper) || !(entity instanceof Creeper)) {
+                throw new RuntimeException("destEntity and entity must both be Creepers");
+            }
+            Creeper destCreeper = (Creeper) destEntity;
+            Creeper creeper = (Creeper) entity;
+
+            super.copyAttributes(creeper, destCreeper, destination);
+            destCreeper.setExplosionRadius(creeper.getExplosionRadius());
+            destCreeper.setFuseTicks(creeper.getFuseTicks());
+            destCreeper.setMaxFuseTicks(creeper.getMaxFuseTicks());
+            destCreeper.setPowered(creeper.isPowered());
+        }
+    }
+
+    private class IronGolemAttributeCopier extends MobAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering IronGolemAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof IronGolem) || !(entity instanceof IronGolem)) {
+                throw new RuntimeException("destEntity and entity must both be IronGolems");
+            }
+            IronGolem destIronGolem = (IronGolem) destEntity;
+            IronGolem golem = (IronGolem) entity;
+
+            super.copyAttributes(golem, destIronGolem, destination);
+            destIronGolem.setPlayerCreated(golem.isPlayerCreated());
+        }
+    }
+
+    private class SnowmanAttributeCopier extends MobAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering SnowmanAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Snowman) || !(entity instanceof Snowman)) {
+                throw new RuntimeException("destEntity and entity must both be Snowmans");
+            }
+            Snowman destSnowman = (Snowman) destEntity;
+            Snowman golem = (Snowman) entity;
+
+            super.copyAttributes(golem, destSnowman, destination);
+            destSnowman.setDerp(golem.isDerp());
+        }
+    }
+
+    private class ZombieAttributeCopier extends MobAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering ZombieAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Zombie) || !(entity instanceof Zombie)) {
+                throw new RuntimeException("destEntity and entity must both be Zombies");
+            }
+            Zombie destZombie = (Zombie) destEntity;
+            Zombie zombie = (Zombie) entity;
+
+            super.copyAttributes(zombie, destZombie, destination);
+            destZombie.setCanBreakDoors(zombie.canBreakDoors());
+            if (zombie.isConverting()) {
+                destZombie.setConversionTime(zombie.getConversionTime());
+            }
+        }
+    }
+
+    private class ZombieVillagerAttributeCopier extends ZombieAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering ZombieVillagerAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof ZombieVillager) || !(entity instanceof ZombieVillager)) {
+                throw new RuntimeException("destEntity and entity must both be ZombieVillagers");
+            }
+            ZombieVillager destZombie = (ZombieVillager) destEntity;
+            ZombieVillager zombie = (ZombieVillager) entity;
+
+            super.copyAttributes(zombie, destZombie, destination);
+            destZombie.setConversionPlayer(zombie.getConversionPlayer());
+            destZombie.setVillagerProfession(zombie.getVillagerProfession());
+            destZombie.setVillagerType(zombie.getVillagerType());
+        }
+    }
+
+    private class PigZombieAttributeCopier extends ZombieAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering PigZombieAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof PigZombie) || !(entity instanceof PigZombie)) {
+                throw new RuntimeException("destEntity and entity must both be PigZombies");
+            }
+            PigZombie destZombie = (PigZombie) destEntity;
+            PigZombie zombie = (PigZombie) entity;
+
+            super.copyAttributes(zombie, destZombie, destination);
+            destZombie.setAnger(zombie.getAnger());
+        }
+    }
+
+    private class BreedableAttributeCopier extends MobAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering BreedableAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Breedable) || !(entity instanceof Breedable)) {
+                throw new RuntimeException("destEntity and entity must both be Breedable");
+            }
+            Breedable destBreedable = (Breedable) destEntity;
+            Breedable breedable = (Breedable) entity;
+
+            super.copyAttributes(breedable, destBreedable, destination);
+            // Ageable
+            destBreedable.setAge(breedable.getAge());
+
+            // Breedable
+            destBreedable.setBreed(breedable.canBreed());
+            destBreedable.setAgeLock(breedable.getAgeLock());
+        }
+    }
+
+    private class AnimalAttributeCopier extends BreedableAttributeCopier {
         @Override
         public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
             BuildPortals.logger.log(BuildPortals.logLevel, "Entering AnimalAttributeCopier.copyAttributes() method");
@@ -167,39 +422,112 @@ public class Cloner {
             Animals animal = (Animals) entity;
 
             super.copyAttributes(animal, destAnimal, destination);
-            // LivingEntity
-            destAnimal.setAI(animal.hasAI());
-            destAnimal.setArrowCooldown(animal.getArrowCooldown());
-            destAnimal.setArrowsInBody(animal.getArrowsInBody());
-            destAnimal.setCanPickupItems(animal.getCanPickupItems());
-            destAnimal.setCollidable(animal.isCollidable());
-            destAnimal.setGliding(animal.isGliding());
-            destAnimal.setInvisible(animal.isInvisible());
-            destAnimal.setLastDamage(animal.getLastDamage());
-            destAnimal.setMaximumAir(animal.getMaximumAir());
-            destAnimal.setMaximumNoDamageTicks(animal.getMaximumNoDamageTicks());
-            destAnimal.setNoActionTicks(animal.getNoActionTicks());
-            destAnimal.setNoDamageTicks(animal.getNoDamageTicks());
-            destAnimal.setRemainingAir(animal.getRemainingAir());
-            destAnimal.setRemoveWhenFarAway(animal.getRemoveWhenFarAway());
-            destAnimal.setSwimming(animal.isSwimming());
-
-            // Ageable
-            destAnimal.setAge(animal.getAge());
-
-            // Breedable
-            destAnimal.setBreed(animal.canBreed());
-            destAnimal.setAgeLock(animal.getAgeLock());
-
-            // Damageable
-            destAnimal.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(animal.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-            destAnimal.setHealth(animal.getHealth());
-            destAnimal.setAbsorptionAmount(animal.getAbsorptionAmount());
-
-            // Animals
             destAnimal.setBreedCause(animal.getBreedCause());
             destAnimal.setLoveModeTicks(animal.getLoveModeTicks());
+        }
+    }
 
+    private class FrogAttributeCopier extends AnimalAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering FrogAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Frog) || !(entity instanceof Frog)) {
+                throw new RuntimeException("destEntity and entity must both be Frogs");
+            }
+            Frog destFrog = (Frog) destEntity;
+            Frog frog = (Frog) entity;
+
+            super.copyAttributes(frog, destFrog, destination);
+            destFrog.setTongueTarget(frog.getTongueTarget());
+            destFrog.setVariant(frog.getVariant());
+        }
+    }
+
+    private class SnifferAttributeCopier extends AnimalAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering SnifferAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Sniffer) || !(entity instanceof Sniffer)) {
+                throw new RuntimeException("destEntity and entity must both be Sniffers");
+            }
+            Sniffer destSniffer = (Sniffer) destEntity;
+            Sniffer sniffer = (Sniffer) entity;
+
+            super.copyAttributes(sniffer, destSniffer, destination);
+            destSniffer.setState(sniffer.getState());
+            for (Location loc: sniffer.getExploredLocations()) {
+                destSniffer.addExploredLocation(loc);
+            }
+        }
+    }
+
+    private class TameSitAttributeCopier extends AnimalAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering TameSitAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Tameable) || !(entity instanceof Tameable)) {
+                throw new RuntimeException("destEntity and entity must both be Tameable");
+            }
+            if (!(destEntity instanceof Sittable) || !(entity instanceof Sittable)) {
+                throw new RuntimeException("destEntity and entity must both be Sittable");
+            }
+            Tameable destTameable = (Tameable) destEntity;
+            Tameable tameable = (Tameable) entity;
+
+            super.copyAttributes(tameable, destTameable, destination);
+            // Sitable
+            ((Sittable)destTameable).setSitting(((Sittable)destTameable).isSitting());
+            // Tameable
+            destTameable.setOwner(tameable.getOwner());
+            destTameable.setTamed(tameable.isTamed());
+        }
+    }
+
+    private class CatAttributeCopier extends TameSitAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering CatAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Cat) || !(entity instanceof Cat)) {
+                throw new RuntimeException("destEntity and entity must both be Cats");
+            }
+            Cat destCat = (Cat) destEntity;
+            Cat cat = (Cat) entity;
+
+            super.copyAttributes(cat, destCat, destination);
+            destCat.setCatType(cat.getCatType());
+            destCat.setCollarColor(cat.getCollarColor());
+        }
+    }
+
+    private class ParrotAttributeCopier extends TameSitAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering ParrotAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Parrot) || !(entity instanceof Parrot)) {
+                throw new RuntimeException("destEntity and entity must both be Parrots");
+            }
+            Parrot destParrot = (Parrot) destEntity;
+            Parrot parrot = (Parrot) entity;
+
+            super.copyAttributes(parrot, destParrot, destination);
+            destParrot.setVariant(parrot.getVariant());
+        }
+    }
+
+    private class WolfAttributeCopier extends TameSitAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering WolfAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof Wolf) || !(entity instanceof Wolf)) {
+                throw new RuntimeException("destEntity and entity must both be Wolfs");
+            }
+            Wolf destWolf = (Wolf) destEntity;
+            Wolf wolf = (Wolf) entity;
+
+            super.copyAttributes(wolf, destWolf, destination);
+            destWolf.setAngry(wolf.isAngry());
+            destWolf.setCollarColor(wolf.getCollarColor());
+            destWolf.setInterested(wolf.isInterested());
         }
     }
 
@@ -279,8 +607,8 @@ public class Cloner {
             super.copyAttributes(horse, destHorse, destination);
             destHorse.setColor(horse.getColor());
             destHorse.setStyle(horse.getStyle());
-            destHorse.getInventory().setArmor(horse.getInventory().getArmor());
-            destHorse.getInventory().setSaddle(horse.getInventory().getSaddle());
+            // destHorse.getInventory().setArmor(horse.getInventory().getArmor());
+            // destHorse.getInventory().setSaddle(horse.getInventory().getSaddle());
         }
     }
 
@@ -332,7 +660,22 @@ public class Cloner {
         }
     }
 
-    private class VillagerAttributeCopier extends AnimalAttributeCopier {
+    private class AbstractVillagerAttributeCopier extends BreedableAttributeCopier {
+        @Override
+        public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
+            BuildPortals.logger.log(BuildPortals.logLevel, "Entering AbstractVillagerAttributeCopier.copyAttributes() method");
+            if (!(destEntity instanceof AbstractVillager) || !(entity instanceof AbstractVillager)) {
+                throw new RuntimeException("destEntity and entity must both be AbstractVillagers");
+            }
+            AbstractVillager destAbstractVillager = (AbstractVillager) destEntity;
+            AbstractVillager abstractVillager = (AbstractVillager) entity;
+
+            super.copyAttributes(abstractVillager, destAbstractVillager, destination);
+            destAbstractVillager.setRecipes(abstractVillager.getRecipes());
+        }
+    }
+
+    private class VillagerAttributeCopier extends AbstractVillagerAttributeCopier {
         @Override
         public void copyAttributes(Entity entity, Entity destEntity, Location destination) {
             BuildPortals.logger.log(BuildPortals.logLevel, "Entering VillagerAttributeCopier.copyAttributes() method");
@@ -343,11 +686,11 @@ public class Cloner {
             Villager villager = (Villager) entity;
 
             destVillager.setProfession(villager.getProfession());
-            destVillager.getInventory().setContents(villager.getInventory().getContents());
-            destVillager.setRecipes(villager.getRecipes());
             destVillager.setVillagerExperience(villager.getVillagerExperience());
             destVillager.setVillagerLevel(villager.getVillagerLevel());
             destVillager.setVillagerType(villager.getVillagerType());
+            // Apply recipes after setting villager profession, etc
+            super.copyAttributes(villager, destVillager, destination);
         }
     }
 
