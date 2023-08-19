@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -75,7 +73,6 @@ public abstract class AbstractPortal {
         }
     }
 
-    @Nullable
     public static boolean isInAPortal(HashMap<String, HashSet<Vector>> interiors, Location loc) {
         /* This method will be called a lot on *MoveEvents so we want it to be very fast.
         * We maintain a HashSet of all portal blocks just so that we can return the

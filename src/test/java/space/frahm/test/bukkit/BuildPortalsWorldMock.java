@@ -3,8 +3,6 @@ package space.frahm.test.bukkit;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.annotation.Nonnull;
-
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
@@ -22,7 +20,7 @@ public class BuildPortalsWorldMock extends WorldMock {
         return new ArrayList<Entity>();
     }
 
-    public LightningStrike strikeLightningEffect(@Nonnull Location location) {
+    public LightningStrike strikeLightningEffect(Location location) {
         return new LightningStrikeMock();
     }
 
